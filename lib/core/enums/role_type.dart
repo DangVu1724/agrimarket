@@ -1,0 +1,1 @@
+enum RoleType { buyer, seller }
