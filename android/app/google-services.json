@@ -12,7 +12,12 @@
           "package_name": "com.example.agrimarket"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "739235439031-rtu60cpj8ps6c9of58c2fs3rtctmnl5p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAF9LKr9OJxKgbEyV_KupR68NzyDOxD10k"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "739235439031-rtu60cpj8ps6c9of58c2fs3rtctmnl5p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

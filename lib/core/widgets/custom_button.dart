@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 
 
 class CustomButton extends StatelessWidget {
-  final String? text; // Nội dung text (nếu không dùng child)
-  final Widget? child; // Nội dung tùy chỉnh (icon + text)
-  final VoidCallback? onPressed; // Callback khi nhấn
-  final bool isLoading; // Trạng thái loading
+  final String? text; 
+  final Widget? child; 
+  final VoidCallback? onPressed; 
+  final bool isLoading; 
 
   const CustomButton({
     super.key,
@@ -28,7 +28,7 @@ class CustomButton extends StatelessWidget {
           backgroundColor: AppColors.primary, 
           foregroundColor: Colors.white, 
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24), // Bo góc
+            borderRadius: BorderRadius.circular(24), 
           ),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         ),

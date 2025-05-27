@@ -49,6 +49,7 @@ dependencies:
   latlong2: ^0.9.1
   app_links: ^6.4.0
   debounce_throttle: ^2.0.0
+  flutterfire_cli: ^1.2.0
 
 dev_dependencies:
   flutter_test:
