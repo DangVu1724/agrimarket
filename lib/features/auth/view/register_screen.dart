@@ -1,5 +1,8 @@
+import 'package:agrimarket/app/controllers/auth_controller.dart';
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/core/widgets/custom_text_form_field.dart';
+import 'package:agrimarket/core/widgets/social_icon.dart';
+import 'package:agrimarket/features/auth/viewmodel/login_vm.dart';
 import 'package:agrimarket/features/auth/viewmodel/register_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,6 +14,8 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final RegisterViewModel _viewModel = Get.find<RegisterViewModel>();
+    final AuthController _authController = Get.find();
+    final LoginViewModel loginViewModel = Get.find();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -163,46 +168,14 @@ class RegisterScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50),
-                          border: Border.all(color: const Color(0xFFD6D6D6)),
-                        ),
-                        child: GestureDetector(
-                          onTap: () {
-                            Get.snackbar(
-                              'Thông báo',
-                              'Đăng ký bằng Google sẽ được thêm sau',
-                            );
-                          },
-                          child: const Icon(
-                            FontAwesomeIcons.google,
-                            color: Colors.red,
-                            size: 30,
-                          ),
-                        ),
+                      GestureDetector(
+                        onTap: () => loginViewModel.socialLoginGoogle("Google"),
+                        child: socialIcon("assets/images/Google.png"),
                       ),
-                      const SizedBox(width: 26),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50),
-                          border: Border.all(color: const Color(0xFFD6D6D6)),
-                        ),
-                        child: GestureDetector(
-                          onTap: () {
-                            Get.snackbar(
-                              'Thông báo',
-                              'Đăng ký bằng Facebook sẽ được thêm sau',
-                            );
-                          },
-                          child: const Icon(
-                            FontAwesomeIcons.facebook,
-                            color: Colors.blue,
-                            size: 30,
-                          ),
-                        ),
+                      const SizedBox(width: 16),
+                      GestureDetector(
+                        onTap: () => loginViewModel.socialLogin("Facebook"),
+                        child: socialIcon("assets/images/Facebook.png"),
                       ),
                     ],
                   ),

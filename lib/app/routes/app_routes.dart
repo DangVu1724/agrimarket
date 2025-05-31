@@ -8,6 +8,8 @@ class AppRoutes {
   static const String roleSelection = '/role-selection';
   static const String addAddress = '/add-address';
   static const String resetPassword = '/reset-password';
+  static const String createStoreInfo = '/create-store-info';
+  static const String createStoreAddress = '/create-store-address';
   static const String buyerHome = '/buyer-home';
   static const String sellerHome = '/seller-home';
   static const String profile = '/profile';

@@ -1,4 +1,5 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
+import 'package:agrimarket/core/widgets/social_icon.dart';
 import 'package:agrimarket/features/auth/viewmodel/forgot_password_vm.dart';
 import 'package:agrimarket/features/auth/viewmodel/login_vm.dart';
 import 'package:flutter/material.dart';
@@ -133,13 +134,13 @@ class LoginScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       GestureDetector(
-                        onTap: () => viewModel.socialLogin("Google"),
-                        child: _socialIcon("assets/images/Google.png"),
+                        onTap: () => viewModel.socialLoginGoogle("Google"),
+                        child: socialIcon("assets/images/Google.png"),
                       ),
                       const SizedBox(width: 16),
                       GestureDetector(
                         onTap: () => viewModel.socialLogin("Facebook"),
-                        child: _socialIcon("assets/images/Facebook.png"),
+                        child: socialIcon("assets/images/Facebook.png"),
                       ),
                     ],
                   ),
@@ -173,26 +174,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _socialIcon(String assetPath) {
-    return Container(
-      padding: const EdgeInsets.all(0),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(50),
-        border: Border.all(color: Color(0xFFD6D6D6)),
-      ),
-      child: Image.asset(
-        assetPath,
-        width: 40,
-        height: 40,
-        errorBuilder: (context, error, stackTrace) => const Icon(
-          Icons.error,
-          size: 40,
-          color: AppColors.primary,
-        ),
-      ),
-    );
-  }
+
 
  void showForgotPasswordDialog() {
   final ForgotPasswordViewModel controller = Get.put(ForgotPasswordViewModel());

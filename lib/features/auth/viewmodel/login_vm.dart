@@ -57,8 +57,16 @@ class LoginViewModel extends GetxController {
     }
   }
 
+  void socialLoginGoogle(String provider) {
+    _authController.signInWithGoogle();
+  }
+
   void socialLogin(String provider) {
-    Get.snackbar('Thông báo', '$provider login đang phát triển');
+    Get.snackbar(
+      'Thông báo',
+      'Chức năng này hiện chưa được hỗ trợ.',
+      snackPosition: SnackPosition.BOTTOM,
+    );
   }
 
   void navigateToRegister() {

@@ -1,0 +1,95 @@
+class BuyerModel {
+  final String uid;
+  final List<String> favoriteStoreIds;
+  final List<Address> addresses;
+  final List<Review> reviews;
+  final List<String> orderIds;
+
+  BuyerModel({
+    required this.uid,
+    this.favoriteStoreIds = const [],
+    this.addresses = const [],
+    this.reviews = const [],
+    this.orderIds = const [],
+  });
+
+  factory BuyerModel.fromJson(Map<String, dynamic> json) {
+    return BuyerModel(
+      uid: json['uid'],
+      favoriteStoreIds: List<String>.from(json['favoriteStoreIds'] ?? []),
+      addresses: (json['addresses'] as List? ?? [])
+          .map((e) => Address.fromJson(e))
+          .toList(),
+      reviews: (json['reviews'] as List? ?? [])
+          .map((e) => Review.fromJson(e))
+          .toList(),
+      orderIds: List<String>.from(json['orderIds'] ?? []),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'uid': uid,
+        'favoriteStoreIds': favoriteStoreIds,
+        'addresses': addresses.map((e) => e.toJson()).toList(),
+        'reviews': reviews.map((e) => e.toJson()).toList(),
+        'orderIds': orderIds,
+      };
+}
+
+
+class Address {
+  final String? label;
+  final String address;
+  final double? latitude;
+  final double? longitude;
+
+  Address({
+    required this.label,
+    required this.address,
+    this.latitude,
+    this.longitude,
+  });
+
+  factory Address.fromJson(Map<String, dynamic> json) => Address(
+        label: json['label'],
+        address: json['address'],
+        latitude: (json['latitude'] as num?)?.toDouble(),
+        longitude: (json['longitude'] as num?)?.toDouble(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'label': label,
+        'address': address,
+        'latitude': latitude,
+        'longitude': longitude,
+      };
+}
+
+
+class Review {
+  final String userId;
+  final double rating;
+  final String comment;
+  final DateTime createdAt;
+
+  Review({
+    required this.userId,
+    required this.rating,
+    required this.comment,
+    required this.createdAt,
+  });
+
+  factory Review.fromJson(Map<String, dynamic> json) => Review(
+        userId: json['userId'],
+        rating: (json['rating'] as num).toDouble(),
+        comment: json['comment'],
+        createdAt: DateTime.parse(json['createdAt']),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'userId': userId,
+        'rating': rating,
+        'comment': comment,
+        'createdAt': createdAt.toIso8601String(),
+      };
+}

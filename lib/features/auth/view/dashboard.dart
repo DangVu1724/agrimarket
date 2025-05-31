@@ -1,3 +1,4 @@
+import 'package:agrimarket/app/controllers/auth_controller.dart';
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,6 +10,7 @@ class Dashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AuthController _authController = Get.find();
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Center(
@@ -128,7 +130,9 @@ class Dashboard extends StatelessWidget {
             const SizedBox(height: 40),
             ElevatedButton.icon(
               
-              onPressed: () {},
+              onPressed: () {
+                _authController.signInWithGoogle();
+              },
               icon: Image.asset(
                 'assets/images/Google.png',
                 width: 24,

@@ -67,7 +67,7 @@ class HomeBuyerScreen extends StatelessWidget {
           ),
           Container(
             width: 100,
-            child: Placeholder(), // Thay bằng ảnh rau củ
+            child: Placeholder(), 
           )
         ],
       ),

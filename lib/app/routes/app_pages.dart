@@ -7,6 +7,9 @@ import 'package:agrimarket/features/auth/view/role_selection_screen.dart';
 import 'package:agrimarket/features/auth/view/splash_screen.dart';
 import 'package:agrimarket/features/buyer/view/add_address.dart';
 import 'package:agrimarket/features/buyer/view/home_screen.dart';
+import 'package:agrimarket/features/seller/view/create_store_address.dart';
+import 'package:agrimarket/features/seller/view/create_store_info.dart';
+import 'package:agrimarket/features/seller/view/seller_home.dart';
 import 'package:get/get.dart';
 import '../../features/auth/view/login_screen.dart';
 import 'app_routes.dart';
@@ -50,6 +53,16 @@ class AppPages {
       binding: AuthBinding(),
     ),
     GetPage(
+      name: AppRoutes.createStoreInfo,
+      page: () => StoreInfoScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.createStoreAddress,
+      page: () => StoreAddressScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
       name: AppRoutes.emailVerify,
       page: () => EmailVerificationScreen(),
       binding: AuthBinding(),
@@ -59,10 +72,10 @@ class AppPages {
       page: () =>  HomeBuyerScreen(),
       binding: AuthBinding(),
     ),
-    // GetPage(
-    //   name: AppRoutes.sellerHome,
-    //   page: () => const HomeSellerScreen(),
-    //   binding: AuthBinding(),
-    // ),
+    GetPage(
+      name: AppRoutes.sellerHome,
+      page: () => const SellerHomeScreen(),
+      binding: AuthBinding(),
+    ),
   ];
 }

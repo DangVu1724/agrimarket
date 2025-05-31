@@ -16,7 +16,7 @@ class RoleSelectionScreen extends StatelessWidget {
     if (role == 'buyer') {
       Get.offNamed(AppRoutes.addAddress);
     } else if (role == 'seller') {
-      Get.offNamed(AppRoutes.sellerHome);
+      Get.offNamed(AppRoutes.createStoreInfo);
     }
   }
 

@@ -27,7 +27,6 @@ class ResetPasswordViewModel extends GetxController {
       User? user = FirebaseAuth.instance.currentUser;
 
       if (user == null) {
-        // Người dùng chưa đăng nhập, có thể yêu cầu đăng nhập lại hoặc xử lý riêng
         Get.snackbar('Lỗi', 'Bạn cần đăng nhập lại để đổi mật khẩu');
         return;
       }
@@ -36,7 +35,7 @@ class ResetPasswordViewModel extends GetxController {
       await FirebaseAuth.instance.signOut();
 
       Get.snackbar('Thành công', 'Đổi mật khẩu thành công, vui lòng đăng nhập lại');
-      Get.offAllNamed(AppRoutes.login); // Chuyển đến trang đăng nhập
+      Get.offAllNamed(AppRoutes.login);
 
     } on FirebaseAuthException catch (e) {
       Get.snackbar('Lỗi', e.message ?? 'Có lỗi xảy ra');
