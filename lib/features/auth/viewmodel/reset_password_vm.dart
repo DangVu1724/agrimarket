@@ -35,7 +35,7 @@ class ResetPasswordViewModel extends GetxController {
       await FirebaseAuth.instance.signOut();
 
       Get.snackbar('Thành công', 'Đổi mật khẩu thành công, vui lòng đăng nhập lại');
-      Get.offAllNamed(AppRoutes.login);
+      Get.toNamed(AppRoutes.login);
 
     } on FirebaseAuthException catch (e) {
       Get.snackbar('Lỗi', e.message ?? 'Có lỗi xảy ra');

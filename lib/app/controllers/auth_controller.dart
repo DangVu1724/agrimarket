@@ -141,11 +141,6 @@ class AuthController extends GetxController {
     }
   }
 
-  // Đăng xuất
-  Future<void> logout() async {
-    await _authService.signOut();
-    Get.offAllNamed(AppRoutes.login);
-  }
 
   Future<void> updateUserRole(
     String role, {

@@ -22,7 +22,7 @@ class EmailVerificationViewModel extends GetxController {
     if (user != null && user.emailVerified) {
       isEmailVerified.value = true;
       _timer?.cancel();
-      Get.offAllNamed(AppRoutes.roleSelection); 
+      Get.toNamed(AppRoutes.roleSelection); 
     }
   }
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:agrimarket/features/seller/viewmodel/seller_home_vm.dart';
-import 'package:get/get_state_manager/src/simple/list_notifier.dart';
 
 class SellerHomeScreen extends StatelessWidget {
   const SellerHomeScreen({super.key});
@@ -28,6 +27,7 @@ class SellerHomeScreen extends StatelessWidget {
                     ),
                     
                   ),
+                  
                   Text(' ${vm.storeState.value}',
                     style: TextStyle(
                       fontSize: 14,
