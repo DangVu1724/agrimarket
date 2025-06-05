@@ -15,71 +15,78 @@ class ProfileScreen extends StatelessWidget {
       {'icon': Icons.shopping_bag, 'title': 'Đơn hàng đã mua'},
       {'icon': Icons.favorite, 'title': 'Yêu thích'},
       {'icon': Icons.settings, 'title': 'Cài đặt'},
-      {'icon': Icons.help, 'title': 'Trợ giúp'},
       {'icon': Icons.logout, 'title': 'Đăng xuất'},
     ];
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            Row(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await vm.loadUserData();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
               children: [
-                Obx(
-                  () => CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.grey[200],
-                    backgroundImage:
-                        vm.userAvatar.value.isNotEmpty &&
-                                vm.userAvatar.value.startsWith('http')
-                            ? NetworkImage(vm.userAvatar.value)
-                            : AssetImage('assets/images/avatar.png')
-                                as ImageProvider,
-                  ),
-                ),
-
-                SizedBox(width: 22),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
                     Obx(
-                      () => Text(
-                        vm.userName.value.isNotEmpty
-                            ? vm.userName.value
-                            : 'Chưa cập nhật tên',
-                        style: AppTextStyles.headline.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      () => CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Colors.grey[200],
+                        backgroundImage:
+                            vm.userAvatar.value.isNotEmpty &&
+                                    vm.userAvatar.value.startsWith('http')
+                                ? NetworkImage(vm.userAvatar.value)
+                                : AssetImage('assets/images/avatar.png')
+                                    as ImageProvider,
                       ),
                     ),
-                    Obx(
-                      () => Text(
-                        vm.userEmail.value.isNotEmpty
-                            ? vm.userEmail.value
-                            : 'Chưa cập nhật email',
-                        style: AppTextStyles.body.copyWith(
-                          color: Colors.grey,
-                          fontSize: 14,
+          
+                    SizedBox(width: 22),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Obx(
+                          () => Text(
+                            vm.userName.value.isNotEmpty
+                                ? vm.userName.value
+                                : 'Chưa cập nhật tên',
+                            style: AppTextStyles.headline.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
-                      ),
+                        Obx(
+                          () => Text(
+                            vm.userEmail.value.isNotEmpty
+                                ? vm.userEmail.value
+                                : 'Chưa cập nhật email',
+                            style: AppTextStyles.body.copyWith(
+                              color: Colors.grey,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
+                SizedBox(height: 20),
+                Column(
+                  children:
+                      sectionItems
+                          .map(
+                            (item) =>
+                                _buildSectionButton(item['icon'], item['title']),
+                          )
+                          .toList(),
+                ),
               ],
             ),
-            SizedBox(height: 20),
-            Column(
-              children:
-                  sectionItems
-                      .map(
-                        (item) =>
-                            _buildSectionButton(item['icon'], item['title']),
-                      )
-                      .toList(),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -95,6 +102,15 @@ class ProfileScreen extends StatelessWidget {
               break;
             case 'Thông tin cá nhân':
               Get.toNamed(AppRoutes.buyerAccount);
+              break;
+            case 'Địa chỉ giao hàng':
+              Get.toNamed(AppRoutes.buyerAddress);
+              break;
+            case 'Yêu thích':
+              Get.toNamed(AppRoutes.favourite);
+              break;
+            case 'Cài đặt':
+              Get.toNamed(AppRoutes.settings);
               break;
             default:
               Get.snackbar('Tính năng', '$title chưa được hỗ trợ');

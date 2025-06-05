@@ -1,6 +1,7 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/data/models/buyer.dart';
 import 'package:agrimarket/data/providers/firestore_provider.dart';
+import 'package:agrimarket/features/buyer/viewmodel/buyer_vm%20.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -26,7 +27,7 @@ class AddressViewModel extends GetxController {
       if (placemarks.isNotEmpty) {
         final placemark = placemarks.first;
         addressController.text =
-            "${placemark.street ?? ''}, ${placemark.locality ?? ''}, ${placemark.country ?? ''}"
+            "${placemark.street ?? ''}, ${placemark.subAdministrativeArea ?? ''}, ${placemark.administrativeArea ?? ''} ,${placemark.country ?? ''}"
                 .trim();
         print("Placemark received: $placemark");
       }
@@ -102,6 +103,89 @@ class AddressViewModel extends GetxController {
       Get.offAllNamed(AppRoutes.buyerHome);
     } catch (e) {
       Get.snackbar('Lỗi', 'Không thể lưu địa chỉ: $e');
+    }
+  }
+
+  Future<void> updateAddress(int indexToUpdate) async {
+    final location = selectedLocation.value;
+    final address = addressController.text;
+    final label = labelController.text;
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+
+    if (location == null || address.isEmpty || label.isEmpty || uid == null) {
+      Get.snackbar(
+        'Thiếu thông tin',
+        'Vui lòng nhập nhãn, địa chỉ, chọn vị trí và đảm bảo đã đăng nhập',
+      );
+      return;
+    }
+
+    try {
+      BuyerModel? buyer = await _firestoreProvider.getBuyerById(uid);
+      if (buyer == null) return;
+
+      final updatedAddress = Address(
+        label: label,
+        address: address,
+        latitude: location.latitude,
+        longitude: location.longitude,
+      );
+
+      final updatedAddresses = List<Address>.from(buyer.addresses);
+      updatedAddresses[indexToUpdate] = updatedAddress;
+
+      final updatedBuyer = BuyerModel(
+        uid: buyer.uid,
+        favoriteStoreIds: buyer.favoriteStoreIds,
+        addresses: updatedAddresses,
+        reviews: buyer.reviews,
+        orderIds: buyer.orderIds,
+      );
+
+      await _firestoreProvider.createBuyer(updatedBuyer);
+
+      Get.offAllNamed(AppRoutes.buyerHome);
+    } catch (e) {
+      Get.snackbar('Lỗi', 'Không thể cập nhật địa chỉ: $e');
+    }
+  }
+
+  Future<void> deleteAddress(int indexToDelete) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+
+    if (uid == null) {
+      Get.snackbar('Lỗi', 'Người dùng chưa đăng nhập');
+      return;
+    }
+
+    try {
+      BuyerModel? buyer = await _firestoreProvider.getBuyerById(uid);
+      if (buyer == null) return;
+
+      final updatedAddresses = List<Address>.from(buyer.addresses);
+      if (indexToDelete >= 0 && indexToDelete < updatedAddresses.length) {
+        updatedAddresses.removeAt(indexToDelete);
+      } else {
+        Get.snackbar('Lỗi', 'Không tìm thấy địa chỉ để xóa');
+        return;
+      }
+
+      final updatedBuyer = BuyerModel(
+        uid: buyer.uid,
+        favoriteStoreIds: buyer.favoriteStoreIds,
+        addresses: updatedAddresses,
+        reviews: buyer.reviews,
+        orderIds: buyer.orderIds,
+      );
+
+      await _firestoreProvider.createBuyer(updatedBuyer);
+
+      // Cập nhật lại dữ liệu buyer
+      Get.find<BuyerVm>().fetchBuyerData();
+
+      Get.snackbar('Thành công', 'Đã xóa địa chỉ');
+    } catch (e) {
+      Get.snackbar('Lỗi', 'Không thể xóa địa chỉ: $e');
     }
   }
 

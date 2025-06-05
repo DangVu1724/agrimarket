@@ -1,17 +1,20 @@
 import 'package:agrimarket/app/bindings/auth_binding.dart';
 import 'package:agrimarket/features/auth/view/dashboard.dart';
 import 'package:agrimarket/features/auth/view/email_verify_screen.dart';
-import 'package:agrimarket/features/auth/view/reset_password_screen.dart';
+import 'package:agrimarket/features/buyer/view/reset_password_screen.dart';
 import 'package:agrimarket/features/auth/view/register_screen.dart';
 import 'package:agrimarket/features/auth/view/role_selection_screen.dart';
 import 'package:agrimarket/features/auth/view/splash_screen.dart';
 import 'package:agrimarket/features/buyer/view/account_screen.dart';
 import 'package:agrimarket/features/buyer/view/add_address.dart';
+import 'package:agrimarket/features/buyer/view/address_list_screen.dart';
 import 'package:agrimarket/features/buyer/view/buyer_home.dart';
 import 'package:agrimarket/features/buyer/view/buyer_home_screen.dart';
+import 'package:agrimarket/features/buyer/view/favourite_screen.dart';
 import 'package:agrimarket/features/buyer/view/order_screen.dart';
 import 'package:agrimarket/features/buyer/view/profile_screen.dart';
 import 'package:agrimarket/features/buyer/view/search_screen.dart';
+import 'package:agrimarket/features/buyer/view/setting_screen.dart';
 import 'package:agrimarket/features/seller/view/create_store_address.dart';
 import 'package:agrimarket/features/seller/view/create_store_info.dart';
 import 'package:agrimarket/features/seller/view/seller_home.dart';
@@ -100,6 +103,21 @@ class AppPages {
     GetPage(
       name: AppRoutes.buyerAccount,
       page: () => AccountScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.buyerAddress,
+      page: () => AddressListScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.favourite,
+      page: () => FavouriteScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.settings,
+      page: () => SettingScreen(),
       binding: AuthBinding(),
     ),
     GetPage(

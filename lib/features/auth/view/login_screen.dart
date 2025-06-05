@@ -1,5 +1,6 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/core/widgets/social_icon.dart';
+import 'package:agrimarket/data/services/auth_service.dart';
 import 'package:agrimarket/features/auth/viewmodel/forgot_password_vm.dart';
 import 'package:agrimarket/features/auth/viewmodel/login_vm.dart';
 import 'package:flutter/material.dart';
@@ -180,6 +181,7 @@ class LoginScreen extends StatelessWidget {
   final ForgotPasswordViewModel controller = Get.put(ForgotPasswordViewModel());
   final TextEditingController emailController = TextEditingController();
   final LoginViewModel viewModel = Get.find();
+  final AuthService authService = Get.find<AuthService>();
 
 
   Get.defaultDialog(
@@ -197,16 +199,14 @@ class LoginScreen extends StatelessWidget {
           const SizedBox(height: 20),
           CustomButton(
             text: 'Gửi Email',
-            onPressed: () => controller.sendPasswordReset(emailController.text),
+            onPressed: () => authService.sendResetEmail(emailController.text),
             isLoading: controller.isLoading.value,
           ),
           const SizedBox(height: 10),
-          TextButton(
-            onPressed: () => controller.sendPasswordReset(emailController.text),
-            child: Text(
-              'Gửi lại email',
-              style: AppTextStyles.body.copyWith(color: AppColors.primary),
-            ),
+          Text(
+            'Vui lòng nhập email đã đăng ký để nhận liên kết đặt lại mật khẩu.',
+            style: AppTextStyles.caption,
+            textAlign: TextAlign.center,
           ),
         ],
       ),

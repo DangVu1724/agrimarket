@@ -26,7 +26,8 @@ class AddressScreen extends StatelessWidget {
       ),
       body: Obx(() {
         final selected =
-            vm.selectedLocation.value ?? const LatLng(21.0278, 105.8342); // Hà Nội
+            vm.selectedLocation.value ??
+            const LatLng(21.0278, 105.8342); // Hà Nội
         return Stack(
           children: [
             FlutterMap(
@@ -100,7 +101,12 @@ class AddressScreen extends StatelessWidget {
               right: 20,
               child: ElevatedButton(
                 onPressed: () {
-                  vm.saveAddress(); 
+                  final args = Get.arguments;
+                  if (args != null && args['isEditing'] == true) {
+                    vm.updateAddress(args['index']);
+                  } else {
+                    vm.saveAddress();
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,

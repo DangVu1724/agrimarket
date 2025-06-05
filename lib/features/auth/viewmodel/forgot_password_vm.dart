@@ -11,38 +11,4 @@ class ForgotPasswordViewModel extends GetxController {
     return null;
   }
 
-  Future<void> sendPasswordReset(String text) async {
-    if (validateEmail(email.value) != null) {
-      Get.snackbar('Lỗi', 'Vui lòng nhập email hợp lệ');
-      return;
-    }
-
-    isLoading.value = true;
-    try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: email.value);
-      Get.back(); // Đóng dialog
-      Get.snackbar(
-        'Thành công',
-        'Email đặt lại mật khẩu đã được gửi tới ${email.value}',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-
-      // Get.offAllNamed(AppRoutes.resetPassword);
-    } on FirebaseAuthException catch (e) {
-      String errorMessage;
-      switch (e.code) {
-        case 'user-not-found':
-          errorMessage = 'Không tìm thấy tài khoản với email này';
-          break;
-        case 'invalid-email':
-          errorMessage = 'Email không hợp lệ';
-          break;
-        default:
-          errorMessage = 'Đã có lỗi xảy ra: ${e.toString()}';
-      }
-      Get.snackbar('Lỗi', errorMessage);
-    } finally {
-      isLoading.value = false;
-    }
-  }
 }

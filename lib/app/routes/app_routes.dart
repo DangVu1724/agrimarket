@@ -16,7 +16,8 @@ class AppRoutes {
   static const String buyerSearch = '/buyer-search';
   static const String buyerProfile = '/buyer-profile';
   static const String buyerAccount = '/buyer-account';
-
+  static const String buyerAddress = '/buyer-address';
+  static const String favourite = '/favourite';
   static const String sellerHome = '/seller-home';
   static const String settings = '/settings';
   

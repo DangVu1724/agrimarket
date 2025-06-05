@@ -38,23 +38,23 @@ class BuyerModel {
 
 
 class Address {
-  final String? label;
+  final String label;
   final String address;
-  final double? latitude;
-  final double? longitude;
+  final double latitude;
+  final double longitude;
 
   Address({
     required this.label,
     required this.address,
-    this.latitude,
-    this.longitude,
+    required this.latitude,
+    required this.longitude,
   });
 
   factory Address.fromJson(Map<String, dynamic> json) => Address(
         label: json['label'],
         address: json['address'],
-        latitude: (json['latitude'] as num?)?.toDouble(),
-        longitude: (json['longitude'] as num?)?.toDouble(),
+        latitude: (json['latitude'] as num?)!.toDouble(),
+        longitude: (json['longitude'] as num?)!.toDouble(),
       );
 
   Map<String, dynamic> toJson() => {

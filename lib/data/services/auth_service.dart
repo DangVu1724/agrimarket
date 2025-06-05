@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
@@ -42,6 +43,15 @@ class AuthService {
   Future<bool> isEmailVerified() async {
     await _auth.currentUser?.reload();
     return _auth.currentUser?.emailVerified ?? false;
+  }
+
+  Future<void> sendResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      Get.back();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   // Lấy current user

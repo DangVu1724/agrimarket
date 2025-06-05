@@ -6,24 +6,46 @@ import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/instance_manager.dart';
 
-class AccountScreen extends StatelessWidget {
+class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
 
   @override
+  State<AccountScreen> createState() => _AccountScreenState();
+}
+
+class _AccountScreenState extends State<AccountScreen> {
+  final UserVm vm = Get.find<UserVm>();
+  late TextEditingController nameController;
+  late TextEditingController phoneController;
+
+  @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController(text: vm.userName.value);
+    phoneController = TextEditingController(text: vm.userPhone.value);
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    phoneController.dispose();
+    super.dispose();
+  }
+  @override
   Widget build(BuildContext context) {
-    final UserVm vm = Get.find<UserVm>();
+    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Get.toNamed(AppRoutes.buyerHome),
+          onPressed: () => Get.back(),
         ),
         title: const Text('Thông tin cá nhân'),
         backgroundColor: Colors.white,
       ),
       body: Form(
-        key: vm.formKey,
+        key: vm.userformKey,
         child: Column(
           children: [
             Padding(
@@ -34,7 +56,7 @@ class AccountScreen extends StatelessWidget {
                   CustomTextFormField(
                     label: 'Họ và tên',
                     hintText: 'Nhập họ và tên',
-                    controller: vm.nameController,
+                    controller: nameController,
                     validator:
                         (value) =>
                             value!.isEmpty ? 'Vui lòng nhập họ và tên' : null,
@@ -44,7 +66,7 @@ class AccountScreen extends StatelessWidget {
                   CustomTextFormField(
                     label: 'Số điện thoại',
                     hintText: 'Nhập số điện thoại',
-                    controller: vm.phoneController,
+                    controller: phoneController,
                     keyboard: TextInputType.phone,
                     validator:
                         (value) =>
@@ -57,10 +79,10 @@ class AccountScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                if (vm.formKey.currentState?.validate() ?? false) {
+                if (vm.userformKey.currentState?.validate() ?? false) {
                   vm.updateProfile(
-                    newName: vm.nameController.text.trim(),
-                    newPhone: vm.phoneController.text.trim(),
+                    newName: nameController.text.trim(),
+                    newPhone: phoneController.text.trim(),
                   );
                 }
               },

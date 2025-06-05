@@ -8,6 +8,8 @@ class CustomTextFormField extends StatelessWidget {
   final Widget? suffixIcon;
   final FormFieldValidator<String>? validator;
   final TextInputType? keyboard;
+  final ValueChanged<String>? onChanged;
+  final AutovalidateMode? autovalidateMode;
 
   const CustomTextFormField({
     super.key,
@@ -18,6 +20,8 @@ class CustomTextFormField extends StatelessWidget {
     this.suffixIcon,
     this.validator,
     this.keyboard,
+    this.onChanged,
+    this.autovalidateMode,
   });
 
   @override
@@ -38,6 +42,8 @@ class CustomTextFormField extends StatelessWidget {
           ),
           validator: validator,
           keyboardType: keyboard,
+          onChanged: onChanged,
+          autovalidateMode: autovalidateMode,
         ),
       ],
     );

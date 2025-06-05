@@ -1,3 +1,4 @@
+import 'package:agrimarket/data/models/buyer.dart';
 import 'package:agrimarket/data/providers/firestore_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,15 +11,23 @@ class BuyerVm extends GetxController {
   final FirebaseAuth auth = FirebaseAuth.instance;
   var isLoading = false.obs;
 
-  final address = RxString('');
+  final address = RxList<Address>();
 
   @override
   void onInit() {
     super.onInit();
-    fetchUserData();
+    fetchBuyerData();
   }
 
-  void fetchUserData() async {
+  String get primaryAddressText {
+  if (address.isNotEmpty) {
+    return address.first.address;
+  }
+  return 'Chưa có địa chỉ';
+}
+
+
+  void fetchBuyerData() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       Get.snackbar('Error', 'User not logged in');
@@ -31,9 +40,10 @@ class BuyerVm extends GetxController {
       final buyerData = await firestoreProvider.getBuyerById(user.uid);
       if (buyerData != null) {
         if (buyerData.addresses.isNotEmpty) {
-          address.value = buyerData.addresses[0].address;
+          address.assignAll(buyerData.addresses);
+          print('Addresses loaded: ${buyerData.addresses.length}');
         } else {
-          address.value = 'Chưa có địa chỉ';
+          address.clear();
         }
         print('User data loaded: ${buyerData.toJson()}');
       } else {

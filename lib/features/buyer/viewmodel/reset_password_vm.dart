@@ -9,18 +9,23 @@ class ResetPasswordViewModel extends GetxController {
   var isLoading = false.obs;
   final confirmPasswordController = TextEditingController();
   final newPasswordController = TextEditingController();
+  final GlobalKey<FormState> formKeyResetPass = GlobalKey<FormState>();
+
+
+  String? validatePassword(String? value) {
+    if (value == null || value.isEmpty) return 'Vui lòng nhập mật khẩu';
+    if (value.length < 6) return 'Mật khẩu phải ít nhất 6 ký tự';
+    return null;
+  }
+
+  String? validateConfirmPassword(String? value) {
+    if (value != newPasswordController.text) return 'Mật khẩu không khớp';
+    return null;
+  }
 
 
   Future<void> updatePassword() async {
-    if (newPassword.value.isEmpty || confirmPassword.value.isEmpty) {
-      Get.snackbar('Lỗi', 'Vui lòng nhập đầy đủ thông tin');
-      return;
-    }
-    if (newPassword.value != confirmPassword.value) {
-      Get.snackbar('Lỗi', 'Mật khẩu xác nhận không khớp');
-      return;
-    }
-
+    if (!formKeyResetPass.currentState!.validate()) return;
     try {
       isLoading.value = true;
 
@@ -42,5 +47,12 @@ class ResetPasswordViewModel extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  @override
+  void onClose() {
+    newPasswordController.dispose();
+    confirmPasswordController.dispose();
+    super.onClose();
   }
 }

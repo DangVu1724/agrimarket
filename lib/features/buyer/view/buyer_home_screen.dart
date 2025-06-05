@@ -1,3 +1,4 @@
+import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/features/buyer/viewmodel/buyer_vm%20.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -37,11 +38,11 @@ class HomeBuyerScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       elevation: 0,
       leading: Icon(Icons.location_on, color: Colors.black, size: 20),
-      title: Text("${vm.address.value}", style: TextStyle(color: Colors.black, fontSize: 16)),
+      title: Text("${vm.primaryAddressText}", style: TextStyle(color: Colors.black, fontSize: 16)),
       actions: [
         GestureDetector(
           onTap: () {
-            Get.snackbar("San pham yeu thich", "CLick yeu thich");
+            Get.toNamed(AppRoutes.favourite);
           },
         child: Icon(Icons.favorite_border, color: Colors.black)),
         SizedBox(width: 15),
@@ -59,8 +60,8 @@ class HomeBuyerScreen extends StatelessWidget {
 Widget _buildBanner() {
   final List<String> bannerImages = [
     "assets/images/bannerqc.png",
-    "assets/images/bannerqc.png",
-    "assets/images/bannerqc.png",
+    "assets/images/bannerqc2.jpg",
+    "assets/images/bannerqc3.jpg",
   ];
 
   return CarouselSlider(

@@ -14,13 +14,13 @@ class UserVm extends GetxController {
   final userPhone = RxString('');
   final userAvatar = RxString('');
   final isLoading = false.obs;
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> userformKey = GlobalKey<FormState>();
 
   // Controllers for updating profile
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController currentPasswordController = TextEditingController();
-  final TextEditingController newPasswordController = TextEditingController();
+  // final TextEditingController nameController = TextEditingController();
+  // final TextEditingController phoneController = TextEditingController();
+  // final TextEditingController currentPasswordController = TextEditingController();
+  // final TextEditingController newPasswordController = TextEditingController();
 
   @override
   void onInit() {
@@ -58,7 +58,6 @@ class UserVm extends GetxController {
     try {
       // Cập nhật displayName
       await user.updateDisplayName(newName);
-      await user.reload();
 
       // Cập nhật Firestore
       await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
@@ -87,10 +86,4 @@ class UserVm extends GetxController {
     }
   }
 
-  @override
-  void onClose() {
-    nameController.dispose();
-    phoneController.dispose();
-    super.onClose();
-  }
 }
