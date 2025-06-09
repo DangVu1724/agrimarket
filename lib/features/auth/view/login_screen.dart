@@ -70,6 +70,7 @@ class LoginScreen extends StatelessWidget {
                       hintText: "Password",
                       controller: viewModel.passwordController,
                       obscureText: viewModel.obscureText.value,
+                      maxLine: 1,
                       validator: (value) => viewModel.validatePassword(value!),
                       suffixIcon: IconButton(
                         icon: Icon(

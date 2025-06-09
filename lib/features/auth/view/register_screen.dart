@@ -81,6 +81,7 @@ class RegisterScreen extends StatelessWidget {
                     () => CustomTextFormField(
                       label: 'Mật khẩu',
                       hintText: 'Mật khẩu',
+                      maxLine: 1,
                       controller: _viewModel.passwordController,
                       obscureText: _viewModel.obscurePassword.value,
                       validator: _viewModel.validatePassword,

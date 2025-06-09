@@ -10,6 +10,7 @@ class CustomTextFormField extends StatelessWidget {
   final TextInputType? keyboard;
   final ValueChanged<String>? onChanged;
   final AutovalidateMode? autovalidateMode;
+  final int? maxLine;
 
   const CustomTextFormField({
     super.key,
@@ -21,6 +22,7 @@ class CustomTextFormField extends StatelessWidget {
     this.validator,
     this.keyboard,
     this.onChanged,
+    this.maxLine,
     this.autovalidateMode,
   });
 
@@ -44,6 +46,7 @@ class CustomTextFormField extends StatelessWidget {
           keyboardType: keyboard,
           onChanged: onChanged,
           autovalidateMode: autovalidateMode,
+          maxLines: maxLine,
         ),
       ],
     );

@@ -14,10 +14,6 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   try {
     await dotenv.load(fileName: ".env");
-    print('dotenv loaded successfully');
-    print('GITHUB_TOKEN: ${dotenv.env['GITHUB_TOKEN']}');
-    print('GITHUB_OWNER: ${dotenv.env['GITHUB_OWNER']}');
-    print('GITHUB_REPO: ${dotenv.env['GITHUB_REPO']}');
   } catch (e) {
     print('Error loading dotenv: $e');
   }

@@ -17,8 +17,22 @@ class AppRoutes {
   static const String buyerProfile = '/buyer-profile';
   static const String buyerAccount = '/buyer-account';
   static const String buyerAddress = '/buyer-address';
+  static const String aboutApp = '/about-app';
+  static const String help = '/help';
+  static const String security = '/security';
+  static const String privacyPolicy = '/privacy-policy';
   static const String favourite = '/favourite';
   static const String sellerHome = '/seller-home';
+  static const String sellerHomeScreen = '/seller-home-screen';
+  static const String sellerOrderList = '/seller-order-list';
+  static const String sellerMenu = '/seller-menu';
+  static const String sellerPromotions = '/seller-promotions';
+  static const String sellerFinance = '/seller-finance';
+  static const String sellerStaff = '/seller-staff';
+  static const String sellerProduct = '/seller-product';
+  static const String sellerProductDetail = '/seller-product-detail';
+  static const String sellerCreateProduct = '/seller-create-product';
+  static const String sellerCreatePromotion = '/seller-create-promotion';
   static const String settings = '/settings';
   
 }

@@ -173,6 +173,7 @@ class AuthController extends GetxController {
         name: pendingUser['name'],
         phone: pendingUser['phone'],
         role: role,
+        createdAt: DateTime.now()
       );
 
       // Lưu UserModel vào Firestore
