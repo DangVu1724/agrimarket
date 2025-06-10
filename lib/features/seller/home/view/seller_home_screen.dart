@@ -42,7 +42,7 @@ class SellerHomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               Container(
                 padding: const EdgeInsets.all(16.0),
                 margin: const EdgeInsets.all(16.0),
@@ -50,49 +50,53 @@ class SellerHomeScreen extends StatelessWidget {
                   color: AppColors.primary,
                   borderRadius: BorderRadius.circular(12.0),
                 ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Icon(
-                      Icons.account_balance_wallet,
-                      size: 50,
-                      color: Colors.white,
-                    ),
-                    const SizedBox(height: 10),
-                    Column(
-                      children: [
-                        Text(
-                          'Doanh thu hôm nay',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
-                        Text(
-                          'đ 0đ',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                child: GestureDetector(
+                  onTap: () {
+                    Get.snackbar('Click', "message");
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Icon(
+                        Icons.account_balance_wallet,
+                        size: 30,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(height: 10),
+                      Column(
+                        children: [
+                          Text(
+                            'Doanh thu hôm nay',
+                            style: TextStyle(fontSize: 14, color: Colors.white),
                           ),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Text(
-                          'Hôm qua',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
-                        Text(
-                          'đ 0đ',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                          Text(
+                            'đ 0đ',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            'Hôm qua',
+                            style: TextStyle(fontSize: 14, color: Colors.white),
+                          ),
+                          Text(
+                            'đ 0đ',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -155,14 +159,14 @@ class SellerHomeScreen extends StatelessWidget {
               width: 80,
               child: Column(
                 children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.grey.shade200,
-                    child: Icon(
-                      iconCategory[index],
-                      size: 40,
-                      color: Colors.black,
+                  Container(
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border.all(width: 1,color: AppColors.textSecondary),
+                      
+                      borderRadius: BorderRadius.circular(8)
                     ),
+                    child: Icon(iconCategory[index],color: Colors.blueAccent,),
                   ),
                   const SizedBox(height: 6),
                   Text(

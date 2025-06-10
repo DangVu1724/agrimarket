@@ -39,7 +39,7 @@ class RegisterScreen extends StatelessWidget {
                   const SizedBox(height: 32),
                   const Center(
                     child: Text(
-                      "Đăng ký tài khoản mới",
+                      "ĐĂNG KÝ TÀI KHOẢN",
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -47,18 +47,29 @@ class RegisterScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Center(
-                    child: Text(
-                      "Vui lòng đăng ký tài khoản của bạn để bắt đầu khám phá AgriMarket",
-                      style: TextStyle(fontSize: 16, color: Color(0xFF878787)),
-                    ),
+                  const Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Vui lòng đăng ký tài khoản của bạn để bắt đầu khám phá AgriMarket",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Color(0xFF878787),
+                        ),
+                      ),
+                    ],
                   ),
+
                   const SizedBox(height: 22),
                   CustomTextFormField(
                     label: "Họ và tên",
                     hintText: "Nhập họ và tên",
                     controller: _viewModel.fullNameController,
-                    validator: (value) => _viewModel.validateFullName(value ?? ""),
+                    validator:
+                        (value) => _viewModel.validateFullName(value ?? ""),
+                    maxLine: 1,
                   ),
                   const SizedBox(height: 16),
                   CustomTextFormField(
@@ -67,6 +78,7 @@ class RegisterScreen extends StatelessWidget {
                     controller: _viewModel.emailController,
                     keyboard: TextInputType.emailAddress,
                     validator: (value) => _viewModel.validateEmail(value ?? ""),
+                    maxLine: 1,
                   ),
                   const SizedBox(height: 16),
                   CustomTextFormField(
@@ -74,7 +86,9 @@ class RegisterScreen extends StatelessWidget {
                     hintText: "Nhập số điện thoại",
                     controller: _viewModel.phoneController,
                     keyboard: TextInputType.phone,
-                    validator: (value) => _viewModel.validatePhoneNumber(value ?? ""),
+                    validator:
+                        (value) => _viewModel.validatePhoneNumber(value ?? ""),
+                    maxLine: 1,
                   ),
                   const SizedBox(height: 16),
                   Obx(

@@ -3,6 +3,7 @@ import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/core/widgets/product_filter.dart';
 import 'package:agrimarket/data/models/product.dart';
+import 'package:agrimarket/data/services/store_service.dart';
 import 'package:agrimarket/features/seller/product/viewmodel/seller_product_screen_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,6 +12,7 @@ class SellerProductScreen extends StatelessWidget {
   SellerProductScreen({super.key});
 
   final SellerProductVm productVm = Get.find<SellerProductVm>();
+  final StoreService _storeService = StoreService();
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +24,9 @@ class SellerProductScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.add),
             onPressed: () {
-              if (productVm.storeModel != null) {
-                productVm.fetchProductsByStoreId(productVm.storeModel!.storeId);
-                productVm.clearFilters();
-              }
+             Get.toNamed(AppRoutes.sellerCreateProduct);
             },
           ),
         ],
@@ -60,16 +59,12 @@ class SellerProductScreen extends StatelessWidget {
               child: RefreshIndicator(
                 onRefresh: () async {
                   if (productVm.storeModel != null) {
-                    await productVm.fetchProductsByStoreId(
-                      productVm.storeModel!.storeId,
-                    );
+                    await _storeService.fetchStoreData();
                     productVm.clearFilters();
                   }
                 },
                 child: Obx(() {
-                  final products = productVm.getFilteredProducts(
-                    productVm.storeModel!.storeId,
-                  );
+                  final products = productVm.getFilteredProducts();
 
                   if (products.isEmpty) {
                     return const Center(
@@ -122,24 +117,6 @@ class SellerProductScreen extends StatelessWidget {
           ],
         );
       }),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: Text(
-          "Thêm sản phẩm",
-          style: AppTextStyles.body.copyWith(color: Colors.white),
-        ),
-        onPressed: () {
-          if (productVm.storeModel != null) {
-            Get.toNamed(
-              AppRoutes.sellerCreateProduct,
-              arguments: productVm.storeModel,
-            );
-          } else {
-            Get.snackbar('Lỗi', 'Không tìm thấy thông tin cửa hàng.');
-          }
-        },
-      ),
     );
   }
 
@@ -190,7 +167,8 @@ class SellerProductScreen extends StatelessWidget {
                 },
               ),
             ),
-            Padding(
+            Container(
+              width: 100,
               padding: const EdgeInsets.all(0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -206,6 +184,7 @@ class SellerProductScreen extends StatelessWidget {
                     '${product.price.toString()} VNĐ / ${product.unit}',
                     style: AppTextStyles.body.copyWith(
                       color: AppColors.primary,
+                      fontSize: 12
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -213,16 +192,10 @@ class SellerProductScreen extends StatelessWidget {
                     'Số lượng: ${product.quantity}',
                     style: AppTextStyles.body.copyWith(
                       color: Colors.grey.shade600,
+                      fontSize: 12
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    'Danh mục: ${product.category}',
-                    style: AppTextStyles.body.copyWith(
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
                 ],
               ),
             ),
@@ -230,11 +203,11 @@ class SellerProductScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.edit, color: AppColors.primary),
+                  icon: const Icon(Icons.edit, color: AppColors.primary,size: 14,),
                   onPressed: onEdit,
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
+                  icon: const Icon(Icons.delete, color: Colors.red,size: 14,),
                   onPressed: onDelete,
                 ),
               ],

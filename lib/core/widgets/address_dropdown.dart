@@ -5,7 +5,7 @@ class CustomDropdownField<T> extends StatelessWidget {
   final String labelText;
   final T? value;
   final List<Map<String, dynamic>> items;
-  final bool isLoading;
+  final bool? isLoading;
   final bool isEnabled;
   final String? hintText;
   final void Function(T?)? onChanged;
@@ -18,7 +18,7 @@ class CustomDropdownField<T> extends StatelessWidget {
     required this.labelText,
     required this.value,
     required this.items,
-    required this.isLoading,
+     this.isLoading,
     this.isEnabled = true,
     this.hintText,
     this.onChanged,
@@ -33,6 +33,7 @@ class CustomDropdownField<T> extends StatelessWidget {
       children: [
         DropdownButtonFormField<T>(
           decoration: InputDecoration(
+            fillColor: AppColors.background,
             labelText: labelText,
             border: const OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(12)),
@@ -47,6 +48,7 @@ class CustomDropdownField<T> extends StatelessWidget {
             ),
           ),
           value: value,
+          dropdownColor: AppColors.background,
           items: items.isNotEmpty && isEnabled
               ? items.map<DropdownMenuItem<T>>((item) {
                 final code = item[valueKey].toString();
@@ -59,9 +61,9 @@ class CustomDropdownField<T> extends StatelessWidget {
                   );
                 }).toList()
               : [],
-          onChanged: isLoading || !isEnabled ? null : onChanged,
+          onChanged: (isLoading ?? false) || !isEnabled ? null : onChanged,
           hint: Text(
-            isLoading
+            (isLoading ?? false)
                 ? 'Đang tải ${labelText.toLowerCase()}...'
                 : hintText ?? 'Chọn ${labelText.toLowerCase()}',
           ),
@@ -70,7 +72,7 @@ class CustomDropdownField<T> extends StatelessWidget {
           isExpanded: true,
           menuMaxHeight: 300,
         ),
-        if (isLoading)
+        if (isLoading ?? false)
           const Positioned(
             right: 10,
             top: 15,

@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class SellerHomeVm extends GetxController{
+class SellerHomeVm extends GetxController {
   final FirestoreProvider firestoreProvider = FirestoreProvider();
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -17,8 +17,6 @@ class SellerHomeVm extends GetxController{
   final hasError = RxBool(false);
   final errorMessage = RxString('');
   final storeStateColor = Rx<Color>(Colors.grey);
-
-
 
   @override
   void onInit() {
@@ -43,14 +41,10 @@ class SellerHomeVm extends GetxController{
       // Lấy cửa hàng từ Firestore dựa trên ownerUid
       final stores = await firestoreProvider.getStoresByOwner(user.uid);
       if (stores.isNotEmpty) {
-        final store = stores.first; 
+        final store = stores.first;
         storeName.value = store.name;
         updateStoreState(store.state);
         storeState.value = store.state;
-        print('Cửa hàng: ${store.name}, Trạng thái: ${store.state}');
-        // if (storeState.value == 'pending') {
-        //   Get.snackbar('Thông báo', 'Cửa hàng đang chờ kiểm duyệt.');
-        // }
       } else {
         hasError.value = true;
         errorMessage.value = 'Không tìm thấy cửa hàng nào cho người dùng này.';
@@ -83,6 +77,4 @@ class SellerHomeVm extends GetxController{
         return Colors.grey;
     }
   }
- 
-
 }

@@ -6,9 +6,11 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-
-  // Đăng ký tài khoản với email và password
-  Future<User?> registerWithEmailAndPassword(String email, String password) async {
+  // Đăng ký
+  Future<User?> registerWithEmailAndPassword(
+    String email,
+    String password,
+  ) async {
     try {
       final credential = await _auth.createUserWithEmailAndPassword(
         email: email,
@@ -20,7 +22,11 @@ class AuthService {
     }
   }
 
-  Future<User?> signInWithEmailAndPassword(String email, String password) async {
+  // Đăng nhập
+  Future<User?> signInWithEmailAndPassword(
+    String email,
+    String password,
+  ) async {
     try {
       final credential = await _auth.signInWithEmailAndPassword(
         email: email,
@@ -32,19 +38,22 @@ class AuthService {
     }
   }
 
-  // Gửi email xác minh
-  Future<void> sendEmailVerification(User user) async {
-    if (!user.emailVerified) {
+  // Gửi xác minh
+  Future<void> sendEmailVerification() async {
+    final user = _auth.currentUser;
+    if (user != null && !user.emailVerified) {
       await user.sendEmailVerification();
     }
   }
 
-  // Kiểm tra trạng thái xác minh
-  Future<bool> isEmailVerified() async {
-    await _auth.currentUser?.reload();
-    return _auth.currentUser?.emailVerified ?? false;
+  // Kiểm tra xác minh
+  Future<bool> checkEmailVerified() async {
+    final user = _auth.currentUser;
+    await user?.reload();
+    return user?.emailVerified ?? false;
   }
 
+  // Gửi reset
   Future<void> sendResetEmail(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
@@ -54,35 +63,18 @@ class AuthService {
     }
   }
 
-  // Lấy current user
-  User? get currentUser => _auth.currentUser;
-
-  // Đăng xuất
-  Future<void> signOut() async {
-    await _auth.signOut();
-  }
-
+  // Google Sign-in
   Future<User?> signInWithGoogle() async {
     try {
-      // Bước 1: Người dùng chọn tài khoản Google
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        // Người dùng hủy đăng nhập
-        return null;
-      }
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return null;
 
-      // Bước 2: Lấy authentication object từ googleUser
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-
-      // Bước 3: Tạo credential cho Firebase
+      final googleAuth = await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-
-      // Bước 4: Đăng nhập Firebase với credential trên
       final userCredential = await _auth.signInWithCredential(credential);
-
       return userCredential.user;
     } catch (e) {
       rethrow;

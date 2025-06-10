@@ -69,7 +69,4 @@ class LoginViewModel extends GetxController {
     );
   }
 
-  void navigateToRegister() {
-    Get.toNamed(AppRoutes.register);
-  }
 }

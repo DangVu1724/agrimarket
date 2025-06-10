@@ -4,6 +4,7 @@ import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/core/widgets/custom_button.dart';
 import 'package:agrimarket/core/widgets/custom_text_form_field.dart';
+import 'package:agrimarket/data/services/image_service.dart';
 import 'package:agrimarket/features/seller/product/viewmodel/seller_product_screen_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,6 +13,7 @@ class SellerCreateProductScreen extends StatelessWidget {
   SellerCreateProductScreen({super.key});
 
   final SellerProductVm productVm = Get.find<SellerProductVm>();
+  final ImageService _imageService = ImageService();
 
   @override
   Widget build(BuildContntext) {
@@ -178,52 +180,54 @@ class SellerCreateProductScreen extends StatelessWidget {
                                 const SizedBox(height: 8),
                                 file != null
                                     ? Stack(
-                                        children: [
-                                          Image.file(
-                                            File(file.path),
-                                            height: 100,
-                                            width: 100,
-                                            fit: BoxFit.cover,
-                                          ),
-                                          Positioned(
-                                            right: 0,
-                                            top: 0,
-                                            child: IconButton(
-                                              icon: const Icon(
-                                                Icons.close,
-                                                color: Colors.red,
-                                              ),
-                                              onPressed:
-                                                  () => productVm.clearImage(),
+                                      children: [
+                                        Image.file(
+                                          File(file.path),
+                                          height: 100,
+                                          width: 100,
+                                          fit: BoxFit.cover,
+                                        ),
+                                        Positioned(
+                                          right: 0,
+                                          top: 0,
+                                          child: IconButton(
+                                            icon: const Icon(
+                                              Icons.close,
+                                              color: Colors.red,
                                             ),
+                                            onPressed:
+                                                () => _imageService.pickImage(),
                                           ),
-                                        ],
-                                      )
+                                        ),
+                                      ],
+                                    )
                                     : Container(
-                                        height: 100,
-                                        width: 100,
-                                        decoration: BoxDecoration(
-                                          border: Border.all(color: Colors.grey),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: const Icon(
-                                          Icons.image,
-                                          size: 50,
-                                          color: Colors.grey,
-                                        ),
+                                      height: 100,
+                                      width: 100,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.grey),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
+                                      child: const Icon(
+                                        Icons.image,
+                                        size: 50,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
                                 const SizedBox(height: 8),
                                 Row(
                                   children: [
                                     ElevatedButton(
-                                      onPressed: () => productVm.pickImage(),
+                                      onPressed:
+                                          () => _imageService.pickImage(),
                                       child: const Text('Chọn từ thư viện'),
                                     ),
                                     const SizedBox(width: 8),
                                     ElevatedButton(
-                                      onPressed: () => productVm.pickImage(
-                                        fromCamera: true,
-                                      ),
+                                      onPressed:
+                                          () => _imageService.pickImage(
+                                            fromCamera: true,
+                                          ),
                                       child: const Text('Chụp ảnh'),
                                     ),
                                   ],

@@ -1,12 +1,12 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/data/providers/firestore_provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:agrimarket/data/services/user_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class UserVm extends GetxController {
+  final UserService _userService = UserService();
   final FirebaseAuth auth = FirebaseAuth.instance;
   final FirestoreProvider firestore = FirestoreProvider();
   final userName = RxString('');
@@ -29,22 +29,24 @@ class UserVm extends GetxController {
   }
 
   Future<void> loadUserData() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final userData = await firestore.getUserById(user.uid);
-
-      if (userData != null) {
-        userName.value = userData.name;
-        userEmail.value = userData.email;
-        userPhone.value = userData.phone;
-        String avatarUrl = user.photoURL ?? '';
-        if (avatarUrl.isEmpty) {
-          avatarUrl = 'assets/images/avatar.png';
+    isLoading.value = true;
+    try {
+      final user = _userService.currentUser;
+      if (user != null) {
+        final userData = await _userService.getUserData();
+        if (userData != null) {
+          userName.value = userData.name;
+          userEmail.value = user.email ?? '';
+          userPhone.value = userData.phone;
+          userAvatar.value = user.photoURL ?? 'assets/images/avatar.png';
+        } else {
+          Get.snackbar('Error', 'User data not found');
         }
-        userAvatar.value = avatarUrl;
-      } else {
-        Get.snackbar('Error', 'User data not found');
       }
+    } catch (e) {
+      Get.snackbar('Error', e.toString());
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -52,38 +54,25 @@ class UserVm extends GetxController {
     required String newName,
     required String newPhone,
   }) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
+    isLoading.value = true;
     try {
-      // Cập nhật displayName
-      await user.updateDisplayName(newName);
-
-      // Cập nhật Firestore
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
-        {'name': newName, 'phone': newPhone},
-      );
-
-    
-
-      Get.snackbar('Thành công', 'Thông tin đã được cập nhật');
+      await _userService.updateProfile(newName: newName, newPhone: newPhone);
+      userName.value = newName;
+      userPhone.value = newPhone;
+      Get.snackbar('Success', 'Profile updated');
     } catch (e) {
-      Get.snackbar('Lỗi', e.toString());
+      Get.snackbar('Error', e.toString());
+    } finally {
+      isLoading.value = false;
     }
   }
 
   Future<void> signOut() async {
     try {
-      await auth.signOut();
-      final google = GoogleSignIn();
-      if (await google.isSignedIn()) {
-        await google.disconnect();
-        await google.signOut();
-      }
-      Get.toNamed(AppRoutes.dashboard);
+      await _userService.signOut();
+      Get.offAllNamed(AppRoutes.dashboard);
     } catch (e) {
       Get.snackbar('Error', 'Sign out failed');
     }
   }
-
 }

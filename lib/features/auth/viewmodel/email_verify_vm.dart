@@ -1,9 +1,11 @@
 import 'dart:async';
-import 'package:agrimarket/app/routes/app_routes.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:agrimarket/data/services/auth_service.dart';
 import 'package:get/get.dart';
+import 'package:agrimarket/app/routes/app_routes.dart';
 
 class EmailVerificationViewModel extends GetxController {
+  final AuthService _authService = Get.find<AuthService>(); // inject bằng GetX
+
   final isEmailVerified = false.obs;
   final isLoading = false.obs;
   Timer? _timer;
@@ -11,25 +13,27 @@ class EmailVerificationViewModel extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _checkEmailVerified();
-    _timer = Timer.periodic(Duration(seconds: 3), (_) => _checkEmailVerified());
+    _startVerificationCheck();
   }
 
-  Future<void> _checkEmailVerified() async {
-    await FirebaseAuth.instance.currentUser?.reload();
-    final user = FirebaseAuth.instance.currentUser;
+  void _startVerificationCheck() {
+    _checkEmail();
+    _timer = Timer.periodic(const Duration(seconds: 3), (_) => _checkEmail());
+  }
 
-    if (user != null && user.emailVerified) {
+  Future<void> _checkEmail() async {
+    final verified = await _authService.checkEmailVerified();
+    if (verified) {
       isEmailVerified.value = true;
       _timer?.cancel();
-      Get.toNamed(AppRoutes.roleSelection); 
+      Get.offAllNamed(AppRoutes.roleSelection);
     }
   }
 
   Future<void> resendEmailVerification() async {
     try {
       isLoading.value = true;
-      await FirebaseAuth.instance.currentUser?.sendEmailVerification();
+      await _authService.sendEmailVerification();
       Get.snackbar('Thành công', 'Đã gửi lại email xác minh');
     } catch (e) {
       Get.snackbar('Lỗi', e.toString());

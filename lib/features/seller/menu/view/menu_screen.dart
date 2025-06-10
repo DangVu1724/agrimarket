@@ -13,11 +13,17 @@ class SellerMenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('Quản lý Menu', style: AppTextStyles.headline),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
+        actions: [
+          IconButton(
+            onPressed: () => _showCreateGroupDialog(context),
+            icon: const Icon(Icons.add, color: AppColors.primary),
+          ),
+        ],
       ),
       body: Obx(() {
         if (menuVm.isLoading.value) {
@@ -25,45 +31,35 @@ class SellerMenuScreen extends StatelessWidget {
         }
 
         if (menuVm.menuModel.value == null) {
-          return const Center(child: Text("Không tìm thấy menu."));
+          return const Center(child: Text('Không tìm thấy menu.'));
         }
 
         final groups = menuVm.menuModel.value!.groups;
 
-        return ListView.separated(
-          padding: const EdgeInsets.all(12),
-          itemCount: groups.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
-          itemBuilder: (context, index) {
-            final group = groups[index];
-            return _buildMenuGroupItem(
-              group: group,
-              index: index,
-              onEdit: () => _showEditGroupDialog(context, index, group),
-              onDelete: () => menuVm.deleteMenuGroup(index),
-              onAddProducts: () => _showAddProductsDialog(context, index),
-            );
-          },
+        return RefreshIndicator(
+          onRefresh: () async => await menuVm.fetchMenu(),
+          child: ListView.separated(
+            padding: const EdgeInsets.all(12),
+            itemCount: groups.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              final group = groups[index];
+              return _buildMenuGroupItem(
+                group: group,
+                index: index,
+                context: context,
+              );
+            },
+          ),
         );
       }),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: Text(
-          "Thêm nhóm menu",
-          style: AppTextStyles.body.copyWith(color: Colors.white),
-        ),
-        onPressed: () => _showCreateGroupDialog(context),
-      ),
     );
   }
 
   Widget _buildMenuGroupItem({
     required MenuGroup group,
     required int index,
-    VoidCallback? onEdit,
-    VoidCallback? onDelete,
-    VoidCallback? onAddProducts,
+    required BuildContext context,
   }) {
     final products = menuVm.getProductsForGroup(index);
 
@@ -73,101 +69,153 @@ class SellerMenuScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         color: Colors.white,
       ),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  group.title,
+      child: ExpansionTile(
+        shape: RoundedRectangleBorder(side: BorderSide.none),
+        collapsedShape: Border.all(width: 0, color: AppColors.background),
+        clipBehavior: Clip.none,
+        title: Text(
+          group.title,
+          style: AppTextStyles.body.copyWith(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        subtitle:
+            group.description.isNotEmpty
+                ? Text(
+                  group.description,
                   style: AppTextStyles.body.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
                   ),
-                ),
-              ),
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: AppColors.primary),
-                    onPressed: onEdit,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: onDelete,
-                  ),
-                ],
-              ),
-            ],
-          ),
-          if (group.description.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(
-              group.description,
-              style: AppTextStyles.body.copyWith(color: Colors.grey.shade600),
-            ),
-          ],
-          const SizedBox(height: 8),
-          Text(
-            'Sản phẩm:',
-            style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold),
-          ),
-          if (products.isEmpty)
-            const Text('Chưa có sản phẩm', style: TextStyle(color: Colors.grey))
-          else
-            Column(
-              children:
-                  products
-                      .map(
-                        (product) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Row(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.network(
-                                  product.imageUrl,
-                                  height: 50,
-                                  width: 50,
-                                  fit: BoxFit.cover,
-                                  errorBuilder:
-                                      (context, error, stackTrace) => Container(
-                                        height: 50,
-                                        width: 50,
-                                        color: Colors.grey.shade200,
-                                        child: const Icon(
-                                          Icons.broken_image,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  product.name,
-                                  style: AppTextStyles.body,
-                                ),
-                              ),
-                            ],
+                )
+                : null,
+        initiallyExpanded: false,
+        iconColor: AppColors.primary,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      onPressed: () => _showAddProductsDialog(context, index),
+                      icon: Icon(Icons.add, size: 15),
+                    ),
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.edit,
+                            color: AppColors.primary,
+                            size: 15,
                           ),
+                          onPressed:
+                              () => _showEditGroupDialog(context, index, group),
                         ),
-                      )
-                      .toList(),
-            ),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerRight,
-            child: ElevatedButton(
-              onPressed: onAddProducts,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Thêm sản phẩm'),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                            size: 15,
+                          ),
+                          onPressed: () {
+                              Get.defaultDialog(
+                                title: 'Xác nhận xoá menu',
+                                titleStyle: AppTextStyles.headline,
+                                content: Text('Bạn có chắc muốn xoá menu',textAlign: TextAlign.center,),
+                                textConfirm: 'Xóa',
+                                textCancel: 'Hủy',
+                                confirmTextColor: Colors.white,
+                                cancelTextColor: AppColors.textPrimary,
+                                buttonColor: AppColors.error,
+                                onConfirm: () {
+                                  menuVm.deleteMenuGroup(
+                                    index
+                                  );
+                                  Get.back();
+                                },
+                                onCancel: () {},
+                              );
+                            },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: products.length,
+                  itemBuilder: (context, productIndex) {
+                    final product = products[productIndex];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              product.imageUrl,
+                              height: 50,
+                              width: 50,
+                              fit: BoxFit.cover,
+                              errorBuilder:
+                                  (context, error, stackTrace) => Container(
+                                    height: 50,
+                                    width: 50,
+                                    color: Colors.grey.shade200,
+                                    child: const Icon(
+                                      Icons.broken_image,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              product.name,
+                              style: AppTextStyles.body,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              Get.defaultDialog(
+                                title: 'Xác nhận xoá sản phẩm',
+                                titleStyle: AppTextStyles.headline,
+                                content: Text('Bạn có chắc muốn xoá sản phẩm này khỏi menu',textAlign: TextAlign.center,),
+                                textConfirm: 'Xóa',
+                                textCancel: 'Hủy',
+                                confirmTextColor: Colors.white,
+                                cancelTextColor: AppColors.textPrimary,
+                                buttonColor: AppColors.error,
+                                onConfirm: () {
+                                  menuVm.removeProductFromGroup(
+                                    index,
+                                    product.id,
+                                  );
+                                  Get.back();
+                                },
+                                onCancel: () {},
+                              );
+                            },
+                            icon: Icon(
+                              Icons.delete,
+                              size: 14,
+                              color: AppColors.error,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
           ),
         ],
@@ -176,83 +224,19 @@ class SellerMenuScreen extends StatelessWidget {
   }
 
   void _showCreateGroupDialog(BuildContext context) {
-  final titleController = TextEditingController();
-  final descriptionController = TextEditingController();
-
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Tạo nhóm menu'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: titleController,
-            decoration: const InputDecoration(
-              labelText: 'Tiêu đề',
-              hintText: 'Nhập tiêu đề nhóm menu',
-            ),
-          ),
-          TextField(
-            controller: descriptionController,
-            decoration: const InputDecoration(
-              labelText: 'Mô tả',
-              hintText: 'Nhập mô tả (tùy chọn)',
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Hủy'),
-        ),
-        TextButton(
-          onPressed: () {
-            print('Nút Tạo được nhấn'); 
-            try {
-              if (titleController.text.trim().isNotEmpty) {
-                print('Tiêu đề: ${titleController.text}');
-                menuVm.addMenuGroup(
-                  titleController.text.trim(),
-                  descriptionController.text.trim(),
-                );
-                Navigator.pop(context);
-              } else {
-                Get.snackbar(
-                  'Lỗi',
-                  'Vui lòng nhập tiêu đề',
-                  snackPosition: SnackPosition.TOP,
-                  duration: const Duration(seconds: 3),
-                );
-              }
-            } catch (e) {
-              print('Lỗi khi tạo nhóm menu: $e');
-              Get.snackbar(
-                'Lỗi',
-                'Không thể tạo nhóm menu: $e',
-                snackPosition: SnackPosition.TOP,
-              );
-            }
-          },
-          child: const Text('Tạo'),
-        ),
-      ],
-    ),
-  );
-}
-
-  void _showEditGroupDialog(BuildContext context, int index, MenuGroup group) {
-    final titleController = TextEditingController(text: group.title);
-    final descriptionController = TextEditingController(
-      text: group.description,
-    );
+    final titleController = TextEditingController();
+    final descriptionController = TextEditingController();
 
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Chỉnh sửa nhóm menu'),
+            backgroundColor: AppColors.background,
+            title: Text(
+              'Tạo nhóm Menu',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.headline,
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -274,8 +258,77 @@ class SellerMenuScreen extends StatelessWidget {
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Hủy'),
+                onPressed: () => Get.back(),
+                child: const Text(
+                  'Hủy',
+                  style: TextStyle(color: AppColors.error),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  if (titleController.text.trim().isNotEmpty) {
+                    menuVm.addMenuGroup(
+                      titleController.text.trim(),
+                      descriptionController.text.trim(),
+                    );
+                    Get.back();
+                  } else {
+                    Get.snackbar(
+                      'Lỗi',
+                      'Vui lòng nhập tiêu đề',
+                      snackPosition: SnackPosition.TOP,
+                      duration: const Duration(seconds: 3),
+                    );
+                  }
+                },
+                child: const Text(
+                  'Tạo',
+                  style: TextStyle(color: AppColors.primary),
+                ),
+              ),
+            ],
+          ),
+    );
+  }
+
+  void _showEditGroupDialog(BuildContext context, int index, MenuGroup group) {
+    final titleController = TextEditingController(text: group.title);
+    final descriptionController = TextEditingController(
+      text: group.description,
+    );
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: AppColors.background,
+            title: Text('Chỉnh sửa nhóm menu', style: AppTextStyles.headline),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Tiêu đề',
+                    hintText: 'Nhập tiêu đề nhóm menu',
+                  ),
+                ),
+                TextField(
+                  controller: descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Mô tả',
+                    hintText: 'Nhập mô tả (tùy chọn)',
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(),
+                child: const Text(
+                  'Hủy',
+                  style: TextStyle(color: AppColors.error),
+                ),
               ),
               TextButton(
                 onPressed: () {
@@ -285,12 +338,19 @@ class SellerMenuScreen extends StatelessWidget {
                       titleController.text.trim(),
                       descriptionController.text.trim(),
                     );
-                    Navigator.pop(context);
+                    Get.back();
                   } else {
-                    Get.snackbar('Lỗi', 'Vui lòng nhập tiêu đề');
+                    Get.snackbar(
+                      'Lỗi',
+                      'Vui lòng nhập tiêu đề',
+                      snackPosition: SnackPosition.TOP,
+                    );
                   }
                 },
-                child: const Text('Lưu'),
+                child: const Text(
+                  'Lưu',
+                  style: TextStyle(color: AppColors.primary),
+                ),
               ),
             ],
           ),
@@ -304,7 +364,11 @@ class SellerMenuScreen extends StatelessWidget {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Thêm sản phẩm vào nhóm'),
+            backgroundColor: AppColors.background,
+            title: Text(
+              'Thêm sản phẩm vào nhóm',
+              style: AppTextStyles.headline,
+            ),
             content: Obx(() {
               final availableProducts = menuVm.productVm.allProducts;
               if (availableProducts.isEmpty) {
@@ -318,16 +382,18 @@ class SellerMenuScreen extends StatelessWidget {
                   itemCount: availableProducts.length,
                   itemBuilder: (context, index) {
                     final product = availableProducts[index];
-                    return CheckboxListTile(
-                      title: Text(product.name),
-                      value: selectedProductIds.contains(product.id),
-                      onChanged: (value) {
-                        if (value == true) {
-                          selectedProductIds.add(product.id);
-                        } else {
-                          selectedProductIds.remove(product.id);
-                        }
-                      },
+                    return Obx(
+                      () => CheckboxListTile(
+                        title: Text(product.name, style: AppTextStyles.body),
+                        value: selectedProductIds.contains(product.id),
+                        onChanged: (value) {
+                          if (value == true) {
+                            selectedProductIds.add(product.id);
+                          } else {
+                            selectedProductIds.remove(product.id);
+                          }
+                        },
+                      ),
                     );
                   },
                 ),
@@ -335,19 +401,29 @@ class SellerMenuScreen extends StatelessWidget {
             }),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Hủy'),
+                onPressed: () => Get.back(),
+                child: const Text(
+                  'Hủy',
+                  style: TextStyle(color: AppColors.error),
+                ),
               ),
               TextButton(
                 onPressed: () {
                   if (selectedProductIds.isNotEmpty) {
                     menuVm.addProductsToGroup(groupIndex, selectedProductIds);
-                    Navigator.pop(context);
+                    Get.back();
                   } else {
-                    Get.snackbar('Lỗi', 'Vui lòng chọn ít nhất một sản phẩm');
+                    Get.snackbar(
+                      'Lỗi',
+                      'Vui lòng chọn ít nhất một sản phẩm',
+                      snackPosition: SnackPosition.TOP,
+                    );
                   }
                 },
-                child: const Text('Thêm'),
+                child: const Text(
+                  'Thêm',
+                  style: TextStyle(color: AppColors.primary),
+                ),
               ),
             ],
           ),

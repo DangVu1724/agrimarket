@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
-
 class BuyerVm extends GetxController {
   final FirestoreProvider firestoreProvider = FirestoreProvider();
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -20,15 +19,13 @@ class BuyerVm extends GetxController {
   }
 
   String get defaultAddress {
-  if (address.isNotEmpty) {
-    return address.firstWhere(
-      (addr) => addr.isDefault,
-      orElse: () => address.first,
-    ).address;
+    if (address.isNotEmpty) {
+      return address
+          .firstWhere((addr) => addr.isDefault, orElse: () => address.first)
+          .address;
+    }
+    return 'Chưa có địa chỉ';
   }
-  return 'Chưa có địa chỉ';
-}
-
 
   void fetchBuyerData() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -36,7 +33,6 @@ class BuyerVm extends GetxController {
       Get.snackbar('Error', 'User not logged in');
       return;
     }
-
     try {
       isLoading.value = true;
 

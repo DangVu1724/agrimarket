@@ -1,5 +1,6 @@
 import 'package:agrimarket/app/controllers/auth_controller.dart';
 import 'package:agrimarket/app/theme/app_colors.dart';
+import 'package:agrimarket/core/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../app/routes/app_routes.dart';
@@ -13,7 +14,8 @@ class Dashboard extends StatelessWidget {
     final AuthController _authController = Get.find();
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Center(
+      body: Padding(
+        padding: EdgeInsetsGeometry.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -28,78 +30,18 @@ class Dashboard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
+            CustomButton(
+              text: 'Đăng nhập',
               onPressed: () {
-                Get.offNamed(AppRoutes.login);
+                Get.toNamed(AppRoutes.login);
               },
-              style: ButtonStyle(
-                minimumSize: WidgetStateProperty.all(const Size(370, 40)),
-                backgroundColor: WidgetStateProperty.resolveWith<Color>((
-                  Set<WidgetState> states,
-                ) {
-                  if (states.contains(WidgetState.pressed)) {
-                    return Color.fromRGBO(0, 153, 68, 1);
-                  }
-                  return Colors.white;
-                }),
-                foregroundColor: WidgetStateProperty.resolveWith<Color>((
-                  Set<WidgetState> states,
-                ) {
-                  if (states.contains(WidgetState.pressed)) {
-                    return Colors.white;
-                  }
-                  return Color.fromRGBO(0, 153, 68, 1);
-                }),
-                padding: WidgetStateProperty.all(
-                  const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                ),
-                shape: WidgetStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              ),
-              child: const Text(
-                'Login',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
+            CustomButton(
+              text: 'Đăng ký',
               onPressed: () {
-                Get.offNamed(AppRoutes.register);
+                Get.toNamed(AppRoutes.register);
               },
-              style: ButtonStyle(
-                minimumSize: WidgetStateProperty.all(const Size(370, 40)),
-                backgroundColor: WidgetStateProperty.resolveWith<Color>((
-                  Set<WidgetState> states,
-                ) {
-                  if (states.contains(WidgetState.pressed)) {
-                    return Color.fromRGBO(0, 153, 68, 1);
-                  }
-                  return Colors.white;
-                }),
-                foregroundColor: WidgetStateProperty.resolveWith<Color>((
-                  Set<WidgetState> states,
-                ) {
-                  if (states.contains(WidgetState.pressed)) {
-                    return Colors.white;
-                  }
-                  return Color.fromRGBO(0, 153, 68, 1);
-                }),
-                padding: WidgetStateProperty.all(
-                  const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                ),
-                shape: WidgetStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              ),
-              child: const Text(
-                'Register',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
             ),
             const SizedBox(height: 40),
             SizedBox(

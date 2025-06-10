@@ -5,9 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_storage/get_storage.dart';
 import '../../data/models/user.dart';
 import '../../data/models/buyer.dart';
-import '../../data/models/store.dart';
 import '../routes/app_routes.dart';
-import 'dart:math';
 
 class AuthController extends GetxController {
   final AuthService _authService = AuthService();
@@ -20,64 +18,22 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
 
-      // 1. Đăng nhập với Firebase Auth
-      final user = await _authService.signInWithEmailAndPassword(
-        email,
-        password,
-      );
-
+      final user = await _authService.signInWithEmailAndPassword(email, password);
       if (user != null) {
-        // 2. Kiểm tra email đã xác minh chưa
-        final isEmailVerified = await _authService.isEmailVerified();
-
+        final isEmailVerified = await _authService.checkEmailVerified();
         if (!isEmailVerified) {
-          // Chuyển đến màn hình xác minh email
-          Get.offAllNamed(AppRoutes.emailVerify);
-          Get.snackbar(
-            'Xác minh email',
-            'Vui lòng xác minh email trước khi tiếp tục.',
-            snackPosition: SnackPosition.BOTTOM,
-          );
-          return;
+          return _promptEmailVerification();
         }
 
-        // 3. Lấy thông tin người dùng từ Firestore
         final userModel = await _firestoreProvider.getUserById(user.uid);
-
         if (userModel == null) {
           throw Exception('Không tìm thấy thông tin người dùng');
         }
 
-        // 4. Điều hướng dựa trên vai trò
-        if (userModel.role == null) {
-          Get.offAllNamed(AppRoutes.roleSelection);
-        } else {
-          Get.offAllNamed(
-            userModel.role == 'buyer'
-                ? AppRoutes.buyerHome
-                : AppRoutes.sellerHome,
-          );
-        }
+        await _navigateByRole(user.uid, userModel.role);
       }
     } on FirebaseAuthException catch (e) {
-      String errorMessage;
-      switch (e.code) {
-        case 'user-not-found':
-          errorMessage = 'Không tìm thấy tài khoản với email này';
-          break;
-        case 'wrong-password':
-          errorMessage = 'Mật khẩu không đúng';
-          break;
-        case 'invalid-email':
-          errorMessage = 'Email không hợp lệ';
-          break;
-        case 'user-disabled':
-          errorMessage = 'Tài khoản đã bị vô hiệu hóa';
-          break;
-        default:
-          errorMessage = 'Đã có lỗi xảy ra: ${e.message ?? e.toString()}';
-      }
-      Get.snackbar('Lỗi', errorMessage);
+      _handleFirebaseAuthError(e);
     } catch (e) {
       Get.snackbar('Lỗi', 'Đã có lỗi không xác định: $e');
     } finally {
@@ -85,7 +41,6 @@ class AuthController extends GetxController {
     }
   }
 
-  // Đăng ký và lưu thông tin người dùng
   Future<void> register({
     required String email,
     required String password,
@@ -98,27 +53,10 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
 
-      // 1. Đăng ký tài khoản Firebase Auth
-      final user = await _authService.registerWithEmailAndPassword(
-        email,
-        password,
-      );
-
+      final user = await _authService.registerWithEmailAndPassword(email, password);
       if (user != null) {
-        // 2. Gửi email xác minh
-        await _authService.sendEmailVerification(user);
-
-        // 3. Lưu thông tin người dùng vào GetStorage
-        box.write('pendingUser', {
-          'email': email,
-          'name': name,
-          'phone': phone,
-          'address': address,
-          'latitude': latitude,
-          'longitude': longitude,
-        });
-
-        // 4. Chuyển sang màn chọn vai trò
+        await _authService.sendEmailVerification();
+        _savePendingUser(email, name, phone, address, latitude, longitude);
         Get.offAllNamed(AppRoutes.emailVerify);
       }
     } catch (e) {
@@ -128,19 +66,14 @@ class AuthController extends GetxController {
     }
   }
 
-  // Xác minh email trước khi tiếp tục
   Future<void> checkEmailVerificationAndProceed() async {
-    final verified = await _authService.isEmailVerified();
+    final verified = await _authService.checkEmailVerified();
     if (verified) {
       Get.offAllNamed(AppRoutes.roleSelection);
     } else {
-      Get.snackbar(
-        "Xác minh email",
-        "Vui lòng xác minh email trước khi tiếp tục.",
-      );
+      Get.snackbar("Xác minh email", "Vui lòng xác minh email trước khi tiếp tục.");
     }
   }
-
 
   Future<void> updateUserRole(
     String role, {
@@ -156,40 +89,31 @@ class AuthController extends GetxController {
       isLoading.value = true;
 
       final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        throw Exception('Người dùng chưa đăng nhập');
-      }
+      if (user == null) throw Exception('Người dùng chưa đăng nhập');
 
-      // Đọc dữ liệu tạm thời đã lưu từ GetStorage
       final pendingUser = box.read('pendingUser');
-      if (pendingUser == null) {
-        throw Exception('Không tìm thấy thông tin người dùng tạm thời');
-      }
+      if (pendingUser == null) throw Exception('Không tìm thấy thông tin người dùng tạm thời');
 
-      // Tạo UserModel
       final newUser = UserModel(
         uid: user.uid,
         email: pendingUser['email'],
         name: pendingUser['name'],
         phone: pendingUser['phone'],
         role: role,
-        createdAt: DateTime.now()
+        createdAt: DateTime.now(),
       );
 
-      // Lưu UserModel vào Firestore
       await _firestoreProvider.createUser(newUser);
 
       if (role == 'buyer') {
-        final List<Address> addresses = [];
+        final addresses = <Address>[];
         if (address != null && addressLabel != null) {
-          addresses.add(
-            Address(
-              label: addressLabel,
-              address: address,
-              latitude: latitude ?? pendingUser['latitude'],
-              longitude: longitude ?? pendingUser['longitude'],
-            ),
-          );
+          addresses.add(Address(
+            label: addressLabel,
+            address: address,
+            latitude: latitude ?? pendingUser['latitude'],
+            longitude: longitude ?? pendingUser['longitude'],
+          ));
         }
 
         final buyer = BuyerModel(
@@ -199,17 +123,13 @@ class AuthController extends GetxController {
           reviews: [],
           orderIds: [],
         );
-
         await _firestoreProvider.createBuyer(buyer);
-      } else if (role == 'seller') {
-        Get.offAllNamed(AppRoutes.createStoreInfo);
-      } else {
-        throw Exception('Vai trò không hợp lệ');
       }
+
       box.remove('pendingUser');
 
       Get.offAllNamed(
-        role == 'buyer' ? AppRoutes.buyerHome : AppRoutes.sellerHome,
+        role == 'buyer' ? AppRoutes.buyerHome : AppRoutes.createStoreInfo,
       );
     } catch (e) {
       Get.snackbar("Lỗi", e.toString());
@@ -223,33 +143,21 @@ class AuthController extends GetxController {
       isLoading.value = true;
 
       final user = await _authService.signInWithGoogle();
-
       if (user != null) {
-        // Lấy dữ liệu user từ Firestore
         final userModel = await _firestoreProvider.getUserById(user.uid);
 
         if (userModel == null) {
-          // Nếu lần đầu đăng nhập bằng Google, tạo tài khoản mặc định
-          box.write('pendingUser', {
-            'email': user.email ?? '',
-            'name': user.displayName ?? '',
-            'phone': user.phoneNumber ?? '',
-            'role': null,
-          });
-
-          // Chuyển sang chọn role
+          _savePendingUser(
+            user.email ?? '',
+            user.displayName ?? '',
+            user.phoneNumber ?? '',
+            null,
+            null,
+            null,
+          );
           Get.offAllNamed(AppRoutes.roleSelection);
         } else {
-          // Nếu đã có tài khoản, chuyển trang theo role
-          if (userModel.role == null) {
-            Get.offAllNamed(AppRoutes.roleSelection);
-          } else {
-            Get.offAllNamed(
-              userModel.role == 'buyer'
-                  ? AppRoutes.buyerHome
-                  : AppRoutes.sellerHome,
-            );
-          }
+          await _navigateByRole(user.uid, userModel.role);
         }
       }
     } catch (e) {
@@ -259,4 +167,63 @@ class AuthController extends GetxController {
       isLoading.value = false;
     }
   }
+
+
+  void _promptEmailVerification() {
+    Get.offAllNamed(AppRoutes.emailVerify);
+    Get.snackbar(
+      'Xác minh email',
+      'Vui lòng xác minh email trước khi tiếp tục.',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
+
+  Future<void> _navigateByRole(String uid, String? role) async {
+    if (role == null) {
+      Get.offAllNamed(AppRoutes.roleSelection);
+    } else if (role == 'seller') {
+      final storedNeedsStoreCreation = box.read('needsStoreCreation') ?? false;
+      final stores = await _firestoreProvider.getStoresByOwner(uid);
+
+      if (stores.isEmpty || storedNeedsStoreCreation) {
+        box.write('needsStoreCreation', true);
+        Get.offAllNamed(AppRoutes.createStoreInfo);
+      } else {
+        box.remove('needsStoreCreation');
+        Get.offAllNamed(AppRoutes.sellerHome);
+      }
+    } else {
+      Get.offAllNamed(AppRoutes.buyerHome);
+    }
+  }
+
+  void _handleFirebaseAuthError(FirebaseAuthException e) {
+    final errorMessage = switch (e.code) {
+      'user-not-found' => 'Không tìm thấy tài khoản với email này',
+      'wrong-password' => 'Mật khẩu không đúng',
+      'invalid-email' => 'Email không hợp lệ',
+      'user-disabled' => 'Tài khoản đã bị vô hiệu hóa',
+      _ => 'Đã có lỗi xảy ra: ${e.message ?? e.toString()}',
+    };
+    Get.snackbar('Lỗi', errorMessage);
+  }
+
+  void _savePendingUser(
+    String email,
+    String name,
+    String phone, [
+    String? address,
+    double? latitude,
+    double? longitude,
+  ]) {
+    box.write('pendingUser', {
+      'email': email,
+      'name': name,
+      'phone': phone,
+      'address': address,
+      'latitude': latitude,
+      'longitude': longitude,
+    });
+  }
 }
+

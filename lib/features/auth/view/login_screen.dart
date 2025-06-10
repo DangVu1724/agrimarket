@@ -45,8 +45,10 @@ class LoginScreen extends StatelessWidget {
                   const SizedBox(height: 32),
                   Center(
                     child: Text(
-                      "Đăng nhập vào tài khoản của bạn",
-                      style: AppTextStyles.headline,
+                      "ĐĂNG NHẬP TÀI KHOẢN",
+                      maxLines: 2,
+                      softWrap: true,
+                      style: AppTextStyles.headline
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -61,7 +63,8 @@ class LoginScreen extends StatelessWidget {
                     label: "Email Address",
                     hintText: "Enter Email",
                     controller: viewModel.emailController,
-                    validator: (value) => viewModel.validateEmail(value ?? "")
+                    validator: (value) => viewModel.validateEmail(value ?? ""),
+                    maxLine: 1,
                   ),
                   const SizedBox(height: 16),
                   Obx(
@@ -96,7 +99,9 @@ class LoginScreen extends StatelessWidget {
                           ),
                           Text(
                             "Remember me",
-                            style: AppTextStyles.body,
+                            style: AppTextStyles.body.copyWith(
+                              fontSize: 14
+                            )
                           ),
                         ],
                       ),
@@ -106,7 +111,7 @@ class LoginScreen extends StatelessWidget {
                         },
                         child: Text(
                           "Quên mật khẩu?",
-                          style: AppTextStyles.body.copyWith(color: AppColors.primary),
+                          style: AppTextStyles.body.copyWith(color: AppColors.primary,fontSize: 14),
                         ),
                       ),
                     ],
@@ -117,7 +122,7 @@ class LoginScreen extends StatelessWidget {
                     onPressed: viewModel.login,
                     isLoading: viewModel.isLoading.value,
                   ),
-                  const SizedBox(height: 34),
+                  const SizedBox(height: 20),
                   Row(
                     children: [
                       const Expanded(child: Divider(color: AppColors.textSecondary)),
@@ -146,7 +151,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 64),
+                  const SizedBox(height: 34),
                   Center(
                     child: GestureDetector(
                       onTap: () => Get.toNamed(AppRoutes.register),

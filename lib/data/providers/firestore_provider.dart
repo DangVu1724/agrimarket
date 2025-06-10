@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:agrimarket/data/models/user.dart';
-import 'package:agrimarket/data/models/buyer.dart'; // Thêm import BuyerModel
+import 'package:agrimarket/data/models/buyer.dart'; 
 import 'package:agrimarket/data/models/store.dart';
-import 'package:agrimarket/data/models/order.dart';
-import 'package:agrimarket/data/models/product.dart';
 
 class FirestoreProvider {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -73,50 +71,6 @@ class FirestoreProvider {
       await _firestore.collection('stores').doc(store.storeId).set(store.toJson());
     } catch (e) {
       throw Exception('Lỗi khi lưu thông tin cửa hàng: $e');
-    }
-  }
-
-  // Lưu thông tin đơn hàng
-  Future<void> createOrder(OrderModel order) async {
-    try {
-      await _firestore.collection('orders').doc(order.orderId).set({
-        'orderId': order.orderId,
-        'buyerUid': order.buyerUid,
-        'storeId': order.storeId,
-        'items': order.items
-            .map((item) => {
-                  'productId': item.productId,
-                  'name': item.name,
-                  'quantity': item.quantity,
-                  'price': item.price,
-                  'unit': item.unit,
-                })
-            .toList(),
-        'status': order.status,
-        'totalPrice': order.totalPrice,
-        'createdAt': order.createdAt,
-        'deliveryAddress': order.deliveryAddress,
-      });
-    } catch (e) {
-      throw Exception('Lỗi khi lưu đơn hàng: $e');
-    }
-  }
-
-  // Lưu thông tin sản phẩm
-  Future<void> createProduct(ProductModel product) async {
-    try {
-      await _firestore.collection('products').doc(product.id).set({
-        'id': product.id,
-        'storeId': product.storeId,
-        'name': product.name,
-        'category': product.category,
-        'description': product.description,
-        'price': product.price,
-        'unit': product.unit,
-        'imageUrl': product.imageUrl,
-      });
-    } catch (e) {
-      throw Exception('Lỗi khi lưu sản phẩm: $e');
     }
   }
 }

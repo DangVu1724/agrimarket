@@ -17,25 +17,42 @@ class BuyerModel {
     return BuyerModel(
       uid: json['uid'],
       favoriteStoreIds: List<String>.from(json['favoriteStoreIds'] ?? []),
-      addresses: (json['addresses'] as List? ?? [])
-          .map((e) => Address.fromJson(e))
-          .toList(),
-      reviews: (json['reviews'] as List? ?? [])
-          .map((e) => Review.fromJson(e))
-          .toList(),
+      addresses:
+          (json['addresses'] as List? ?? [])
+              .map((e) => Address.fromJson(e))
+              .toList(),
+      reviews:
+          (json['reviews'] as List? ?? [])
+              .map((e) => Review.fromJson(e))
+              .toList(),
       orderIds: List<String>.from(json['orderIds'] ?? []),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'uid': uid,
-        'favoriteStoreIds': favoriteStoreIds,
-        'addresses': addresses.map((e) => e.toJson()).toList(),
-        'reviews': reviews.map((e) => e.toJson()).toList(),
-        'orderIds': orderIds,
-      };
-}
+    'uid': uid,
+    'favoriteStoreIds': favoriteStoreIds,
+    'addresses': addresses.map((e) => e.toJson()).toList(),
+    'reviews': reviews.map((e) => e.toJson()).toList(),
+    'orderIds': orderIds,
+  };
 
+  BuyerModel copyWith({
+    String? uid,
+    List<String>? favoriteStoreIds,
+    List<Address>? addresses,
+    List<Review>? reviews,
+    List<String>? orderIds,
+  }) {
+    return BuyerModel(
+      uid: uid ?? this.uid,
+      favoriteStoreIds: favoriteStoreIds ?? this.favoriteStoreIds,
+      addresses: addresses ?? this.addresses,
+      reviews: reviews ?? this.reviews,
+      orderIds: orderIds ?? this.orderIds,
+    );
+  }
+}
 
 class Address {
   final String label;
@@ -53,22 +70,37 @@ class Address {
   });
 
   factory Address.fromJson(Map<String, dynamic> json) => Address(
-        label: json['label'],
-        address: json['address'],
-        latitude: (json['latitude'] as num?)!.toDouble(),
-        longitude: (json['longitude'] as num?)!.toDouble(),
-        isDefault: json['isDefault'] ?? false,
-      );
+    label: json['label'],
+    address: json['address'],
+    latitude: (json['latitude'] as num?)!.toDouble(),
+    longitude: (json['longitude'] as num?)!.toDouble(),
+    isDefault: json['isDefault'] ?? false,
+  );
 
   Map<String, dynamic> toJson() => {
-        'label': label,
-        'address': address,
-        'latitude': latitude,
-        'longitude': longitude,
-        'isDefault': isDefault,
-      };
-}
+    'label': label,
+    'address': address,
+    'latitude': latitude,
+    'longitude': longitude,
+    'isDefault': isDefault,
+  };
 
+  Address copyWith({
+    String? label,
+    String? address,
+    double? latitude,
+    double? longitude,
+    bool? isDefault,
+  }) {
+    return Address(
+      label: label ?? this.label,
+      address: address ?? this.address,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      isDefault: isDefault ?? this.isDefault,
+    );
+  }
+}
 
 class Review {
   final String userId;
@@ -84,16 +116,16 @@ class Review {
   });
 
   factory Review.fromJson(Map<String, dynamic> json) => Review(
-        userId: json['userId'],
-        rating: (json['rating'] as num).toDouble(),
-        comment: json['comment'],
-        createdAt: DateTime.parse(json['createdAt']),
-      );
+    userId: json['userId'],
+    rating: (json['rating'] as num).toDouble(),
+    comment: json['comment'],
+    createdAt: DateTime.parse(json['createdAt']),
+  );
 
   Map<String, dynamic> toJson() => {
-        'userId': userId,
-        'rating': rating,
-        'comment': comment,
-        'createdAt': createdAt.toIso8601String(),
-      };
+    'userId': userId,
+    'rating': rating,
+    'comment': comment,
+    'createdAt': createdAt.toIso8601String(),
+  };
 }
