@@ -30,7 +30,7 @@ class ProductRepository {
   Future<void> updateProduct(String productId, ProductModel product) async {
     try {
       final productData = product.toJson()..remove('id');
-      productData['createdAt'] = FieldValue.serverTimestamp();
+      productData['updateAt'] = FieldValue.serverTimestamp();
       await _productsCollection.doc(productId).update(productData);
     } catch (e) {
       throw Exception('Không thể cập nhật sản phẩm: $e');

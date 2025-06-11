@@ -5,8 +5,9 @@ class StoreModel {
   final String description;
   final List<String> categories;
   final String address;
-  final String? businessLicenseUrl; 
+  final String? businessLicenseUrl;
   final String? foodSafetyCertificateUrl;
+  final String? storeImageUrl ;
   final String state;
 
   StoreModel({
@@ -16,8 +17,9 @@ class StoreModel {
     required this.description,
     required this.categories,
     required this.address,
-    required this.businessLicenseUrl, 
-    required this.foodSafetyCertificateUrl,
+    this.businessLicenseUrl,
+    this.foodSafetyCertificateUrl,
+    this.storeImageUrl ,
     this.state = 'pending',
   });
 
@@ -31,6 +33,7 @@ class StoreModel {
     'state': state,
     'businessLicenseUrl': businessLicenseUrl,
     'foodSafetyCertificateUrl': foodSafetyCertificateUrl,
+    'storeImageUrl ': storeImageUrl ,
   };
 
   factory StoreModel.fromJson(Map<String, dynamic> json) => StoreModel(
@@ -39,9 +42,10 @@ class StoreModel {
     name: json['name'],
     description: json['description'],
     categories: List<String>.from(json['categories']),
-    address: json['address'], 
+    address: json['address'],
     businessLicenseUrl: json['businessLicenseUrl'],
     foodSafetyCertificateUrl: json['foodSafetyCertificateUrl'],
+    storeImageUrl : json['storeImageUrl '],
     state: json['state'] ?? 'pending',
   );
 }

@@ -2,6 +2,7 @@ import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/data/models/menu.dart';
 import 'package:agrimarket/features/seller/menu/viewmodel/menu_screen_vm.dart';
+import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -63,163 +64,158 @@ class SellerMenuScreen extends StatelessWidget {
   }) {
     final products = menuVm.getProductsForGroup(index);
 
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.white,
-      ),
-      child: ExpansionTile(
-        shape: RoundedRectangleBorder(side: BorderSide.none),
-        collapsedShape: Border.all(width: 0, color: AppColors.background),
-        clipBehavior: Clip.none,
-        title: Text(
-          group.title,
-          style: AppTextStyles.body.copyWith(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
+    return ExpansionTileCard(
+      elevation: 2,
+      baseColor: const Color.fromARGB(255, 174, 198, 159),
+      expandedColor: AppColors.background,
+      borderRadius: BorderRadius.circular(12),
+
+      title: Text(
+        group.title,
+        style: AppTextStyles.body.copyWith(
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
         ),
-        subtitle:
-            group.description.isNotEmpty
-                ? Text(
-                  group.description,
-                  style: AppTextStyles.body.copyWith(
-                    color: Colors.grey.shade600,
-                    fontSize: 14,
+      ),
+      subtitle:
+          group.description.isNotEmpty
+              ? Text(
+                group.description,
+                style: AppTextStyles.body.copyWith(
+                  color: Colors.grey.shade600,
+                  fontSize: 14,
+                ),
+              )
+              : null,
+      initiallyExpanded: false,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    onPressed: () => _showAddProductsDialog(context, index),
+                    icon: Icon(Icons.add, size: 15),
                   ),
-                )
-                : null,
-        initiallyExpanded: false,
-        iconColor: AppColors.primary,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: () => _showAddProductsDialog(context, index),
-                      icon: Icon(Icons.add, size: 15),
-                    ),
-                    Row(
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.edit,
+                          color: AppColors.primary,
+                          size: 15,
+                        ),
+                        onPressed:
+                            () => _showEditGroupDialog(context, index, group),
+                      ),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                          size: 15,
+                        ),
+                        onPressed: () {
+                          Get.defaultDialog(
+                            title: 'Xác nhận xoá menu',
+                            titleStyle: AppTextStyles.headline,
+                            content: Text(
+                              'Bạn có chắc muốn xoá menu',
+                              textAlign: TextAlign.center,
+                            ),
+                            textConfirm: 'Xóa',
+                            textCancel: 'Hủy',
+                            confirmTextColor: Colors.white,
+                            cancelTextColor: AppColors.textPrimary,
+                            buttonColor: AppColors.error,
+                            onConfirm: () {
+                              menuVm.deleteMenuGroup(index);
+                              Get.back();
+                            },
+                            onCancel: () {},
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: products.length,
+                itemBuilder: (context, productIndex) {
+                  final product = products[productIndex];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
                       children: [
-                        IconButton(
-                          icon: const Icon(
-                            Icons.edit,
-                            color: AppColors.primary,
-                            size: 15,
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            product.imageUrl,
+                            height: 50,
+                            width: 50,
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (context, error, stackTrace) => Container(
+                                  height: 50,
+                                  width: 50,
+                                  color: Colors.grey.shade200,
+                                  child: const Icon(
+                                    Icons.broken_image,
+                                    color: Colors.grey,
+                                  ),
+                                ),
                           ),
-                          onPressed:
-                              () => _showEditGroupDialog(context, index, group),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(product.name, style: AppTextStyles.body),
                         ),
                         IconButton(
-                          icon: const Icon(
-                            Icons.delete,
-                            color: Colors.red,
-                            size: 15,
-                          ),
                           onPressed: () {
-                              Get.defaultDialog(
-                                title: 'Xác nhận xoá menu',
-                                titleStyle: AppTextStyles.headline,
-                                content: Text('Bạn có chắc muốn xoá menu',textAlign: TextAlign.center,),
-                                textConfirm: 'Xóa',
-                                textCancel: 'Hủy',
-                                confirmTextColor: Colors.white,
-                                cancelTextColor: AppColors.textPrimary,
-                                buttonColor: AppColors.error,
-                                onConfirm: () {
-                                  menuVm.deleteMenuGroup(
-                                    index
-                                  );
-                                  Get.back();
-                                },
-                                onCancel: () {},
-                              );
-                            },
+                            Get.defaultDialog(
+                              title: 'Xác nhận xoá sản phẩm',
+                              titleStyle: AppTextStyles.headline,
+                              content: Text(
+                                'Bạn có chắc muốn xoá sản phẩm này khỏi menu',
+                                textAlign: TextAlign.center,
+                              ),
+                              textConfirm: 'Xóa',
+                              textCancel: 'Hủy',
+                              confirmTextColor: Colors.white,
+                              cancelTextColor: AppColors.textPrimary,
+                              buttonColor: AppColors.error,
+                              onConfirm: () {
+                                menuVm.removeProductFromGroup(
+                                  index,
+                                  product.id,
+                                );
+                                Get.back();
+                              },
+                              onCancel: () {},
+                            );
+                          },
+                          icon: Icon(
+                            Icons.delete,
+                            size: 14,
+                            color: AppColors.error,
+                          ),
                         ),
                       ],
                     ),
-                  ],
-                ),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: products.length,
-                  itemBuilder: (context, productIndex) {
-                    final product = products[productIndex];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              product.imageUrl,
-                              height: 50,
-                              width: 50,
-                              fit: BoxFit.cover,
-                              errorBuilder:
-                                  (context, error, stackTrace) => Container(
-                                    height: 50,
-                                    width: 50,
-                                    color: Colors.grey.shade200,
-                                    child: const Icon(
-                                      Icons.broken_image,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              product.name,
-                              style: AppTextStyles.body,
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              Get.defaultDialog(
-                                title: 'Xác nhận xoá sản phẩm',
-                                titleStyle: AppTextStyles.headline,
-                                content: Text('Bạn có chắc muốn xoá sản phẩm này khỏi menu',textAlign: TextAlign.center,),
-                                textConfirm: 'Xóa',
-                                textCancel: 'Hủy',
-                                confirmTextColor: Colors.white,
-                                cancelTextColor: AppColors.textPrimary,
-                                buttonColor: AppColors.error,
-                                onConfirm: () {
-                                  menuVm.removeProductFromGroup(
-                                    index,
-                                    product.id,
-                                  );
-                                  Get.back();
-                                },
-                                onCancel: () {},
-                              );
-                            },
-                            icon: Icon(
-                              Icons.delete,
-                              size: 14,
-                              color: AppColors.error,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
+                  );
+                },
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

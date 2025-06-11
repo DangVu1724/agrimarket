@@ -1,6 +1,8 @@
 import 'package:agrimarket/app/bindings/auth_binding.dart';
+import 'package:agrimarket/data/models/product.dart';
 import 'package:agrimarket/features/auth/view/dashboard.dart';
 import 'package:agrimarket/features/auth/view/email_verify_screen.dart';
+import 'package:agrimarket/features/buyer/home/view/category_store_screen.dart';
 import 'package:agrimarket/features/buyer/other/view/add_address.dart';
 import 'package:agrimarket/features/buyer/other/view/favourite_screen.dart';
 import 'package:agrimarket/features/buyer/profile/view/about_app_screen.dart';
@@ -25,12 +27,13 @@ import 'package:agrimarket/features/seller/other/view/create_store_address.dart'
 import 'package:agrimarket/features/seller/other/view/create_store_info.dart';
 import 'package:agrimarket/features/seller/home/view/seller_home_screen.dart';
 import 'package:agrimarket/features/seller/product/view/seller_create_product_screen.dart';
+import 'package:agrimarket/features/seller/product/view/seller_product_details_screen.dart';
 import 'package:agrimarket/features/seller/product/view/seller_product_screen.dart';
+import 'package:agrimarket/features/seller/product/view/seller_update_product_screen.dart';
 import 'package:agrimarket/features/seller/seller_home.dart';
 import 'package:get/get.dart';
 import '../../features/auth/view/login_screen.dart';
 import 'app_routes.dart';
-
 
 class AppPages {
   static final pages = [
@@ -51,12 +54,12 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.resetPassword,
-      page: () =>  ResetPasswordScreen(),
+      page: () => ResetPasswordScreen(),
       binding: AuthBinding(),
     ),
     GetPage(
       name: AppRoutes.register,
-      page: () =>  RegisterScreen(),
+      page: () => RegisterScreen(),
       binding: AuthBinding(),
     ),
     GetPage(
@@ -86,12 +89,17 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.buyerHome,
-      page: () =>  BuyerHome(),
+      page: () => BuyerHome(),
       binding: AuthBinding(),
     ),
     GetPage(
       name: AppRoutes.buyerHomeScreen,
-      page: () =>  HomeBuyerScreen(),
+      page: () => HomeBuyerScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.categoryStoreScreen,
+      page: () => CategoryStoreScreen(),
       binding: AuthBinding(),
     ),
     GetPage(
@@ -179,16 +187,23 @@ class AppPages {
       page: () => SellerCreateProductScreen(),
       binding: AuthBinding(),
     ),
-    // GetPage(
-    //   name: AppRoutes.sellerProduct,
-    //   page: () => SelllerProductScreen(),
-    //   binding: AuthBinding(),
-    // ),
-    // GetPage(
-    //   name: AppRoutes.sellerProduct,
-    //   page: () => SelllerProductScreen(),
-    //   binding: AuthBinding(),
-    // ),
+    GetPage(
+      name: AppRoutes.sellerProductDetail,
 
+      page: () {
+        final product = Get.arguments as ProductModel;
+        return SellerProductDetailScreen(product: product);
+      },
+      binding: AuthBinding(),
+    ),
+
+    GetPage(
+      name: AppRoutes.sellerUpdateProduct,
+      page: () {
+        final product = Get.arguments as ProductModel;
+        return SellerUpdateProductScreen(product: product);
+      },
+      binding: AuthBinding(),
+    ),
   ];
 }

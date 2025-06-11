@@ -12,6 +12,7 @@ class AppRoutes {
   static const String createStoreAddress = '/create-store-address';
   static const String buyerHome = '/buyer-home';
   static const String buyerHomeScreen = '/buyer-home-screen';
+  static const String categoryStoreScreen = '/cate-store-screen';
   static const String buyerOrders = '/buyer-orders';
   static const String buyerSearch = '/buyer-search';
   static const String buyerProfile = '/buyer-profile';
@@ -31,6 +32,7 @@ class AppRoutes {
   static const String sellerStaff = '/seller-staff';
   static const String sellerProduct = '/seller-product';
   static const String sellerProductDetail = '/seller-product-detail';
+  static const String sellerUpdateProduct = '/seller-upadate-product';
   static const String sellerCreateProduct = '/seller-create-product';
   static const String sellerCreatePromotion = '/seller-create-promotion';
   static const String settings = '/settings';

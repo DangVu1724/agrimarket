@@ -126,13 +126,13 @@ class StoreInfoScreen extends StatelessWidget {
                             title: 'Chứng chỉ kinh doanh',
                             file: vm.businessLicenseFile.value,
                             onPickGallery:
-                                () => vm.pickImage(isBusinessLicense: true),
+                                () => vm.pickImage(imageType: 'license'),
                             onPickCamera:
                                 () => vm.pickImage(
-                                  isBusinessLicense: true,
+                                  imageType: 'license',
                                   fromCamera: true,
                                 ),
-                            onClear: () => vm.clearImage(true),
+                            onClear: () => vm.clearImage('license'),
                           ),
                           const SizedBox(height: 16),
                           _buildCertificateSection(
@@ -140,13 +140,27 @@ class StoreInfoScreen extends StatelessWidget {
                             title: 'Chứng chỉ an toàn thực phẩm',
                             file: vm.foodSafetyCertificateFile.value,
                             onPickGallery:
-                                () => vm.pickImage(isBusinessLicense: false),
+                                () => vm.pickImage(imageType: 'food'),
                             onPickCamera:
                                 () => vm.pickImage(
-                                  isBusinessLicense: false,
+                                  imageType: 'food',
                                   fromCamera: true,
                                 ),
-                            onClear: () => vm.clearImage(false),
+                            onClear: () => vm.clearImage('food'),
+                          ),
+                          const SizedBox(height: 24),
+                          _buildCertificateSection(
+                            context,
+                            title: 'Ảnh cửa hàng',
+                            file: vm.storeImageFile.value,
+                            onPickGallery:
+                                () => vm.pickImage(imageType: 'store'),
+                            onPickCamera:
+                                () => vm.pickImage(
+                                  imageType: 'store',
+                                  fromCamera: true,
+                                ),
+                            onClear: () => vm.clearImage('store'),
                           ),
                           const SizedBox(height: 24),
                           ElevatedButton(

@@ -31,6 +31,7 @@ class SellerProductVm extends GetxController {
   final RxString searchQuery = ''.obs;
   final RxList<ProductModel> allProducts = <ProductModel>[].obs;
   final RxBool isLoading = false.obs;
+  final RxString currentImageUrl = ''.obs;
   final Rxn<XFile> imageProduct = Rxn<XFile>();
 
   @override
@@ -66,6 +67,17 @@ class SellerProductVm extends GetxController {
     }
   }
 
+  void initUpdateProduct(ProductModel product) {
+    nameController.text = product.name;
+    descController.text = product.description;
+    priceController.text = product.price.toString();
+    quantityController.text = product.quantity.toString();
+    unitController.text = product.unit;
+    categoryDefault.value = product.category;
+    currentImageUrl.value = product.imageUrl;
+    imageProduct.value = null; 
+  }
+
   List<ProductModel> getFilteredProducts() {
     return _filterService.filterProducts(
       allProducts,
@@ -95,23 +107,33 @@ class SellerProductVm extends GetxController {
   }
 
   Future<void> updateProduct(String productId) async {
-    if (!_validateForm()) return;
-    try {
-      final imageUrl = await _uploadImage();
-      final existingProduct = allProducts.firstWhere((p) => p.id == productId);
-      final product = _createProductModel(imageUrl ?? existingProduct.imageUrl);
-      await _productRepository.updateProduct(productId, product);
-      final index = allProducts.indexWhere((p) => p.id == productId);
-      if (index != -1) {
-        allProducts[index] = ProductModel.fromJson({...product.toJson(), 'id': productId});
+  if (!_validateForm()) return;
+  try {
+    String? imageUrl;
+    if (imageProduct.value != null) {
+       imageUrl = await _uploadImage();
+      if (imageUrl == null) {
+        Get.snackbar('Lỗi', 'Tải ảnh lên thất bại');
+        return;
       }
-      Get.snackbar('Thành công', 'Sản phẩm đã được cập nhật');
-      resetForm();
-      Get.back();
-    } catch (e) {
-      Get.snackbar('Lỗi', 'Không thể cập nhật sản phẩm: $e');
+    } else {
+      imageUrl = currentImageUrl.value;
     }
+
+    final existingProduct = allProducts.firstWhere((p) => p.id == productId);
+    final product = _createProductModel(imageUrl.isNotEmpty ? imageUrl : existingProduct.imageUrl);
+    await _productRepository.updateProduct(productId, product);
+    final index = allProducts.indexWhere((p) => p.id == productId);
+    if (index != -1) {
+      allProducts[index] = ProductModel.fromJson({...product.toJson(), 'id': productId});
+    }
+    Get.snackbar('Thành công', 'Sản phẩm đã được cập nhật');
+    resetForm();
+    Get.back();
+  } catch (e) {
+    Get.snackbar('Lỗi', 'Không thể cập nhật sản phẩm: $e');
   }
+}
 
   Future<void> deleteProduct(String productId) async {
     try {

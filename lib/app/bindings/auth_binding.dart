@@ -2,6 +2,7 @@ import 'package:agrimarket/data/services/auth_service.dart';
 import 'package:agrimarket/features/auth/viewmodel/email_verify_vm.dart';
 import 'package:agrimarket/features/auth/viewmodel/login_vm.dart';
 import 'package:agrimarket/features/auth/viewmodel/register_view_model.dart';
+import 'package:agrimarket/features/buyer/home/viewmodel/store_vm.dart';
 import 'package:agrimarket/features/buyer/profile/viewmodel/address_list_vm.dart';
 import 'package:agrimarket/features/buyer/profile/viewmodel/reset_password_vm.dart';
 import 'package:agrimarket/features/buyer/other/viewmodel/add_address_vm.dart';
@@ -31,6 +32,6 @@ class AuthBinding extends Bindings {
     Get.lazyPut<AddressListVm>(() => AddressListVm());
     Get.lazyPut<SellerMenuVm>(() => SellerMenuVm());
     Get.lazyPut<SellerProductVm>(() => SellerProductVm());
-
+    Get.lazyPut<StoreVm>(() => StoreVm());
   }
 }

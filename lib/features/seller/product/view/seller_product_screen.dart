@@ -26,7 +26,7 @@ class SellerProductScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-             Get.toNamed(AppRoutes.sellerCreateProduct);
+              Get.toNamed(AppRoutes.sellerCreateProduct);
             },
           ),
         ],
@@ -80,10 +80,10 @@ class SellerProductScreen extends StatelessWidget {
                       return _buildProductItem(
                         product: product,
                         onTap: () {
-                          // Get.toNamed(AppRoutes.sellerProductDetail, arguments: product);
-                        },
-                        onEdit: () {
-                          // Get.toNamed(AppRoutes.sellerEditProduct, arguments: product);
+                          Get.toNamed(
+                            AppRoutes.sellerProductDetail,
+                            arguments: product,
+                          );
                         },
                         onDelete: () {
                           Get.defaultDialog(
@@ -123,7 +123,6 @@ class SellerProductScreen extends StatelessWidget {
   Widget _buildProductItem({
     required ProductModel product,
     VoidCallback? onTap,
-    VoidCallback? onEdit,
     VoidCallback? onDelete,
   }) {
     return InkWell(
@@ -140,77 +139,74 @@ class SellerProductScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.horizontal(
-                left: Radius.circular(12),
-              ),
-              child: Image.network(
-                product.imageUrl,
-                height: 100,
-                width: 80,
-                fit: BoxFit.cover,
-                errorBuilder:
-                    (context, error, stackTrace) => Container(
-                      height: 100,
-                      width: 100,
-                      color: Colors.grey.shade200,
-                      child: const Icon(Icons.broken_image, color: Colors.grey),
-                    ),
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Container(
-                    height: 100,
-                    width: 100,
-                    color: Colors.grey.shade200,
-                    child: const Center(child: CircularProgressIndicator()),
-                  );
-                },
-              ),
-            ),
-            Container(
-              width: 100,
-              padding: const EdgeInsets.all(0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.name,
-                    style: AppTextStyles.body.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${product.price.toString()} VNĐ / ${product.unit}',
-                    style: AppTextStyles.body.copyWith(
-                      color: AppColors.primary,
-                      fontSize: 12
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Số lượng: ${product.quantity}',
-                    style: AppTextStyles.body.copyWith(
-                      color: Colors.grey.shade600,
-                      fontSize: 12
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                ],
-              ),
-            ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.edit, color: AppColors.primary,size: 14,),
-                  onPressed: onEdit,
+                ClipRRect(
+                  borderRadius: const BorderRadius.horizontal(
+                    left: Radius.circular(12),
+                  ),
+                  child: Image.network(
+                    product.imageUrl,
+                    height: 100,
+                    width: 80,
+                    fit: BoxFit.cover,
+                    errorBuilder:
+                        (context, error, stackTrace) => Container(
+                          height: 100,
+                          width: 100,
+                          color: Colors.grey.shade200,
+                          child: const Icon(Icons.broken_image, color: Colors.grey),
+                        ),
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        height: 100,
+                        width: 100,
+                        color: Colors.grey.shade200,
+                        child: const Center(child: CircularProgressIndicator()),
+                      );
+                    },
+                  ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red,size: 14,),
-                  onPressed: onDelete,
+                const SizedBox(width: 15,),
+                Container(
+                  width: 100,
+                  padding: const EdgeInsets.all(0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product.name,
+                        style: AppTextStyles.body.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${product.price.toString()} VNĐ / ${product.unit}',
+                        style: AppTextStyles.body.copyWith(
+                          color: AppColors.primary,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Số lượng: ${product.quantity}',
+                        style: AppTextStyles.body.copyWith(
+                          color: Colors.grey.shade600,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+                  ),
                 ),
               ],
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red, size: 14),
+              onPressed: onDelete,
             ),
           ],
         ),

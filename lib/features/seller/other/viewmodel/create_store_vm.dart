@@ -52,6 +52,7 @@ class CreateStoreViewModel extends GetxController {
   final selectedWardCode = RxnString();
   final businessLicenseFile = Rxn<XFile>();
   final foodSafetyCertificateFile = Rxn<XFile>();
+  final storeImageFile = Rxn<XFile>();
 
   @override
   void onInit() {
@@ -74,7 +75,7 @@ class CreateStoreViewModel extends GetxController {
       selectedDistrictCode.value = null;
       selectedWardCode.value = null;
       isLoadingProvince.value = true;
-      
+
       _locationService.fetchDistricts(selectedProvinceCode.value!, districts);
     } else {
       _clearLocationData();
@@ -96,7 +97,8 @@ class CreateStoreViewModel extends GetxController {
 
     // Tìm quận/huyện khớp với input
     final selected = districts.firstWhereOrNull(
-      (d) => (d['name'] as String?)?.trim().toLowerCase() == input.toLowerCase(),
+      (d) =>
+          (d['name'] as String?)?.trim().toLowerCase() == input.toLowerCase(),
     );
 
     if (selected != null && selected['code'] != null) {
@@ -104,12 +106,15 @@ class CreateStoreViewModel extends GetxController {
       wards.clear();
       wardController.clear();
       selectedWardCode.value = null;
-      isLoadingWard.value = true; 
+      isLoadingWard.value = true;
 
       try {
         await _locationService.fetchWards(selectedDistrictCode.value!, wards);
         if (wards.isEmpty) {
-          Get.snackbar('Thông báo', 'Không có phường/xã nào cho quận/huyện này.');
+          Get.snackbar(
+            'Thông báo',
+            'Không có phường/xã nào cho quận/huyện này.',
+          );
         }
       } catch (e) {
         Get.snackbar('Lỗi', 'Không thể tải danh sách phường/xã: $e');
@@ -138,7 +143,8 @@ class CreateStoreViewModel extends GetxController {
   void onWardChanged() {
     final input = wardController.text.trim();
     final selected = wards.firstWhereOrNull(
-      (w) => (w['name'] as String?)?.trim().toLowerCase() == input.toLowerCase(),
+      (w) =>
+          (w['name'] as String?)?.trim().toLowerCase() == input.toLowerCase(),
     );
 
     if (selected != null && selected['code'] != null) {
@@ -163,21 +169,29 @@ class CreateStoreViewModel extends GetxController {
   }
 
   Future<void> pickImage({
-    required bool isBusinessLicense,
+    required String imageType,
     bool fromCamera = false,
   }) async {
     final file = await _imageService.pickImage(fromCamera: fromCamera);
     if (file != null) {
-      isBusinessLicense
-          ? businessLicenseFile.value = file
-          : foodSafetyCertificateFile.value = file;
+      if (imageType == 'license') {
+        businessLicenseFile.value = file;
+      } else if (imageType == 'food') {
+        foodSafetyCertificateFile.value = file;
+      } else if (imageType == 'store') {
+        storeImageFile.value = file;
+      }
     }
   }
 
-  void clearImage(bool isBusinessLicense) {
-    isBusinessLicense
-        ? businessLicenseFile.value = null
-        : foodSafetyCertificateFile.value = null;
+  void clearImage(String imageType) {
+    if (imageType == 'license') {
+      businessLicenseFile.value = null;
+    } else if (imageType == 'food') {
+      foodSafetyCertificateFile.value = null;
+    } else if (imageType == 'store') {
+      storeImageFile.value = null;
+    }
   }
 
   Future<void> saveStore() async {
@@ -194,16 +208,23 @@ class CreateStoreViewModel extends GetxController {
         businessLicenseFile.value,
         storeId,
         'business_license',
-        'certificates'
+        'certificates',
       );
       final foodSafetyCertificateUrl = await _imageService.uploadImageToGitHub(
         foodSafetyCertificateFile.value,
         storeId,
         'food_safety',
-        'certificates'
+        'certificates',
       );
 
-      if (businessLicenseUrl == null || foodSafetyCertificateUrl == null) {
+      final storeImageUrl = await _imageService.uploadImageToGitHub(
+        storeImageFile.value,
+        storeId,
+        'store_image',
+        'logo',
+      );
+
+      if (businessLicenseUrl == null || foodSafetyCertificateUrl == null || storeImageUrl == null) {
         throw Exception('Không thể tải lên giấy tờ');
       }
 
@@ -217,6 +238,7 @@ class CreateStoreViewModel extends GetxController {
             '${houseNumberController.text}, ${streetController.text}, ${wardController.text}, ${districtController.text}, ${provinceController.text}',
         businessLicenseUrl: businessLicenseUrl,
         foodSafetyCertificateUrl: foodSafetyCertificateUrl,
+        storeImageUrl: storeImageUrl,
         state: 'pending',
       );
 
@@ -242,7 +264,8 @@ class CreateStoreViewModel extends GetxController {
         selectedDistrictCode.value == null ||
         selectedWardCode.value == null ||
         businessLicenseFile.value == null ||
-        foodSafetyCertificateFile.value == null) {
+        foodSafetyCertificateFile.value == null ||
+        storeImageFile.value == null) {
       Get.snackbar('Lỗi', 'Vui lòng điền đầy đủ thông tin');
       return false;
     }
