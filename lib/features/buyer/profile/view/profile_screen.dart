@@ -1,7 +1,9 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
+import 'package:agrimarket/core/widgets/custom_app_bar.dart';
 import 'package:agrimarket/features/buyer/user_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../app/theme/app_text_styles.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -10,71 +12,74 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> sectionItems = [
-      {'icon': Icons.person, 'title': 'Thông tin cá nhân'},
-      {'icon': Icons.location_on, 'title': 'Địa chỉ giao hàng'},
-      {'icon': Icons.shopping_bag, 'title': 'Đơn hàng đã mua'},
-      {'icon': Icons.favorite, 'title': 'Yêu thích'},
-      {'icon': Icons.settings, 'title': 'Cài đặt'},
+      {'icon': Iconsax.tag_user, 'title': 'Thông tin cá nhân'},
+      {'icon': Iconsax.location, 'title': 'Địa chỉ giao hàng'},
+      {'icon': Iconsax.shopping_bag, 'title': 'Đơn hàng đã mua'},
+      {'icon': Iconsax.heart, 'title': 'Yêu thích'},
+      {'icon': Iconsax.setting_2, 'title': 'Cài đặt'},
       {'icon': Icons.logout, 'title': 'Đăng xuất'},
     ];
 
     return Scaffold(
       backgroundColor: Colors.white,
+
       body: RefreshIndicator(
         onRefresh: () async {
           await vm.loadUserData();
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                Row(
-                  children: [
-                    Obx(
-                      () => CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Colors.grey[200],
-                        backgroundImage:
-                            vm.userAvatar.value.isNotEmpty &&
-                                    vm.userAvatar.value.startsWith('http')
-                                ? NetworkImage(vm.userAvatar.value)
-                                : AssetImage('assets/images/avatar.png')
-                                    as ImageProvider,
+                CustomAppBar(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Obx(
+                        () => CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Colors.grey[200],
+                          backgroundImage:
+                              vm.userAvatar.value.isNotEmpty &&
+                                      vm.userAvatar.value.startsWith('http')
+                                  ? NetworkImage(vm.userAvatar.value)
+                                  : AssetImage('assets/images/avatar.png')
+                                      as ImageProvider,
+                        ),
                       ),
-                    ),
-          
-                    SizedBox(width: 22),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Obx(
-                          () => Text(
-                            vm.userName.value.isNotEmpty
-                                ? vm.userName.value
-                                : 'Chưa cập nhật tên',
-                            style: AppTextStyles.headline.copyWith(
-                              fontWeight: FontWeight.bold,
+                            
+                      SizedBox(width: 22),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Obx(
+                            () => Text(
+                              vm.userName.value.isNotEmpty
+                                  ? vm.userName.value
+                                  : 'Chưa cập nhật tên',
+                              style: AppTextStyles.headline.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white
+                              ),
                             ),
                           ),
-                        ),
-                        Obx(
-                          () => Text(
-                            vm.userEmail.value.isNotEmpty
-                                ? vm.userEmail.value
-                                : 'Chưa cập nhật email',
-                            style: AppTextStyles.body.copyWith(
-                              color: Colors.grey,
-                              fontSize: 14,
+                          Obx(
+                            () => Text(
+                              vm.userEmail.value.isNotEmpty
+                                  ? vm.userEmail.value
+                                  : 'Chưa cập nhật email',
+                              style: AppTextStyles.body.copyWith(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                SizedBox(height: 20),
+                
                 Column(
                   children:
                       sectionItems
@@ -85,7 +90,6 @@ class ProfileScreen extends StatelessWidget {
                           .toList(),
                 ),
               ],
-            ),
           ),
         ),
       ),

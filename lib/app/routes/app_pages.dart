@@ -4,6 +4,7 @@ import 'package:agrimarket/features/auth/view/dashboard.dart';
 import 'package:agrimarket/features/auth/view/email_verify_screen.dart';
 import 'package:agrimarket/features/buyer/home/view/category_store_screen.dart';
 import 'package:agrimarket/features/buyer/other/view/add_address.dart';
+import 'package:agrimarket/features/buyer/other/view/cart_screen.dart';
 import 'package:agrimarket/features/buyer/other/view/favourite_screen.dart';
 import 'package:agrimarket/features/buyer/profile/view/about_app_screen.dart';
 import 'package:agrimarket/features/buyer/profile/view/address_list_screen.dart';
@@ -130,6 +131,11 @@ class AppPages {
     GetPage(
       name: AppRoutes.favourite,
       page: () => FavouriteScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.cart,
+      page: () => CartScreen(),
       binding: AuthBinding(),
     ),
     GetPage(

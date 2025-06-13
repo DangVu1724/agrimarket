@@ -60,7 +60,7 @@ class HomeBuyerScreen extends StatelessWidget {
         SizedBox(width: 15),
         GestureDetector(
           onTap: () {
-            Get.snackbar("Gio hang", "Click gio hang");
+            Get.toNamed(AppRoutes.cart);
           },
           child: Icon(Icons.shopping_cart_outlined, color: Colors.black),
         ),
