@@ -244,7 +244,7 @@ class HomeBuyerScreen extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          Get.snackbar('Click', 'Bạn đã chọn cửa hàng: ${store.name}');
+          Get.toNamed(AppRoutes.store, arguments: store.storeId);
         },
         borderRadius: BorderRadius.circular(12),
         child: Row(

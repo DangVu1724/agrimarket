@@ -13,9 +13,7 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> sectionItems = [
       {'icon': Iconsax.tag_user, 'title': 'Thông tin cá nhân'},
-      {'icon': Iconsax.location, 'title': 'Địa chỉ giao hàng'},
-      {'icon': Iconsax.shopping_bag, 'title': 'Đơn hàng đã mua'},
-      {'icon': Iconsax.heart, 'title': 'Yêu thích'},
+      {'icon': Iconsax.location, 'title': 'Địa chỉ cửa hàng'},
       {'icon': Iconsax.setting_2, 'title': 'Cài đặt'},
       {'icon': Icons.logout, 'title': 'Đăng xuất'},
     ];
@@ -116,9 +114,6 @@ class ProfileScreen extends StatelessWidget {
               break;
             case 'Địa chỉ giao hàng':
               Get.toNamed(AppRoutes.buyerAddress);
-              break;
-            case 'Yêu thích':
-              Get.toNamed(AppRoutes.favourite);
               break;
             case 'Cài đặt':
               Get.toNamed(AppRoutes.settings);

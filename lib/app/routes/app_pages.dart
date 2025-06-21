@@ -22,6 +22,7 @@ import 'package:agrimarket/features/buyer/profile/view/profile_screen.dart';
 import 'package:agrimarket/features/buyer/profile/view/security_screen.dart';
 import 'package:agrimarket/features/buyer/search/view/search_screen.dart';
 import 'package:agrimarket/features/buyer/profile/view/setting_screen.dart';
+import 'package:agrimarket/features/buyer/store/view/store_screen.dart';
 import 'package:agrimarket/features/seller/chat/view/seller_chat_screen.dart';
 import 'package:agrimarket/features/seller/menu/view/menu_screen.dart';
 import 'package:agrimarket/features/seller/orders/view/orderList_screen.dart';
@@ -103,6 +104,14 @@ class AppPages {
     GetPage(
       name: AppRoutes.categoryStoreScreen,
       page: () => CategoryStoreScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.store,
+      page: () {
+        final storeId = Get.arguments as String? ?? '';
+        return StoreScreen(storeId: storeId);
+      },
       binding: AuthBinding(),
     ),
     GetPage(
@@ -212,7 +221,6 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.sellerProductDetail,
-
       page: () {
         final product = Get.arguments as ProductModel;
         return SellerProductDetailScreen(product: product);

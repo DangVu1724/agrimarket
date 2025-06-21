@@ -18,7 +18,10 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
 
-      final user = await _authService.signInWithEmailAndPassword(email, password);
+      final user = await _authService.signInWithEmailAndPassword(
+        email,
+        password,
+      );
       if (user != null) {
         final isEmailVerified = await _authService.checkEmailVerified();
         if (!isEmailVerified) {
@@ -26,9 +29,12 @@ class AuthController extends GetxController {
         }
 
         final userModel = await _firestoreProvider.getUserById(user.uid);
+
         if (userModel == null) {
           throw Exception('Không tìm thấy thông tin người dùng');
         }
+
+        box.write('user', {'uid': userModel.uid, 'role': userModel.role});
 
         await _navigateByRole(user.uid, userModel.role);
       }
@@ -53,7 +59,10 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
 
-      final user = await _authService.registerWithEmailAndPassword(email, password);
+      final user = await _authService.registerWithEmailAndPassword(
+        email,
+        password,
+      );
       if (user != null) {
         await _authService.sendEmailVerification();
         _savePendingUser(email, name, phone, address, latitude, longitude);
@@ -71,7 +80,10 @@ class AuthController extends GetxController {
     if (verified) {
       Get.offAllNamed(AppRoutes.roleSelection);
     } else {
-      Get.snackbar("Xác minh email", "Vui lòng xác minh email trước khi tiếp tục.");
+      Get.snackbar(
+        "Xác minh email",
+        "Vui lòng xác minh email trước khi tiếp tục.",
+      );
     }
   }
 
@@ -92,7 +104,8 @@ class AuthController extends GetxController {
       if (user == null) throw Exception('Người dùng chưa đăng nhập');
 
       final pendingUser = box.read('pendingUser');
-      if (pendingUser == null) throw Exception('Không tìm thấy thông tin người dùng tạm thời');
+      if (pendingUser == null)
+        throw Exception('Không tìm thấy thông tin người dùng tạm thời');
 
       final newUser = UserModel(
         uid: user.uid,
@@ -108,12 +121,14 @@ class AuthController extends GetxController {
       if (role == 'buyer') {
         final addresses = <Address>[];
         if (address != null && addressLabel != null) {
-          addresses.add(Address(
-            label: addressLabel,
-            address: address,
-            latitude: latitude ?? pendingUser['latitude'],
-            longitude: longitude ?? pendingUser['longitude'],
-          ));
+          addresses.add(
+            Address(
+              label: addressLabel,
+              address: address,
+              latitude: latitude ?? pendingUser['latitude'],
+              longitude: longitude ?? pendingUser['longitude'],
+            ),
+          );
         }
 
         final buyer = BuyerModel(
@@ -167,7 +182,6 @@ class AuthController extends GetxController {
       isLoading.value = false;
     }
   }
-
 
   void _promptEmailVerification() {
     Get.offAllNamed(AppRoutes.emailVerify);
@@ -226,4 +240,3 @@ class AuthController extends GetxController {
     });
   }
 }
-

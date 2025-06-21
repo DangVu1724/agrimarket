@@ -11,40 +11,43 @@ class OrdersScreen extends StatelessWidget {
       body: Column(
         children: [
           CustomAppBar(pageName: 'Đơn hàng'),
-          Container(
-            height: 100,
-            margin: EdgeInsets.symmetric(horizontal: 10),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              color: const Color.fromARGB(255, 215, 229, 226),
-            ),
-
+          Transform.translate(
+            offset: Offset(0, -60),
             child: Container(
+              height: 100,
+              margin: EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(10)),
-                color: Colors.white,
+                color: const Color.fromARGB(255, 215, 229, 226),
               ),
-              margin: EdgeInsets.all(5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  IconWithDescription(
-                    text: 'Thanh toán',
-                    myIcon: Iconsax.card_pos,
-                  ),
-                  IconWithDescription(
-                    text: 'Đang giao',
-                    myIcon: Iconsax.truck_fast,
-                  ),
-                  IconWithDescription(
-                    text: 'Đã nhận',
-                    myIcon: Iconsax.gift,
-                  ),
-                  IconWithDescription(
-                    text: 'Đánh giá',
-                    myIcon: Iconsax.star_copy,
-                  ),
-                ],
+            
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  color: Colors.white,
+                ),
+                margin: EdgeInsets.all(5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    IconWithDescription(
+                      text: 'Thanh toán',
+                      myIcon: Iconsax.card_pos,
+                    ),
+                    IconWithDescription(
+                      text: 'Đang giao',
+                      myIcon: Iconsax.truck_fast,
+                    ),
+                    IconWithDescription(
+                      text: 'Đã nhận',
+                      myIcon: Iconsax.gift,
+                    ),
+                    IconWithDescription(
+                      text: 'Đánh giá',
+                      myIcon: Iconsax.star_copy,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

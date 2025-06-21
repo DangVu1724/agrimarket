@@ -1,3 +1,4 @@
+import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/features/buyer/home/viewmodel/store_vm.dart';
@@ -55,10 +56,7 @@ class CategoryStoreScreen extends StatelessWidget {
                         ),
                         child: InkWell(
                           onTap: () {
-                            Get.snackbar(
-                              'Click',
-                              'Bạn đã chọn cửa hàng: ${store.name}',
-                            );
+                            Get.toNamed(AppRoutes.store, arguments: store.storeId);
                           },
                           borderRadius: BorderRadius.circular(12),
                           child: Row(

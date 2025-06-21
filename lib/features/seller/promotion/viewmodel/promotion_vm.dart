@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 
 class PromotionVm extends GetxController {
   final PromotionService _promotionService = PromotionService();
+  final ProductRepository _productRepository = ProductRepository();
 
   // Dùng Rx<List<...>> thay vì RxList<>
   final Rx<List<ProductPromotionModel>> productDiscounts = Rx<List<ProductPromotionModel>>([]);
@@ -85,6 +86,16 @@ class PromotionVm extends GetxController {
 
   Future<void> addProductToDiscount(String discountId, String productId) async {
     try {
+    final product = await getProductById(productId);
+    if (product != null && product.promotion != null) {
+      if (product.promotion == discountId) {
+        Get.snackbar('Thông báo', 'Sản phẩm đã thuộc khuyến mãi này');
+      } else if (product.promotion != discountId) {
+        Get.snackbar('Lỗi', 'Sản phẩm đã thuộc khuyến mãi khác');
+      }
+      return;
+    }
+    
       await _promotionService.addProductToDiscount(discountId, productId);
 
       final currentList = productDiscounts.value;
@@ -97,6 +108,11 @@ class PromotionVm extends GetxController {
         final newList = [...currentList];
         newList[index] = updatedPromotion;
         productDiscounts.value = newList;
+
+        if (product != null) {
+          _productRepository.updateProduct(productId, product.copyWith(promotion: discountId));
+        }
+
       }
     } catch (e) {
       Get.snackbar('Lỗi', 'Thêm sản phẩm vào khuyến mãi thất bại: $e');
@@ -117,6 +133,10 @@ class PromotionVm extends GetxController {
         final newList = [...currentList];
         newList[index] = updatedPromotion;
         productDiscounts.value = newList;
+        final product = await getProductById(productId);
+        if (product != null) {
+          _productRepository.updateProduct(productId, product.copyWith(promotion: null));
+        }
       }
     } catch (e) {
       Get.snackbar('Lỗi', 'Xóa sản phẩm khỏi khuyến mãi thất bại: $e');

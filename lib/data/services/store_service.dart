@@ -8,6 +8,7 @@ import 'package:get_storage/get_storage.dart';
 class StoreService {
   final FirestoreProvider _firestoreProvider = FirestoreProvider();
   final GetStorage _storage = GetStorage();
+  
 
   Future<StoreModel?> fetchStoreData() async {
     final local = _storage.read('storeModel');
@@ -48,20 +49,25 @@ class StoreService {
     }
   }
 
-  // Future<StoreModel> fetchStoresbyID(String storeID) async {
-  //   try {
-  //     final querySnapshot =
-  //         await FirebaseFirestore.instance
-  //             .collection('stores')
-  //             .doc(storeID)
-  //             .get();
+  Future<StoreModel> fetchStoresbyID(String storeID) async {
+    try {
+      final querySnapshot =
+          await FirebaseFirestore.instance
+              .collection('stores')
+              .doc(storeID)
+              .get();
 
-  //     return 
-  //   } catch (e) {
-  //     Get.snackbar('Lỗi', 'Không thể tải danh sách cửa hàng: $e');
-  //     return ;
-  //   }
-  // }
+      if (querySnapshot.exists) {
+        return StoreModel.fromJson({...querySnapshot.data() as Map<String, dynamic>, 'storeId': querySnapshot.id});
+      } else {
+        Get.snackbar('Lỗi', 'Không tìm thấy cửa hàng');
+        throw Exception('Store not found');
+      }
+    } catch (e) {
+      Get.snackbar('Lỗi', 'Không thể tải danh sách cửa hàng: $e');
+      rethrow;
+    }
+  }
 
   Future<List<StoreModel>> fetchStoresByCategory(String category) async {
     try {
