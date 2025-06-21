@@ -32,6 +32,37 @@ class StoreService {
     return store;
   }
 
+  Future<List<StoreModel>> fetchStores() async {
+    try {
+      final querySnapshot =
+          await FirebaseFirestore.instance
+              .collection('stores')
+              .get();
+
+      return querySnapshot.docs
+          .map((doc) => StoreModel.fromJson({...doc.data(), 'storeId': doc.id}))
+          .toList();
+    } catch (e) {
+      Get.snackbar('Lỗi', 'Không thể tải danh sách cửa hàng: $e');
+      return [];
+    }
+  }
+
+  // Future<StoreModel> fetchStoresbyID(String storeID) async {
+  //   try {
+  //     final querySnapshot =
+  //         await FirebaseFirestore.instance
+  //             .collection('stores')
+  //             .doc(storeID)
+  //             .get();
+
+  //     return 
+  //   } catch (e) {
+  //     Get.snackbar('Lỗi', 'Không thể tải danh sách cửa hàng: $e');
+  //     return ;
+  //   }
+  // }
+
   Future<List<StoreModel>> fetchStoresByCategory(String category) async {
     try {
       final querySnapshot =

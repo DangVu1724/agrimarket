@@ -2,6 +2,7 @@ import 'package:agrimarket/data/services/auth_service.dart';
 import 'package:agrimarket/features/auth/viewmodel/email_verify_vm.dart';
 import 'package:agrimarket/features/auth/viewmodel/login_vm.dart';
 import 'package:agrimarket/features/auth/viewmodel/register_view_model.dart';
+import 'package:agrimarket/features/buyer/home/viewmodel/buyer_home_vm.dart';
 import 'package:agrimarket/features/buyer/home/viewmodel/store_vm.dart';
 import 'package:agrimarket/features/buyer/profile/viewmodel/address_list_vm.dart';
 import 'package:agrimarket/features/buyer/profile/viewmodel/reset_password_vm.dart';
@@ -12,6 +13,7 @@ import 'package:agrimarket/features/seller/menu/viewmodel/menu_screen_vm.dart';
 import 'package:agrimarket/features/seller/other/viewmodel/create_store_vm.dart';
 import 'package:agrimarket/features/seller/home/viewmodel/seller_home_screen_vm.dart';
 import 'package:agrimarket/features/seller/product/viewmodel/seller_product_screen_vm.dart';
+import 'package:agrimarket/features/seller/promotion/viewmodel/promotion_vm.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
 
@@ -33,5 +35,7 @@ class AuthBinding extends Bindings {
     Get.lazyPut<SellerMenuVm>(() => SellerMenuVm());
     Get.lazyPut<SellerProductVm>(() => SellerProductVm());
     Get.lazyPut<StoreVm>(() => StoreVm());
+    Get.lazyPut<BuyerHomeScreenVm>(() => BuyerHomeScreenVm());
+    Get.lazyPut<PromotionVm>(() => PromotionVm());
   }
 }

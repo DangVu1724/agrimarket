@@ -19,7 +19,7 @@ class ProductRepository {
 
   Future<DocumentReference> createProduct(ProductModel product) async {
     try {
-      final productData = product.toJson()..remove('id');
+      final productData = product.toJson();
       productData['createdAt'] = FieldValue.serverTimestamp();
       return await _productsCollection.add(productData);
     } catch (e) {

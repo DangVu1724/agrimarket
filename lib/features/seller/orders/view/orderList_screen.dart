@@ -1,3 +1,5 @@
+import 'package:agrimarket/app/theme/app_colors.dart';
+import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
 
 class OrderlistScreen extends StatelessWidget {
@@ -8,7 +10,8 @@ class OrderlistScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Danh sách đơn hàng'),
+        backgroundColor: AppColors.background,
+        title: Text('Danh sách đơn hàng',style: AppTextStyles.headline,),
         centerTitle: true,
       ),
       body: Center(

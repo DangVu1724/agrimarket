@@ -170,7 +170,7 @@ class SellerProductScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: 15,),
                 Container(
-                  width: 100,
+                  width: 150,
                   padding: const EdgeInsets.all(0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

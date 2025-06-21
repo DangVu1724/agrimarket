@@ -75,7 +75,6 @@ class SellerProductVm extends GetxController {
     unitController.text = product.unit;
     categoryDefault.value = product.category;
     currentImageUrl.value = product.imageUrl;
-    imageProduct.value = null; 
   }
 
   List<ProductModel> getFilteredProducts() {
@@ -185,6 +184,16 @@ class SellerProductVm extends GetxController {
       imageUrl: imageUrl,
     );
   }
+
+  Future<void> pickProductImage({bool fromCamera = false}) async {
+  final picked = await _imageService.pickImage(fromCamera: fromCamera);
+  if (picked != null) {
+    imageProduct.value = picked;
+  } else {
+    Get.snackbar('Thông báo', 'Không có ảnh nào được chọn.');
+  }
+}
+
 
   Future<String?> _uploadImage() async {
     if (imageProduct.value == null) return null;

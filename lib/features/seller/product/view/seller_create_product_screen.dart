@@ -219,13 +219,13 @@ class SellerCreateProductScreen extends StatelessWidget {
                                   children: [
                                     ElevatedButton(
                                       onPressed:
-                                          () => _imageService.pickImage(),
+                                          () => productVm.pickProductImage(),
                                       child: const Text('Chọn từ thư viện'),
                                     ),
                                     const SizedBox(width: 8),
                                     ElevatedButton(
                                       onPressed:
-                                          () => _imageService.pickImage(
+                                          () => productVm.pickProductImage(
                                             fromCamera: true,
                                           ),
                                       child: const Text('Chụp ảnh'),

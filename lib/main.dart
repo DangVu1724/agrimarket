@@ -1,4 +1,5 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
+import 'package:agrimarket/app/theme/app_theme.dart';
 import 'package:agrimarket/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
       title: 'Chợ Nông Sản Sạch',
       initialRoute: AppRoutes.splash,
       getPages: AppPages.pages,
+      theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.light,
       

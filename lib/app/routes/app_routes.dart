@@ -1,4 +1,5 @@
 class AppRoutes {
+  //Login - register - splash - home - dashboard
   static const String splash = '/splash';
   static const String login = '/login';
   static const String home = '/home';
@@ -6,6 +7,8 @@ class AppRoutes {
   static const String register = '/register';
   static const String emailVerify = '/emailVerify';
   static const String roleSelection = '/role-selection';
+
+  // Buyer
   static const String addAddress = '/add-address';
   static const String resetPassword = '/reset-password';
   static const String createStoreInfo = '/create-store-info';
@@ -23,6 +26,9 @@ class AppRoutes {
   static const String security = '/security';
   static const String privacyPolicy = '/privacy-policy';
   static const String favourite = '/favourite';
+  static const String buyerChat = '/buyer-chat';
+
+  // Seller
   static const String sellerHome = '/seller-home';
   static const String sellerHomeScreen = '/seller-home-screen';
   static const String sellerOrderList = '/seller-order-list';
@@ -31,10 +37,15 @@ class AppRoutes {
   static const String sellerFinance = '/seller-finance';
   static const String sellerStaff = '/seller-staff';
   static const String sellerProduct = '/seller-product';
+  static const String sellerChat = '/seller-chat';
   static const String sellerProductDetail = '/seller-product-detail';
   static const String sellerUpdateProduct = '/seller-upadate-product';
   static const String sellerCreateProduct = '/seller-create-product';
   static const String sellerCreatePromotion = '/seller-create-promotion';
+  static const String sellerCreateDiscountCode = '/seller-create-discount-code';
+  static const String adminPromotion = '/admin-promotion';
   static const String settings = '/settings';
+
+
   
 }

@@ -1,36 +1,29 @@
-// class BuyerHomeViewModel extends GetxController {
-//   final FirestoreProvider firestore = FirestoreProvider();
-//   final FirebaseAuth auth = FirebaseAuth.instance;
+import 'package:agrimarket/data/models/product.dart';
+import 'package:agrimarket/data/models/store.dart';
+import 'package:agrimarket/data/services/product_filter_service.dart';
+import 'package:agrimarket/data/services/store_service.dart';
+import 'package:get/get.dart';
 
-//   var isLoading = false.obs;
-//   var userName = ''.obs;
-//   var userEmail = ''.obs;
-//   var userPhone = ''.obs;
-//   var userAvatar = ''.obs;
+class BuyerHomeScreenVm extends GetxController {
+  final _productService = ProductFilterService();
+  final _storeService = StoreService();
 
-//   @override
-//   void onInit() {
-//     super.onInit();
-//     loadUserData();
-//   }
+  var products = <ProductModel>[].obs;
+  var store = Rxn<StoreModel>();
+  var isLoading = false.obs;
 
-//   Future<void> loadUserData() async {
-//     final user = FirebaseAuth.instance.currentUser;
-//     if (user != null) {
-//       final userData = await firestore.getUserById(user.uid);
+  Future<void> loadProductsByStore(String storeId) async {
+    isLoading.value = true;
+    try {
+      final result = await _productService.fetchProductListByStore(storeId);
+      // final store = await _storeService.fetchStoresbyID(storeId);
+      products.value = result;
+      
 
-//       if (userData != null) {
-//         userName.value = userData.name;
-//         userEmail.value = userData.email;
-//         userPhone.value = userData.phone;
-//         String avatarUrl = userData.photoURL ?? '';
-//         if (avatarUrl.isEmpty) {
-//           avatarUrl = 'assets/images/avatar.png';
-//         }
-//         userAvatar.value = avatarUrl;
-//       } else {
-//         Get.snackbar('Error', 'User data not found');
-//       }
-//     }
-//   }
-// }
+    } catch (e) {
+      Get.snackbar('Lỗi', 'Không thể tải sản phẩm: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+}

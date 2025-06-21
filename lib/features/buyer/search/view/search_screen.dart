@@ -8,12 +8,19 @@ class SearchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Text(
-          'Tim kiem',
-          style: AppTextStyles.headline.copyWith(color: AppColors.primary),
-        ),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        title: Text('Tìm kiếm',style: AppTextStyles.headline,),
+        centerTitle: true,
       ),
+      // body: Obx(() {
+      //   return SingleChildScrollView(
+      //     child: Column(
+
+      //     ),
+      //   );
+      // })
     );
   }
 }

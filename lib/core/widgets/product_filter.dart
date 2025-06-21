@@ -39,50 +39,55 @@ class ProductFilterWidget extends StatelessWidget {
             onChanged: onSearchChanged,
           ),
           const SizedBox(height: 12),
-          // Dropdown chọn danh mục
-          DropdownButtonFormField<String>(
-            value: selectedCategory?.isEmpty ?? true ? null : selectedCategory,
-            hint: const Text('Chọn danh mục'),
-            items: [
-              const DropdownMenuItem<String>(
-                value: '',
-                child: Text('Tất cả danh mục'),
+          Row(
+            children: [
+              const Text(
+                'Danh mục: ',
+                style: TextStyle(fontSize: 16),
               ),
-              ...categories.map((category) => DropdownMenuItem<String>(
-                    value: category,
-                    child: Text(category),
-                  )),
-            ],
-            onChanged: onCategoryChanged,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: Colors.white,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 14,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey.shade400),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(
-                  color: AppColors.primary,
-                  width: 2,
+              const SizedBox(width: 8),
+              PopupMenuButton<String>(
+                color: AppColors.background,
+                initialValue: selectedCategory?.isEmpty ?? true ? '' : selectedCategory,
+                onSelected: (value) {
+                  onCategoryChanged(value == '' ? null : value);
+                },
+                itemBuilder: (context) {
+                  return [
+                    const PopupMenuItem<String>(
+                      value: '',
+                      child: Text('Tất cả danh mục'),
+                    ),
+                    ...categories.map(
+                      (category) => PopupMenuItem<String>(
+                        value: category,
+                        child: Text(category),
+                      ),
+                    ),
+                  ];
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      selectedCategory == null || selectedCategory == ''
+                          ? 'Tất cả danh mục'
+                          : selectedCategory!,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(
+                      Icons.filter_list,
+                      color: AppColors.primary,
+                    ),
+                  ],
                 ),
-                borderRadius: BorderRadius.circular(12),
               ),
-            ),
-            isExpanded: true,
-            dropdownColor: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            icon: const Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: AppColors.primary,
-            ),
+            ],
           ),
         ],
       ),

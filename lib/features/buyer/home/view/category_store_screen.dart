@@ -16,7 +16,7 @@ class CategoryStoreScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(Get.arguments as String),
+        title: Text(Get.arguments as String,style: AppTextStyles.headline,),
         centerTitle: true,
         backgroundColor: AppColors.background,
       ),
@@ -31,49 +31,77 @@ class CategoryStoreScreen extends StatelessWidget {
                   : storeVm.storesByCategory.isEmpty
                   ? const Center(child: Text('Không tìm thấy cửa hàng nào.'))
                   : ListView.builder(
-                    padding: const EdgeInsets.all(16),
                     itemCount: storeVm.storesByCategory.length,
                     itemBuilder: (context, index) {
                       final store = storeVm.storesByCategory[index];
 
-                      return ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
+                      return Container(
+                        margin: const EdgeInsets.symmetric(
                           horizontal: 16,
-                          vertical: 12,
+                          vertical: 8,
                         ),
-                        leading:
-                            (store.storeImageUrl != null &&
-                                    store.storeImageUrl!.isNotEmpty)
-                                ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(
-                                    store.storeImageUrl!,
-                                    width: 70,
-                                    height: 200,
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            const Icon(Icons.broken_image),
-                                  ),
-                                )
-                                : const Icon(Icons.broken_image, size: 40),
-                        title: Text(
-                          store.name,
-                          style: AppTextStyles.headline.copyWith(fontSize: 16),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.15),
+                              spreadRadius: 2,
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
                         ),
-                        subtitle: Text(
-                          store.address,
-                          style: AppTextStyles.body.copyWith(
-                            fontSize: 12
+                        child: InkWell(
+                          onTap: () {
+                            Get.snackbar(
+                              'Click',
+                              'Bạn đã chọn cửa hàng: ${store.name}',
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(12),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  store.storeImageUrl ?? '',
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                  errorBuilder:
+                                      (context, error, stackTrace) =>
+                                          const Icon(Icons.store, size: 50),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      store.name,
+                                      style: AppTextStyles.headline.copyWith(
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      store.address,
+                                      style: AppTextStyles.body.copyWith(
+                                        fontSize: 13,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                          overflow: TextOverflow.ellipsis,
                         ),
-                        onTap: () {
-                          Get.snackbar(
-                            'Click',
-                            'Bạn đã chọn cửa hàng: ${store.name}',
-                          );
-                        },
                       );
                     },
                   ),

@@ -1,5 +1,6 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/app/theme/app_colors.dart';
+import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -102,6 +103,8 @@ class SellerHomeScreen extends StatelessWidget {
               const SizedBox(height: 20),
               _buildCategoryIcons(),
               const SizedBox(height: 20),
+              Text('Có gì mới?', style: AppTextStyles.headline),
+              const SizedBox(height: 20),
               _buildBanner(),
             ],
           ),
@@ -111,21 +114,30 @@ class SellerHomeScreen extends StatelessWidget {
   }
 
   Widget _buildCategoryIcons() {
-    final items = ['Đơn hàng', 'Menu', 'Sản phẩm' ,'Khuyến mãi', 'Tài chính', 'Nhân viên'];
-    final List<IconData> iconCategory = [
-      Icons.shopping_cart,
-      Icons.menu_book,
-      Icons.inventory,
-      Icons.local_offer,
-      Icons.account_balance_wallet,
-      Icons.people,
+    final items = [
+      'Đơn hàng',
+      'Menu',
+      'Sản phẩm',
+      'Khuyến mãi',
+      'Khám phá',
+      'Tài chính',
+      'Nhân viên',
+    ];
+    final List<String> iconEmojis = [
+      '🛒', // Đơn hàng
+      '📖', // Menu
+      '🌾', // Sản phẩm
+      '🏷️', // Khuyến mãi
+      '🧭', // Khám phá
+      '💰', // Tài chính
+      '👥', // Nhân viên
     ];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 0),
       child: Wrap(
-        spacing: 16,
-        runSpacing: 16,
+        spacing: 12,
+        runSpacing: 12,
         children: List.generate(items.length, (index) {
           return GestureDetector(
             onTap: () {
@@ -139,9 +151,9 @@ class SellerHomeScreen extends StatelessWidget {
                 case 2:
                   Get.toNamed(AppRoutes.sellerProduct);
                   break;
-                // case 2:
-                //   Get.toNamed('/promotions');
-                //   break;
+                case 3:
+                  Get.toNamed(AppRoutes.sellerPromotions);
+                  break;
                 // case 3:
                 //   Get.toNamed('/finance');
                 //   break;
@@ -162,11 +174,14 @@ class SellerHomeScreen extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      border: Border.all(width: 1,color: AppColors.textSecondary),
-                      
-                      borderRadius: BorderRadius.circular(8)
+                      border: Border.all(
+                        width: 1,
+                        color: AppColors.textSecondary,
+                      ),
+
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(iconCategory[index],color: Colors.blueAccent,),
+                    child: Text(iconEmojis[index]),
                   ),
                   const SizedBox(height: 6),
                   Text(

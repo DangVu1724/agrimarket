@@ -12,6 +12,7 @@ class SellerHomeVm extends GetxController {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   final storeName = RxString('');
+  final storeId = RxString('');
   final storeState = RxString('');
   final isLoading = RxBool(false);
   final hasError = RxBool(false);
@@ -45,6 +46,7 @@ class SellerHomeVm extends GetxController {
         storeName.value = store.name;
         updateStoreState(store.state);
         storeState.value = store.state;
+        storeId.value = store.storeId;
       } else {
         hasError.value = true;
         errorMessage.value = 'Không tìm thấy cửa hàng nào cho người dùng này.';

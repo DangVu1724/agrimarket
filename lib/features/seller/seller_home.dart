@@ -4,7 +4,9 @@ import 'package:agrimarket/features/buyer/orders/view/order_screen.dart';
 import 'package:agrimarket/features/buyer/profile/view/profile_screen.dart';
 import 'package:agrimarket/features/buyer/search/view/search_screen.dart';
 import 'package:agrimarket/features/buyer/user_vm.dart';
+import 'package:agrimarket/features/seller/chat/view/seller_chat_screen.dart';
 import 'package:agrimarket/features/seller/home/view/seller_home_screen.dart';
+import 'package:agrimarket/features/seller/orders/view/orderList_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -17,8 +19,8 @@ class SellerHome extends StatelessWidget {
 
   final List<Widget> _screens = [
     SellerHomeScreen(),
-    const OrdersScreen(),
-    const SearchScreen(),
+    const OrderlistScreen(),
+    const SellerChatScreen(),
     ProfileScreen(),
   ];
 
@@ -46,8 +48,8 @@ class SellerHome extends StatelessWidget {
               label: 'Đơn hàng',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart),
-              label: 'Tìm kiếm',
+              icon: Icon(Icons.chat),
+              label: 'Trò chuyện',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),

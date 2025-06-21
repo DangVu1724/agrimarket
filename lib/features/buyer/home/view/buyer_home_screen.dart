@@ -1,35 +1,46 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
+import 'package:agrimarket/app/theme/app_text_styles.dart';
+import 'package:agrimarket/core/widgets/store_product_list.dart';
+import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
+import 'package:agrimarket/features/buyer/home/viewmodel/store_vm.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class HomeBuyerScreen extends StatelessWidget {
   final BuyerVm vm = Get.find<BuyerVm>();
+  final StoreVm storeVm = Get.find<StoreVm>();
 
   @override
   Widget build(BuildContext context) {
+    storeVm.fetchStoresList();
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Obx(
-        () => SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildAppBar(),
-              SizedBox(height: 15),
-              _buildBanner(),
-              SizedBox(height: 15),
-              _buildCategoryIcons(),
-              _buildSectionHeader("Ưu đãi nhập trời", actionText: "See all"),
-              _buildPromotionGrid(),
-              _buildSectionHeader(
-                "Bồng dưng thèm trái ngọt",
-                actionText: "Xem tất cả",
-              ),
-              _buildProductList(),
-              _buildStoreList(),
-            ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          storeVm.fetchStoresList();
+        },
+        child: Obx(
+          () => SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildAppBar(),
+                SizedBox(height: 15),
+                _buildBanner(),
+                SizedBox(height: 15),
+                _buildCategoryIcons(),
+                _buildSectionHeader("Ưu đãi nhập trời", actionText: "Xem tất cả"),
+                _buildPromotionGrid(),
+                _buildSectionHeader(
+                  "Bỗng dưng thèm trái ngọt",
+                  actionText: "Xem tất cả",
+                ),
+                StoreProductList(storeId: 'store_Fs06RKoGxPfrFuxY8E78FtyRByD2_8165',),
+                _buildStoreList(),
+              ],
+            ),
           ),
         ),
       ),
@@ -83,6 +94,7 @@ class HomeBuyerScreen extends StatelessWidget {
         viewportFraction: 0.8,
         enableInfiniteScroll: true,
         autoPlay: true,
+        aspectRatio: 16 / 9,
       ),
       items:
           bannerImages.map((imageBanner) {
@@ -96,12 +108,9 @@ class HomeBuyerScreen extends StatelessWidget {
       onTap: () {
         Get.snackbar("Banner Clicked", "Bạn đã nhấn vào banner");
       },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          
-        ),
-        child: Image.asset(imageBanner,fit: BoxFit.cover,),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: Image.asset(imageBanner, fit: BoxFit.cover, height: 200),
       ),
     );
   }
@@ -217,82 +226,77 @@ class HomeBuyerScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProductList() {
+  Widget _buildStoreItem(StoreModel store) {
     return Container(
-      height: 150,
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: 3,
-        itemBuilder:
-            (_, index) => Container(
-              width: 120,
-              margin: EdgeInsets.only(right: 10),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(12),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.15),
+            spreadRadius: 2,
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () {
+          Get.snackbar('Click', 'Bạn đã chọn cửa hàng: ${store.name}');
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                store.storeImageUrl ?? '',
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+                errorBuilder:
+                    (context, error, stackTrace) =>
+                        const Icon(Icons.store, size: 50),
               ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: Placeholder()),
-                  Padding(
-                    padding: EdgeInsets.all(4),
-                    child: Column(
-                      children: [
-                        Text(
-                          "Nho đen",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text("74.500  94.500", style: TextStyle(fontSize: 12)),
-                        Text(
-                          "Khoảng 500g",
-                          style: TextStyle(fontSize: 11, color: Colors.grey),
-                        ),
-                      ],
-                    ),
+                  Text(
+                    store.name,
+                    style: AppTextStyles.headline.copyWith(fontSize: 16),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    store.address,
+                    style: AppTextStyles.body.copyWith(fontSize: 13),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
             ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildStoreList() {
-    return Padding(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        children: List.generate(2, (_) {
-          return Container(
-            margin: EdgeInsets.only(bottom: 12),
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade200),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Container(width: 60, height: 60, child: Placeholder()),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "TH true mart - 45 Vũ Phạm Hàm",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 4),
-                      Text("⭐ 4.8 (287) ~ Cửa hàng khác"),
-                      Text("🚲 16.000đ ~ 15 phút"),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
-      ),
+    final StoreVm storeVm = Get.find<StoreVm>();
+    return ListView.builder(
+      physics: NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: storeVm.storesList.length,
+      itemBuilder: (context, index) {
+        final store = storeVm.storesList[index];
+        return _buildStoreItem(store);
+      },
     );
   }
 }
