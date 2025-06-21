@@ -5,6 +5,7 @@ import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
 import 'package:agrimarket/features/buyer/user_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../app/theme/app_colors.dart';
 import 'profile/view/profile_screen.dart';
 
@@ -18,8 +19,8 @@ class BuyerHome extends StatelessWidget {
 
   final List<Widget> _screens = [
     HomeBuyerScreen(),
-    const OrdersScreen(),
     const SearchScreen(),
+    const OrdersScreen(),
     ProfileScreen(),
   ];
 
@@ -39,19 +40,20 @@ class BuyerHome extends StatelessWidget {
           type: BottomNavigationBarType.fixed,
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
+              icon: Icon(Iconsax.home),
               label: 'Trang chủ',
             ),
+            
             BottomNavigationBarItem(
-              icon: Icon(Icons.receipt_long),
-              label: 'Đơn hàng',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart),
+              icon: Icon(Iconsax.shopping_cart),
               label: 'Tìm kiếm',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person),
+              icon: Icon(Iconsax.receipt_item),
+              label: 'Đơn hàng',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Iconsax.user_square),
               label: 'Tài khoản',
             ),
           ],

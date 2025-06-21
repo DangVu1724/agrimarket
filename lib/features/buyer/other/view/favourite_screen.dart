@@ -1,4 +1,4 @@
-import 'package:agrimarket/app/theme/app_colors.dart';
+import 'package:agrimarket/core/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 
 class FavouriteScreen extends StatelessWidget {
@@ -8,16 +8,8 @@ class FavouriteScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text('Yêu thích'),
-        centerTitle: true,
-        backgroundColor: AppColors.primary,
-      ),
-      body: Center(
-        child: Text(
-          'Danh sách sản phẩm yêu thích sẽ hiển thị ở đây.',
-          style: TextStyle(fontSize: 18, color: Colors.grey[700]),
-        ),
+      body: Column(
+        children: [CustomAppBar(backArrow: true, pageName: "Yêu thích",)],
       ),
     );
   }

@@ -1,6 +1,5 @@
+import 'package:agrimarket/core/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
-import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_text_styles.dart';
 
 class SearchScreen extends StatelessWidget {
   const SearchScreen({super.key});
@@ -8,19 +7,16 @@ class SearchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        title: Text('Tìm kiếm',style: AppTextStyles.headline,),
-        centerTitle: true,
+      body: Column(
+        children: [
+          CustomAppBar(
+            child: Container(
+              padding: EdgeInsets.all(10),
+              
+            ),
+          ),
+        ],
       ),
-      // body: Obx(() {
-      //   return SingleChildScrollView(
-      //     child: Column(
-
-      //     ),
-      //   );
-      // })
     );
   }
 }

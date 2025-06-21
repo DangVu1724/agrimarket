@@ -26,9 +26,6 @@ class AppRoutes {
   static const String security = '/security';
   static const String privacyPolicy = '/privacy-policy';
   static const String favourite = '/favourite';
-  static const String buyerChat = '/buyer-chat';
-
-  // Seller
   static const String sellerHome = '/seller-home';
   static const String sellerHomeScreen = '/seller-home-screen';
   static const String sellerOrderList = '/seller-order-list';
