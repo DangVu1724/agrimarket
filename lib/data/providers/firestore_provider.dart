@@ -50,6 +50,11 @@ class FirestoreProvider {
     }
   }
 
+  Future<void> updateBuyer(String uid, Map<String, dynamic> data) async {
+  await FirebaseFirestore.instance.collection('buyers').doc(uid).update(data);
+}
+
+
   Future<List<StoreModel>> getStoresByOwner(String ownerUid) async {
     try {
       final querySnapshot = await _firestore

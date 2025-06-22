@@ -10,17 +10,8 @@ class StoreVm extends GetxController {
   final RxBool isLoading = false.obs;
   var storeData = Rxn<StoreModel>();
 
-  void onInit() {super.onInit();
-    final storeId = Get.arguments as String?;
-    Get.snackbar('', 'Store ID: $storeId');
-    if (storeId != null) {
-      fetchStoreByID(storeId);
-    }
-    
-  }
-
   List<StoreModel> _filterPendingStores(List<StoreModel> stores) {
-    return stores.where((store) => store.state.toLowerCase() == 'pending').toList();
+    return stores.where((store) => store.state.toLowerCase() == 'verify').toList();
   }
 
 

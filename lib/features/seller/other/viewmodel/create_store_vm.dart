@@ -240,6 +240,7 @@ class CreateStoreViewModel extends GetxController {
         foodSafetyCertificateUrl: foodSafetyCertificateUrl,
         storeImageUrl: storeImageUrl,
         state: 'pending',
+        isOpened: false,
       );
 
       await _storeRepository.createStore(store);

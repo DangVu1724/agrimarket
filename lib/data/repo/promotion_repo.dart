@@ -59,4 +59,5 @@ class PromotionRepository {
   Future<void> updateProductDiscount(ProductPromotionModel discount) async {
     await _db.collection('product_discounts').doc(discount.id).update(discount.toJson());
   }
+
 }

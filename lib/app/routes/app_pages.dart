@@ -1,5 +1,6 @@
 import 'package:agrimarket/app/bindings/auth_binding.dart';
 import 'package:agrimarket/data/models/product.dart';
+import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/features/auth/view/dashboard.dart';
 import 'package:agrimarket/features/auth/view/email_verify_screen.dart';
 import 'package:agrimarket/features/buyer/home/view/category_store_screen.dart';
@@ -22,6 +23,7 @@ import 'package:agrimarket/features/buyer/profile/view/profile_screen.dart';
 import 'package:agrimarket/features/buyer/profile/view/security_screen.dart';
 import 'package:agrimarket/features/buyer/search/view/search_screen.dart';
 import 'package:agrimarket/features/buyer/profile/view/setting_screen.dart';
+import 'package:agrimarket/features/buyer/store/view/product_detail_screen.dart';
 import 'package:agrimarket/features/buyer/store/view/store_screen.dart';
 import 'package:agrimarket/features/seller/chat/view/seller_chat_screen.dart';
 import 'package:agrimarket/features/seller/menu/view/menu_screen.dart';
@@ -109,11 +111,28 @@ class AppPages {
     GetPage(
       name: AppRoutes.store,
       page: () {
-        final storeId = Get.arguments as String? ?? '';
-        return StoreScreen(storeId: storeId);
+        final store = Get.arguments;
+        if (store is StoreModel) {
+          return StoreScreen(store: store);
+        } else {
+          throw ArgumentError(
+            'Expected StoreModel as argument for StoreScreen',
+          );
+        }
       },
       binding: AuthBinding(),
     ),
+    GetPage(
+      name: AppRoutes.buyerProductDetail,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        final store = args['store'] as StoreModel;
+        final product = args['product'] as ProductModel;
+        return ProductDetailScreen(product: product, store: store);
+      },
+      binding: AuthBinding(),
+    ),
+
     GetPage(
       name: AppRoutes.buyerOrders,
       page: () => const OrdersScreen(),
@@ -241,9 +260,10 @@ class AppPages {
       page: () => SellerPromotionScreen(),
       binding: AuthBinding(),
     ),
+
     // GetPage(
     //   name: AppRoutes.adminPromotion,
-    //   page: () => MyPromotionsScreen(),
+    //   page: () => MyPromotionsScreen(), 
     //   binding: AuthBinding(),
     // ),
   ];

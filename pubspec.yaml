@@ -59,6 +59,13 @@ dependencies:
   expansion_tile_card: ^3.0.0
   iconsax_flutter: ^1.0.1
   uuid: ^4.5.1
+  hive_flutter: ^1.1.0
+  intl: ^0.18.1
+  cached_network_image: ^3.4.1
+  flutter_sticky_header: ^0.8.0
+  easy_sticky_header: ^1.1.1
+  sticky_headers: ^0.3.0+2
+  sliver_tools: ^0.2.12
 
 
 dev_dependencies:

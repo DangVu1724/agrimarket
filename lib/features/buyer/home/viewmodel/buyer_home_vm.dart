@@ -1,12 +1,10 @@
 import 'package:agrimarket/data/models/product.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/data/services/product_filter_service.dart';
-import 'package:agrimarket/data/services/store_service.dart';
 import 'package:get/get.dart';
 
 class BuyerHomeScreenVm extends GetxController {
   final _productService = ProductFilterService();
-  final _storeService = StoreService();
 
   var products = <ProductModel>[].obs;
   var store = Rxn<StoreModel>();

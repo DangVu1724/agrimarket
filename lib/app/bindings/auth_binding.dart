@@ -8,6 +8,7 @@ import 'package:agrimarket/features/buyer/profile/viewmodel/address_list_vm.dart
 import 'package:agrimarket/features/buyer/profile/viewmodel/reset_password_vm.dart';
 import 'package:agrimarket/features/buyer/other/viewmodel/add_address_vm.dart';
 import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
+import 'package:agrimarket/features/buyer/store/viewmodel/store_detail_vm.dart';
 import 'package:agrimarket/features/buyer/user_vm.dart';
 import 'package:agrimarket/features/seller/menu/viewmodel/menu_screen_vm.dart';
 import 'package:agrimarket/features/seller/other/viewmodel/create_store_vm.dart';
@@ -37,5 +38,6 @@ class AuthBinding extends Bindings {
     Get.lazyPut<StoreVm>(() => StoreVm());
     Get.lazyPut<BuyerHomeScreenVm>(() => BuyerHomeScreenVm());
     Get.lazyPut<PromotionVm>(() => PromotionVm());
+  Get.put(StoreDetailVm(), permanent: true);
   }
 }

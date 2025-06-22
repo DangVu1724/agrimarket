@@ -9,6 +9,8 @@ class StoreModel {
   final String? foodSafetyCertificateUrl;
   final String? storeImageUrl ;
   final String state;
+  final bool isOpened;
+  
 
   StoreModel({
     required this.storeId,
@@ -21,6 +23,7 @@ class StoreModel {
     this.foodSafetyCertificateUrl,
     this.storeImageUrl ,
     this.state = 'pending',
+    this.isOpened = false,
   });
 
   Map<String, dynamic> toJson() => {
@@ -34,6 +37,7 @@ class StoreModel {
     'businessLicenseUrl': businessLicenseUrl,
     'foodSafetyCertificateUrl': foodSafetyCertificateUrl,
     'storeImageUrl ': storeImageUrl ,
+    'isOpened': isOpened,
   };
 
   factory StoreModel.fromJson(Map<String, dynamic> json) => StoreModel(
@@ -47,5 +51,6 @@ class StoreModel {
     foodSafetyCertificateUrl: json['foodSafetyCertificateUrl'],
     storeImageUrl : json['storeImageUrl '],
     state: json['state'] ?? 'pending',
+    isOpened: json['isOpened'] ?? false,
   );
 }

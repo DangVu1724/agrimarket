@@ -1,5 +1,4 @@
 import 'package:agrimarket/data/models/discount_code.dart';
-import 'package:agrimarket/data/models/product.dart';
 import 'package:agrimarket/data/models/product_promotion.dart';
 import 'package:agrimarket/data/repo/promotion_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -80,4 +79,35 @@ class PromotionService {
       throw Exception('Discount not found');
     }
   }
+
+  Future<Map<String, dynamic>?> getDiscountInfo(String discountId) async {
+  final doc = await FirebaseFirestore.instance
+      .collection('product_discounts')
+      .doc(discountId)
+      .get();
+
+  if (!doc.exists) return null;
+
+  final data = doc.data()!;
+  return {
+    'discountType': data['discountType'],
+    'discountValue': data['discountValue'],
+  };
+}
+  Future<Map<String, dynamic>?> getDiscountCodeInfo(String codeId) async {
+    final doc = await FirebaseFirestore.instance
+        .collection('discount_codes')
+        .doc(codeId)
+        .get();
+
+    if (!doc.exists) return null;
+
+    final data = doc.data()!;
+    return {
+      'code': data['code'],
+      'discountValue': data['discountValue'],
+      'expiryDate': data['expiryDate'],
+    };
+  }
+
 }

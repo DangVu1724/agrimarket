@@ -5,12 +5,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'app/routes/app_pages.dart';
 import 'package:get_storage/get_storage.dart';
 
 
 void main() async {
   await GetStorage.init();
+  await Hive.initFlutter();
+  await Hive.openBox('storeCache');
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   try {

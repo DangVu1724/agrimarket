@@ -12,9 +12,16 @@ class HomeBuyerScreen extends StatelessWidget {
   final BuyerVm vm = Get.find<BuyerVm>();
   final StoreVm storeVm = Get.find<StoreVm>();
 
+  HomeBuyerScreen({super.key}) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (storeVm.storesList.isEmpty) {
+        storeVm.fetchStoresList();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    storeVm.fetchStoresList();
     return Scaffold(
       backgroundColor: Colors.white,
       body: RefreshIndicator(
@@ -193,7 +200,7 @@ class HomeBuyerScreen extends StatelessWidget {
           if (actionText != null)
             GestureDetector(
               onTap: () {
-                Get.snackbar("Action Clicked", "Bạn đã nhấn vào $actionText");
+                Get.toNamed(actionText);
               },
               child: Text(actionText, style: TextStyle(color: Colors.green)),
             ),
@@ -244,7 +251,7 @@ class HomeBuyerScreen extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          Get.toNamed(AppRoutes.store, arguments: store.storeId);
+          Get.toNamed(AppRoutes.store, arguments: store);
         },
         borderRadius: BorderRadius.circular(12),
         child: Row(
