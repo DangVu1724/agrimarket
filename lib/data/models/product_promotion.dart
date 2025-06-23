@@ -8,7 +8,6 @@ class ProductPromotionModel {
   final String discountType; // 'fixed' hoặc 'percent'
   final DateTime startDate;
   final DateTime endDate;
-  final bool isActive;
   final String? promotionId; // Gắn vào chiến dịch nếu có
 
   ProductPromotionModel({
@@ -19,7 +18,6 @@ class ProductPromotionModel {
     required this.discountType,
     required this.startDate,
     required this.endDate,
-    required this.isActive,
     this.promotionId,
   });
 
@@ -32,7 +30,6 @@ class ProductPromotionModel {
       discountType: json['discountType'] ?? 'fixed',
       startDate: (json['startDate'] as Timestamp).toDate(),
       endDate: (json['endDate'] as Timestamp).toDate(),
-      isActive: json['isActive'] ?? false,
       promotionId: json['promotionId'],
     );
   }
@@ -46,7 +43,6 @@ class ProductPromotionModel {
       'discountType': discountType,
       'startDate': startDate,
       'endDate': endDate,
-      'isActive': isActive,
       'promotionId': promotionId,
     };
   }
@@ -59,7 +55,6 @@ class ProductPromotionModel {
     String? discountType,
     DateTime? startDate,
     DateTime? endDate,
-    bool? isActive,
     String? promotionId,
   }) {
     return ProductPromotionModel(
@@ -70,8 +65,13 @@ class ProductPromotionModel {
       discountType: discountType ?? this.discountType,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
-      isActive: isActive ?? this.isActive,
       promotionId: promotionId ?? this.promotionId,
     );
   }
+
+  bool get isValid {
+    final now = DateTime.now();
+    return now.isAfter(startDate) && now.isBefore(endDate) && discountValue > 0;
+  }
+
 }

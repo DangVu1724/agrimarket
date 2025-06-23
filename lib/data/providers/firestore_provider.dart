@@ -78,4 +78,13 @@ class FirestoreProvider {
       throw Exception('Lỗi khi lưu thông tin cửa hàng: $e');
     }
   }
+
+  // Cập nhật thông tin cửa hàng
+  Future<void> updateStore(StoreModel store) async {
+    try {
+      await _firestore.collection('stores').doc(store.storeId).update(store.toJson());
+    } catch (e) {
+      throw Exception('Lỗi khi cập nhật thông tin cửa hàng: $e');
+    }
+  }
 }

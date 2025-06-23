@@ -7,4 +7,8 @@ class StoreRepository {
   Future<void> createStore(StoreModel store) async {
     await _firestoreProvider.createStore(store);
   }
+
+  Future<void> updateStore(StoreModel store) async {
+    await _firestoreProvider.updateStore(store);
+  }
 }

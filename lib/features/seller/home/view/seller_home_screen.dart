@@ -26,14 +26,14 @@ class SellerHomeScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Chào mừng, ${vm.storeName.value}',
+                      'Chào mừng, ${vm.store.value?.name ?? 'Cửa hàng của bạn'}',
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      ' ${vm.storeState.value}',
+                      ' ${vm.store.value?.state}',
                       style: TextStyle(
                         fontSize: 16,
                         color: vm.storeStateColor.value,
@@ -114,90 +114,98 @@ class SellerHomeScreen extends StatelessWidget {
   }
 
   Widget _buildCategoryIcons() {
-    final items = [
-      'Đơn hàng',
-      'Menu',
-      'Sản phẩm',
-      'Khuyến mãi',
-      'Khám phá',
-      'Tài chính',
-      'Nhân viên',
-    ];
-    final List<String> iconEmojis = [
-      '🛒', // Đơn hàng
-      '📖', // Menu
-      '🌾', // Sản phẩm
-      '🏷️', // Khuyến mãi
-      '🧭', // Khám phá
-      '💰', // Tài chính
-      '👥', // Nhân viên
-    ];
+    final SellerHomeVm vm = Get.find<SellerHomeVm>();
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 0),
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 12,
-        children: List.generate(items.length, (index) {
-          return GestureDetector(
-            onTap: () {
-              switch (index) {
-                case 0:
-                  Get.toNamed(AppRoutes.sellerOrderList);
-                  break;
-                case 1:
-                  Get.toNamed(AppRoutes.sellerMenu);
-                  break;
-                case 2:
-                  Get.toNamed(AppRoutes.sellerProduct);
-                  break;
-                case 3:
-                  Get.toNamed(AppRoutes.sellerPromotions);
-                  break;
-                // case 3:
-                //   Get.toNamed('/finance');
-                //   break;
-                // case 4:
-                //   Get.toNamed('/staff');
-                //   break;
-                default:
-                  Get.snackbar(
-                    "Category Clicked",
-                    "Bạn đã nhấn vào danh mục ${items[index]}",
-                  );
-              }
-            },
-            child: SizedBox(
-              width: 80,
-              child: Column(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        width: 1,
-                        color: AppColors.textSecondary,
+    return Obx(() {
+      final items = [
+        'Đơn hàng',
+        'Menu',
+        'Sản phẩm',
+        'Khuyến mãi',
+        'Khám phá',
+        'Tài chính',
+        'Nhân viên',
+        vm.isOpened.value ? 'Mở cửa hàng' : 'Đóng cửa hàng',
+      ];
+      final List<String> iconEmojis = [
+        '🛒', // Đơn hàng
+        '📖', // Menu
+        '🌾', // Sản phẩm
+        '🏷️', // Khuyến mãi
+        '🧭', // Khám phá
+        '💰', // Tài chính
+        '👥', // Nhân viên
+        vm.isOpened.value ? '🔓' : '🔒',
+      ];
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 0),
+        child: Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: List.generate(items.length, (index) {
+            return GestureDetector(
+              onTap: () {
+                switch (index) {
+                  case 0:
+                    Get.toNamed(AppRoutes.sellerOrderList);
+                    break;
+                  case 1:
+                    Get.toNamed(AppRoutes.sellerMenu);
+                    break;
+                  case 2:
+                    Get.toNamed(AppRoutes.sellerProduct);
+                    break;
+                  case 3:
+                    Get.toNamed(AppRoutes.sellerPromotions);
+                    break;
+                  // case 3:
+                  //   Get.toNamed('/finance');
+                  //   break;
+                  // case 4:
+                  //   Get.toNamed('/staff');
+                  //   break;
+                  case 7:
+                    vm.toggleOpen();
+                    break;
+                  default:
+                    Get.snackbar(
+                      "Category Clicked",
+                      "Bạn đã nhấn vào danh mục ${items[index]}",
+                    );
+                }
+              },
+              child: SizedBox(
+                width: 80,
+                child: Column(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 1,
+                          color: AppColors.textSecondary,
+                        ),
+
+                        borderRadius: BorderRadius.circular(8),
                       ),
-
-                      borderRadius: BorderRadius.circular(8),
+                      child: Text(iconEmojis[index]),
                     ),
-                    child: Text(iconEmojis[index]),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    items[index],
-                    style: const TextStyle(fontSize: 12),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                    const SizedBox(height: 6),
+                    Text(
+                      items[index],
+                      style: const TextStyle(fontSize: 12),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        }),
-      ),
-    );
+            );
+          }),
+        ),
+      );
+    });
   }
 
   Widget _buildBanner() {

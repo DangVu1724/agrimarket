@@ -57,18 +57,17 @@ class _DialogPromotionState extends State<DialogPromotion> {
                   hintText: 'Nhập mã code',
                   validator: _requiredValidator,
                 ),
-          
+
               const SizedBox(height: 15),
-          
+
               DropdownButtonFormField<String>(
                 value: selectedDiscountType,
                 hint: const Text('Chọn loại giảm giá'),
                 decoration: InputDecoration(
                   labelText: 'Loại giảm giá',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12)
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  
                 ),
                 items:
                     discountTypes.map((type) {
@@ -92,7 +91,7 @@ class _DialogPromotionState extends State<DialogPromotion> {
                 },
               ),
               const SizedBox(height: 12),
-          
+
               CustomTextFormField(
                 controller: percentController,
                 label: 'Giá trị giảm',
@@ -107,8 +106,7 @@ class _DialogPromotionState extends State<DialogPromotion> {
                   hintText: 'Nhập giá trị đơn hàng tối thiểu',
                   keyboard: TextInputType.number,
                   validator: _requiredValidator,
-                )
-              
+                ),
             ],
           ),
         ),
@@ -143,16 +141,15 @@ class _DialogPromotionState extends State<DialogPromotion> {
   }
 
   void _createDiscountCode() {
-
     // final uuid = Uuid();
 
     // String newId = uuid.v4();
     final model = DiscountCodeModel(
       id: '',
       code: codeController.text.trim(),
-      storeId: sellerHomeVm.storeId.value,
+      storeId: sellerHomeVm.store.value?.storeId,
       creatorRole: 'seller',
-      creatorId: sellerHomeVm.storeId.value,
+      creatorId: sellerHomeVm.store.value!.storeId,
       discountType: selectedDiscountType ?? 'percent',
       value: double.parse(percentController.text.trim()),
       minOrder: double.parse(minOrderController.text.trim()),
@@ -174,13 +171,12 @@ class _DialogPromotionState extends State<DialogPromotion> {
 
     final model = ProductPromotionModel(
       id: '',
-      storeId: sellerHomeVm.storeId.value,
+      storeId: sellerHomeVm.store.value!.storeId,
       productIds: const [],
       discountValue: double.parse(percentController.text.trim()),
       discountType: selectedDiscountType ?? 'percent',
       startDate: DateTime.now(),
       endDate: DateTime.now().add(const Duration(days: 30)),
-      isActive: true,
       promotionId: null,
     );
 

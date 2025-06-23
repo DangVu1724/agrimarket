@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:agrimarket/app/routes/app_routes.dart';
+import 'package:agrimarket/data/models/product_promotion.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/data/services/store_service.dart';
 import 'package:agrimarket/features/buyer/home/viewmodel/buyer_home_vm.dart';
@@ -55,26 +58,35 @@ class StoreProductList extends StatelessWidget {
               itemBuilder: (_, index) {
                 final product = products[index];
 
-                return FutureBuilder<Map<String, dynamic>?>(
+                return FutureBuilder<ProductPromotionModel?>(
                   future:
                       product.promotion != null
                           ? storeDetailVm.getDiscountInfo(product.promotion!)
                           : Future.value(null),
                   builder: (context, discountSnapshot) {
-                    final discountData = discountSnapshot.data;
-                    final hasDiscount = discountData != null;
-                    final discountValue =
-                        hasDiscount ? discountData['discountValue'] : 0;
-                    final discountType =
-                        hasDiscount ? discountData['discountType'] : null;
+                    final discount = discountSnapshot.data;
+                    final hasValidDiscount = discount?.isValid ?? false;
 
-                    double discountedPrice = product.price;
-                    if (hasDiscount && discountType == 'percent') {
-                      discountedPrice =
-                          product.price * (1 - discountValue / 100);
-                    } else if (hasDiscount && discountType == 'fixed') {
-                      discountedPrice = product.price - discountValue;
-                    }
+
+                    double finalPrice = product.price;
+    String priceText = '${currencyFormatter.format(product.price)} /${product.unit}';
+
+    if (hasValidDiscount) {
+      // Tính toán giá sau giảm
+      if (discount!.discountType == 'percent') {
+        finalPrice = max(0, product.price * (1 - discount.discountValue / 100));
+      } else if (discount.discountType == 'fixed') {
+        finalPrice = max(0, product.price - discount.discountValue);
+      }
+
+      priceText = '''
+        ${currencyFormatter.format(product.price)} /${product.unit}
+        ${currencyFormatter.format(finalPrice)} /${product.unit} (Giảm ${discount.discountType == 'percent' 
+          ? '${discount.discountValue}%' 
+          : '${currencyFormatter.format(discount.discountValue)}'})
+        Áp dụng đến: ${DateFormat('dd/MM/yyyy').format(discount.endDate)}
+      ''';
+    }
 
                     return GestureDetector(
                       onTap: () {
@@ -118,7 +130,7 @@ class StoreProductList extends StatelessWidget {
                                     ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  if (hasDiscount) ...[
+                                  if (hasValidDiscount) ...[
                                     Text(
                                       currencyFormatter.format(product.price),
                                       style: const TextStyle(
@@ -128,7 +140,7 @@ class StoreProductList extends StatelessWidget {
                                       ),
                                     ),
                                     Text(
-                                      currencyFormatter.format(discountedPrice),
+                                      currencyFormatter.format(finalPrice),
                                       style: TextStyle(
                                         fontSize: 14,
                                         color: Colors.red.shade700,

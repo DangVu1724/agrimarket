@@ -80,25 +80,32 @@ class PromotionService {
     }
   }
 
-  Future<Map<String, dynamic>?> getDiscountInfo(String discountId) async {
-  final doc = await FirebaseFirestore.instance
-      .collection('product_discounts')
-      .doc(discountId)
-      .get();
+  Future<ProductPromotionModel?> getDiscountInfo(String discountId) async {
+    try {
+      final doc =
+          await FirebaseFirestore.instance
+              .collection('product_discounts')
+              .doc(discountId)
+              .get();
 
-  if (!doc.exists) return null;
+      if (!doc.exists) return null;
 
-  final data = doc.data()!;
-  return {
-    'discountType': data['discountType'],
-    'discountValue': data['discountValue'],
-  };
-}
+      return ProductPromotionModel.fromJson({
+        ...doc.data()!,
+        'id': doc.id, // Add the document ID
+      });
+    } catch (e) {
+      print('Error fetching discount info: $e');
+      return null;
+    }
+  }
+
   Future<Map<String, dynamic>?> getDiscountCodeInfo(String codeId) async {
-    final doc = await FirebaseFirestore.instance
-        .collection('discount_codes')
-        .doc(codeId)
-        .get();
+    final doc =
+        await FirebaseFirestore.instance
+            .collection('discount_codes')
+            .doc(codeId)
+            .get();
 
     if (!doc.exists) return null;
 
@@ -109,5 +116,4 @@ class PromotionService {
       'expiryDate': data['expiryDate'],
     };
   }
-
 }

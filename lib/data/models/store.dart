@@ -53,4 +53,32 @@ class StoreModel {
     state: json['state'] ?? 'pending',
     isOpened: json['isOpened'] ?? false,
   );
+
+  StoreModel copyWith({
+    String? storeId,
+    String? ownerUid,
+    String? name,
+    String? description,
+    List<String>? categories,
+    String? address,
+    String? businessLicenseUrl,
+    String? foodSafetyCertificateUrl,
+    String? storeImageUrl ,
+    String? state,
+    bool? isOpened,
+  }) {
+    return StoreModel(
+      storeId: storeId ?? this.storeId,
+      ownerUid: ownerUid ?? this.ownerUid,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      categories: categories ?? this.categories,
+      address: address ?? this.address,
+      businessLicenseUrl: businessLicenseUrl ?? this.businessLicenseUrl,
+      foodSafetyCertificateUrl: foodSafetyCertificateUrl ?? this.foodSafetyCertificateUrl,
+      storeImageUrl : storeImageUrl ?? this.storeImageUrl ,
+      state: state ?? this.state,
+      isOpened: isOpened ?? this.isOpened,
+    );
+  }
 }

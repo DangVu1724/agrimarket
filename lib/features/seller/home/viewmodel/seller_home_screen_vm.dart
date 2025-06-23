@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/data/providers/firestore_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,13 +12,12 @@ class SellerHomeVm extends GetxController {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
 
-  final storeName = RxString('');
-  final storeId = RxString('');
-  final storeState = RxString('');
+  final Rx<StoreModel?> store = Rx<StoreModel?>(null);
   final isLoading = RxBool(false);
   final hasError = RxBool(false);
   final errorMessage = RxString('');
   final storeStateColor = Rx<Color>(Colors.grey);
+  var isOpened = true.obs;
 
   @override
   void onInit() {
@@ -42,11 +42,11 @@ class SellerHomeVm extends GetxController {
       // Lấy cửa hàng từ Firestore dựa trên ownerUid
       final stores = await firestoreProvider.getStoresByOwner(user.uid);
       if (stores.isNotEmpty) {
-        final store = stores.first;
-        storeName.value = store.name;
-        updateStoreState(store.state);
-        storeState.value = store.state;
-        storeId.value = store.storeId;
+        final s = stores.first;
+        store.value = s;
+        isOpened.value = s.isOpened;
+        storeStateColor.value = getStateColor(s.state);
+
       } else {
         hasError.value = true;
         errorMessage.value = 'Không tìm thấy cửa hàng nào cho người dùng này.';
@@ -62,10 +62,7 @@ class SellerHomeVm extends GetxController {
     }
   }
 
-  void updateStoreState(String state) {
-    storeState.value = state;
-    storeStateColor.value = getStateColor(state);
-  }
+
 
   Color getStateColor(String state) {
     switch (state.toLowerCase()) {
@@ -79,4 +76,22 @@ class SellerHomeVm extends GetxController {
         return Colors.grey;
     }
   }
+
+   Future<void> toggleOpen() async {
+    if (store.value == null) return;
+
+    final newStatus = !store.value!.isOpened;
+  try {
+    await firestore.collection('stores').doc(store.value!.storeId).update({
+      'isOpened': newStatus,
+    });
+
+    store.value = store.value!.copyWith(isOpened: newStatus);
+    store.refresh();
+    isOpened.value = newStatus;
+
+  } catch (e) {
+    Get.snackbar('Lỗi', 'Không thể cập nhật trạng thái cửa hàng: $e');
+  }
+}
 }

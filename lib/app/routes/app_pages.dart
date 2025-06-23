@@ -1,5 +1,6 @@
 import 'package:agrimarket/app/bindings/auth_binding.dart';
 import 'package:agrimarket/data/models/product.dart';
+import 'package:agrimarket/data/models/product_promotion.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/features/auth/view/dashboard.dart';
 import 'package:agrimarket/features/auth/view/email_verify_screen.dart';
@@ -37,6 +38,7 @@ import 'package:agrimarket/features/seller/product/view/seller_product_screen.da
 import 'package:agrimarket/features/seller/product/view/seller_update_product_screen.dart';
 import 'package:agrimarket/features/seller/promotion/view/promotion_screen.dart';
 import 'package:agrimarket/features/seller/seller_home.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../features/auth/view/login_screen.dart';
 import 'app_routes.dart';
@@ -123,15 +125,20 @@ class AppPages {
       binding: AuthBinding(),
     ),
     GetPage(
-      name: AppRoutes.buyerProductDetail,
-      page: () {
-        final args = Get.arguments as Map<String, dynamic>;
-        final store = args['store'] as StoreModel;
-        final product = args['product'] as ProductModel;
-        return ProductDetailScreen(product: product, store: store);
-      },
-      binding: AuthBinding(),
-    ),
+  name: AppRoutes.buyerProductDetail,
+  page: () {
+    final args = Get.arguments as Map<String, dynamic>;
+    
+    return ProductDetailScreen(
+      product: ProductModel.fromJson(args['product']),
+      store: StoreModel.fromJson(args['store']),
+      discount: args['discount'] != null 
+          ? ProductPromotionModel.fromJson(args['discount'])
+          : null,
+    );
+  },
+  binding: AuthBinding(),
+),
 
     GetPage(
       name: AppRoutes.buyerOrders,
@@ -263,7 +270,7 @@ class AppPages {
 
     // GetPage(
     //   name: AppRoutes.adminPromotion,
-    //   page: () => MyPromotionsScreen(), 
+    //   page: () => MyPromotionsScreen(),
     //   binding: AuthBinding(),
     // ),
   ];

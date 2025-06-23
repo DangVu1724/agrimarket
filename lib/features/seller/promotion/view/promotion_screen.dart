@@ -13,7 +13,7 @@ class SellerPromotionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    promotionVm.loadAllPromotions(sellerHomeVm.storeId.value);
+    promotionVm.loadAllPromotions(sellerHomeVm.store.value!.storeId);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
