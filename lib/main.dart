@@ -9,11 +9,11 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'app/routes/app_pages.dart';
 import 'package:get_storage/get_storage.dart';
 
-
 void main() async {
   await GetStorage.init();
   await Hive.initFlutter();
   await Hive.openBox('storeCache');
+  await Hive.openBox('searchCache');
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   try {
@@ -24,13 +24,11 @@ void main() async {
   runApp(const MyApp());
 }
 
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    
     return GetMaterialApp(
       title: 'Chợ Nông Sản Sạch',
       initialRoute: AppRoutes.splash,
@@ -38,8 +36,6 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.light,
-      
-    
     );
   }
 }

@@ -11,13 +11,11 @@ import 'package:agrimarket/features/buyer/store/viewmodel/cart_vm.dart';
 class ProductDetailScreen extends StatelessWidget {
   final ProductModel product;
   final StoreModel store;
-  final ProductPromotionModel? discount;
 
   const ProductDetailScreen({
     super.key,
     required this.product,
     required this.store,
-    this.discount,
   });
 
   @override
@@ -102,23 +100,13 @@ class ProductDetailScreen extends StatelessWidget {
   }
 
   Widget _buildPriceInfo(NumberFormat currencyFormatter) {
-    final hasDiscount = product.promotion != null && discount?.discountValue != null;
-    
-    if (!hasDiscount) {
-      return Text(
-        '${currencyFormatter.format(product.price)} /${product.unit}',
-        style: const TextStyle(
-          fontSize: 14,
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-        ),
-      );
-    }
-
-    return Row(
+    if (product.isOnSale) {
+      return Row(
       children: [
         Text(
-          _calculateDiscountedPrice(currencyFormatter),
+          product.promotionPrice != null
+              ? '${currencyFormatter.format(product.promotionPrice)} /${product.unit}'
+              : '',
           style: TextStyle(
             fontSize: 16,
             color: Colors.red.shade700,
@@ -136,16 +124,18 @@ class ProductDetailScreen extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  String _calculateDiscountedPrice(NumberFormat currencyFormatter) {
-    if (discount?.discountType == "percent") {
-      return currencyFormatter.format(
-        product.price - (product.price * discount!.discountValue) / 100,
+    } else {
+      return Text(
+        '${currencyFormatter.format(product.price)} /${product.unit}',
+        style: const TextStyle(
+          fontSize: 16,
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+        ),
       );
     }
-    return currencyFormatter.format(product.price - discount!.discountValue);
   }
+
 
   Widget _buildProductDescription() {
     return Text(

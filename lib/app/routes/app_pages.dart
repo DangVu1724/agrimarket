@@ -132,9 +132,6 @@ class AppPages {
     return ProductDetailScreen(
       product: ProductModel.fromJson(args['product']),
       store: StoreModel.fromJson(args['store']),
-      discount: args['discount'] != null 
-          ? ProductPromotionModel.fromJson(args['discount'])
-          : null,
     );
   },
   binding: AuthBinding(),

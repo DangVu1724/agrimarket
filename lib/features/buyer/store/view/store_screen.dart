@@ -1,3 +1,4 @@
+import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/core/widgets/skeleton_loader.dart';
 import 'package:agrimarket/data/models/store.dart';
@@ -23,6 +24,7 @@ class StoreScreen extends StatelessWidget {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       vm.loadStoreData(store.storeId);
+      cartVm.loadCart();
     });
 
     return Scaffold(
@@ -51,9 +53,7 @@ class StoreScreen extends StatelessWidget {
                 actions: [
                   IconButton(
                     icon: Obx(() {
-                      final isFavorite = buyerVm.favoriteStoreId.contains(
-                        store.storeId,
-                      );
+                      final isFavorite = buyerVm.favoriteStoreId.contains(store.storeId);
                       return Icon(
                         isFavorite ? Icons.favorite : Icons.favorite_border,
                         color: isFavorite ? Colors.red : Colors.grey,
@@ -64,13 +64,7 @@ class StoreScreen extends StatelessWidget {
                     },
                   ),
 
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.store_mall_directory,
-                      color: Colors.white,
-                    ),
-                  ),
+                  IconButton(onPressed: () {}, icon: const Icon(Icons.store_mall_directory, color: Colors.white)),
                 ],
                 flexibleSpace: FlexibleSpaceBar(
                   background: Stack(
@@ -80,16 +74,12 @@ class StoreScreen extends StatelessWidget {
                         store.storeImageUrl ??
                             'https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&w=800&q=80',
                         fit: BoxFit.cover,
-                        errorBuilder:
-                            (context, error, stackTrace) =>
-                                Container(color: Colors.grey[300]),
+                        errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[300]),
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) return child;
                           return Container(
                             color: Colors.grey[300],
-                            child: const Center(
-                              child: CircularProgressIndicator(),
-                            ),
+                            child: const Center(child: CircularProgressIndicator()),
                           );
                         },
                       ),
@@ -98,10 +88,7 @@ class StoreScreen extends StatelessWidget {
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.black.withOpacity(0.3),
-                              Colors.black.withOpacity(0.6),
-                            ],
+                            colors: [Colors.black.withOpacity(0.3), Colors.black.withOpacity(0.6)],
                           ),
                         ),
                       ),
@@ -109,11 +96,7 @@ class StoreScreen extends StatelessWidget {
                   ),
                   title: Text(
                     store.name,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -126,19 +109,12 @@ class StoreScreen extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Icon(
-                            Icons.location_on,
-                            size: 16,
-                            color: Colors.grey.shade600,
-                          ),
+                          Icon(Icons.location_on, size: 16, color: Colors.grey.shade600),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               store.address,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade600,
-                              ),
+                              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -148,11 +124,7 @@ class StoreScreen extends StatelessWidget {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(
-                            Icons.access_time,
-                            size: 16,
-                            color: Colors.grey.shade600,
-                          ),
+                          Icon(Icons.access_time, size: 16, color: Colors.grey.shade600),
                           const SizedBox(width: 4),
                           Text(
                             store.isOpened ? 'Mở cửa' : 'Đóng cửa',
@@ -173,9 +145,7 @@ class StoreScreen extends StatelessWidget {
                 const SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.all(16.0),
-                    child: Center(
-                      child: Text('Không có menu cho cửa hàng này.'),
-                    ),
+                    child: Center(child: Text('Không có menu cho cửa hàng này.')),
                   ),
                 )
               else
@@ -187,11 +157,7 @@ class StoreScreen extends StatelessWidget {
                               header: Container(
                                 decoration: BoxDecoration(
                                   color: AppColors.primary.withOpacity(0.1),
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Colors.grey.shade200,
-                                    ),
-                                  ),
+                                  border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.grey.withOpacity(0.1),
@@ -201,10 +167,7 @@ class StoreScreen extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
-                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   group.title,
@@ -215,11 +178,7 @@ class StoreScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              sliver: productListWidget(
-                                group: group,
-                                vm: vm,
-                                store: store,
-                              ),
+                              sliver: productListWidget(group: group, vm: vm, store: store),
                             ),
                           )
                           .toList(),
@@ -229,56 +188,42 @@ class StoreScreen extends StatelessWidget {
         }),
       ),
       floatingActionButton: Obx(() {
-  final cartItems = cartVm.cart.value?.items ?? [];
-  final itemCount = cartItems
-      .where((item) => item.storeId == store.storeId)
-      .fold<int>(0, (sum, item) => sum + item.quantity);
+        final cartItems = cartVm.cart.value?.items ?? [];
+        final itemCount = cartItems
+            .where((item) => item.storeId == store.storeId)
+            .fold<int>(0, (sum, item) => sum + item.quantity);
 
-  return Stack(
-    clipBehavior: Clip.none,
-    children: [
-      FloatingActionButton(
-        backgroundColor: AppColors.primary,
-        onPressed: () {
-          // TODO: handle cart press
-        },
-        child: const Icon(
-          Icons.shopping_cart,
-          color: AppColors.background,
-        ),
-      ),
-      if (itemCount > 0)
-        Positioned(
-          top: -6,
-          right: -6,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: Colors.red,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white, width: 1),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 4,
-                  offset: Offset(0, 1),
-                )
-              ],
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            FloatingActionButton(
+              backgroundColor: AppColors.primary,
+              onPressed: () {
+                Get.toNamed(AppRoutes.cart);
+              },
+              child: const Icon(Icons.shopping_cart, color: AppColors.background),
             ),
-            child: Text(
-              '$itemCount',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
+            if (itemCount > 0)
+              Positioned(
+                top: -6,
+                right: -6,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white, width: 1),
+                    boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 1))],
+                  ),
+                  child: Text(
+                    '$itemCount',
+                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
-    ],
-  );
-}),
-
+          ],
+        );
+      }),
     );
   }
 }

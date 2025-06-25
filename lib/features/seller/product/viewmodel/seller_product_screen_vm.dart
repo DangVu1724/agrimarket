@@ -8,7 +8,6 @@ import 'package:agrimarket/data/services/image_service.dart';
 import 'package:agrimarket/data/services/store_service.dart';
 import 'package:image_picker/image_picker.dart';
 
-
 class SellerProductVm extends GetxController {
   final StoreService _storeService = StoreService();
   final ProductRepository _productRepository = ProductRepository();
@@ -106,33 +105,33 @@ class SellerProductVm extends GetxController {
   }
 
   Future<void> updateProduct(String productId) async {
-  if (!_validateForm()) return;
-  try {
-    String? imageUrl;
-    if (imageProduct.value != null) {
-       imageUrl = await _uploadImage();
-      if (imageUrl == null) {
-        Get.snackbar('Lỗi', 'Tải ảnh lên thất bại');
-        return;
+    if (!_validateForm()) return;
+    try {
+      String? imageUrl;
+      if (imageProduct.value != null) {
+        imageUrl = await _uploadImage();
+        if (imageUrl == null) {
+          Get.snackbar('Lỗi', 'Tải ảnh lên thất bại');
+          return;
+        }
+      } else {
+        imageUrl = currentImageUrl.value;
       }
-    } else {
-      imageUrl = currentImageUrl.value;
-    }
 
-    final existingProduct = allProducts.firstWhere((p) => p.id == productId);
-    final product = _createProductModel(imageUrl.isNotEmpty ? imageUrl : existingProduct.imageUrl);
-    await _productRepository.updateProduct(productId, product);
-    final index = allProducts.indexWhere((p) => p.id == productId);
-    if (index != -1) {
-      allProducts[index] = ProductModel.fromJson({...product.toJson(), 'id': productId});
+      final existingProduct = allProducts.firstWhere((p) => p.id == productId);
+      final product = _createProductModel(imageUrl.isNotEmpty ? imageUrl : existingProduct.imageUrl);
+      await _productRepository.updateProduct(productId, product);
+      final index = allProducts.indexWhere((p) => p.id == productId);
+      if (index != -1) {
+        allProducts[index] = ProductModel.fromJson({...product.toJson(), 'id': productId});
+      }
+      Get.snackbar('Thành công', 'Sản phẩm đã được cập nhật');
+      resetForm();
+      Get.back();
+    } catch (e) {
+      Get.snackbar('Lỗi', 'Không thể cập nhật sản phẩm: $e');
     }
-    Get.snackbar('Thành công', 'Sản phẩm đã được cập nhật');
-    resetForm();
-    Get.back();
-  } catch (e) {
-    Get.snackbar('Lỗi', 'Không thể cập nhật sản phẩm: $e');
   }
-}
 
   Future<void> deleteProduct(String productId) async {
     try {
@@ -186,14 +185,13 @@ class SellerProductVm extends GetxController {
   }
 
   Future<void> pickProductImage({bool fromCamera = false}) async {
-  final picked = await _imageService.pickImage(fromCamera: fromCamera);
-  if (picked != null) {
-    imageProduct.value = picked;
-  } else {
-    Get.snackbar('Thông báo', 'Không có ảnh nào được chọn.');
+    final picked = await _imageService.pickImage(fromCamera: fromCamera);
+    if (picked != null) {
+      imageProduct.value = picked;
+    } else {
+      Get.snackbar('Thông báo', 'Không có ảnh nào được chọn.');
+    }
   }
-}
-
 
   Future<String?> _uploadImage() async {
     if (imageProduct.value == null) return null;

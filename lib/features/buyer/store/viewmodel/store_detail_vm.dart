@@ -4,8 +4,10 @@ import 'package:agrimarket/data/models/product_promotion.dart';
 import 'package:agrimarket/data/repo/menu_repo.dart';
 import 'package:agrimarket/data/repo/product_repo.dart';
 import 'package:agrimarket/data/services/promotion_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'dart:async';
 
 class StoreDetailVm extends GetxController {
   final RxBool isLoading = false.obs;
@@ -14,27 +16,25 @@ class StoreDetailVm extends GetxController {
   final PromotionService _promotionService = PromotionService();
   final Box _cacheBox = Hive.box('storeCache');
 
-  // Sử dụng Map để lưu trữ dữ liệu cho nhiều cửa hàng
   final RxMap<String, MenuModel> _menuCache = <String, MenuModel>{}.obs;
   final RxMap<String, List<ProductModel>> _productsCache =
       <String, List<ProductModel>>{}.obs;
   final RxMap<String, ProductPromotionModel> _promotionsCache =
       <String, ProductPromotionModel>{}.obs;
 
-  // Lấy dữ liệu từ cache
   MenuModel? getMenuForStore(String storeId) => _menuCache[storeId];
   List<ProductModel>? getProductsForStore(String storeId) =>
       _productsCache[storeId];
 
   final RxString _currentStoreId = ''.obs;
+  Timer? _promotionTimer;
+  StreamSubscription? _productsSubscription;
 
-  // Load dữ liệu cho cửa hàng
   Future<void> loadStoreData(String storeId) async {
     _currentStoreId.value = storeId;
     isLoading.value = true;
     try {
       await Future.wait([_loadMenu(storeId), _loadProducts(storeId)]);
-
       final products = _productsCache[storeId] ?? [];
       final promotionIds =
           products
@@ -42,16 +42,48 @@ class StoreDetailVm extends GetxController {
               .map((p) => p.promotion!)
               .toSet()
               .toList();
-
       await _loadMultiplePromotions(promotionIds);
+      listenToProducts(storeId);
     } finally {
       isLoading.value = false;
     }
   }
 
+  void listenToProducts(String storeId) {
+    _productsSubscription?.cancel();
+    _productsSubscription = FirebaseFirestore.instance
+        .collection('products')
+        .where('storeId', isEqualTo: storeId)
+        .snapshots()
+        .listen(
+          (snapshot) {
+            _productsCache[storeId] =
+                snapshot.docs
+                    .map(
+                      (doc) =>
+                          ProductModel.fromJson({...doc.data(), 'id': doc.id}),
+                    )
+                    .toList();
+            final promotionIds =
+                _productsCache[storeId]!
+                    .where((p) => p.promotion != null)
+                    .map((p) => p.promotion!)
+                    .toSet()
+                    .toList();
+            _loadMultiplePromotions(promotionIds);
+            print(
+              'Stream updated ${snapshot.docs.length} products for store $storeId',
+            );
+          },
+          onError: (e) {
+            print('Stream error: $e');
+            Get.snackbar('Lỗi', 'Không thể đồng bộ sản phẩm: $e');
+          },
+        );
+  }
+
   Future<void> _loadMultiplePromotions(List<String> promotionIds) async {
     if (promotionIds.isEmpty) return;
-
     final idsToLoad =
         promotionIds.where((id) => !_promotionsCache.containsKey(id)).toList();
     if (idsToLoad.isEmpty) return;
@@ -60,8 +92,6 @@ class StoreDetailVm extends GetxController {
       final promotions = await Future.wait(
         idsToLoad.map((id) => _loadPromotion(id)),
       );
-
-      // Lưu vào cache
       for (int i = 0; i < idsToLoad.length; i++) {
         if (promotions[i] != null) {
           _promotionsCache[idsToLoad[i]] = promotions[i]!;
@@ -75,18 +105,35 @@ class StoreDetailVm extends GetxController {
   Future<ProductPromotionModel?> _loadPromotion(String promotionId) async {
     try {
       final promotion = await _promotionService.getDiscountInfo(promotionId);
-      return (promotion != null && promotion.isValid) ? promotion : null;
+      print('Loaded promotion $promotionId: ${promotion?.toJson()}');
+      return promotion;
     } catch (e) {
-      print('Error loading promotion: $e');
+      print('Error loading promotion $promotionId: $e');
       return null;
     }
+  }
+
+  ProductPromotionModel? getDiscountInfoSync(String discountId) {
+    return _promotionsCache[discountId];
+  }
+
+  Future<ProductPromotionModel?> getDiscountInfo(String discountId) async {
+    if (_promotionsCache.containsKey(discountId)) {
+      return _promotionsCache[discountId];
+    }
+    final promotion = await _loadPromotion(discountId);
+    if (promotion != null) {
+      _promotionsCache[discountId] = promotion;
+      return promotion;
+    }
+    return null;
   }
 
   Future<void> _loadMenu(String storeId) async {
     final cachedMenu = _cacheBox.get('menu_$storeId');
     final cacheTimestamp = _cacheBox.get('menu_${storeId}_timestamp');
     final now = DateTime.now().millisecondsSinceEpoch;
-    const cacheDuration = 10 * 60 * 1000; // 10 phút
+    const cacheDuration = 10 * 60 * 1000;
 
     if (cachedMenu != null &&
         cacheTimestamp != null &&
@@ -125,7 +172,7 @@ class StoreDetailVm extends GetxController {
     final cachedProducts = _cacheBox.get('products_$storeId');
     final cacheTimestamp = _cacheBox.get('products_${storeId}_timestamp');
     final now = DateTime.now().millisecondsSinceEpoch;
-    const cacheDuration = 10 * 60 * 1000; // 10 phút
+    const cacheDuration = 10 * 60 * 1000;
 
     if (cachedProducts != null &&
         cacheTimestamp != null &&
@@ -136,8 +183,12 @@ class StoreDetailVm extends GetxController {
                 .map((p) => ProductModel.fromJson(Map<String, dynamic>.from(p)))
                 .toList();
         _productsCache[storeId] = parsedProducts;
+        print(
+          'Loaded ${parsedProducts.length} products from cache for store $storeId',
+        );
         return;
       } catch (e) {
+        print('Error parsing cached products: $e');
         await _cacheBox.delete('products_$storeId');
         await _cacheBox.delete('products_${storeId}_timestamp');
       }
@@ -152,10 +203,12 @@ class StoreDetailVm extends GetxController {
           products.map((p) => p.toJson()).toList(),
         );
         await _cacheBox.put('products_${storeId}_timestamp', now);
+        print('Saved ${products.length} products to cache for store $storeId');
       } else {
         _productsCache.remove(storeId);
       }
     } catch (e) {
+      print('Error fetching products: $e');
       Get.snackbar(
         'Lỗi',
         'Không thể tải sản phẩm: $e',
@@ -165,40 +218,18 @@ class StoreDetailVm extends GetxController {
     }
   }
 
-  Future<ProductPromotionModel?> getDiscountInfo(String discountId) async {
-    // 1. Kiểm tra cache
-    if (_promotionsCache.containsKey(discountId)) {
-      final cachedPromo = _promotionsCache[discountId]!;
-
-      if (!cachedPromo.isValid) {
-        _promotionsCache.remove(discountId);
-        return null;
-      }
-      return cachedPromo;
-    }
-
-    // 2. Load từ Firestore
-    final promotion = await _loadPromotion(discountId);
-    if (promotion == null || !promotion.isValid) return null;
-
-    // 3. Lưu vào cache nếu hợp lệ
-    _promotionsCache[discountId] = promotion;
-    return promotion;
-  }
-
   List<ProductModel> filterProductsByIds(List<String> ids) {
     final currentProducts = _productsCache[_currentStoreId.value] ?? [];
-    return currentProducts.where((p) => ids.contains(p.id)).toList();
+    final filteredProducts =
+        currentProducts.where((p) => ids.contains(p.id)).toList();
+    return filteredProducts;
   }
 
   Future<void> refreshStoreData(String storeId) async {
-    // Xóa cache local
     await _cacheBox.delete('menu_$storeId');
     await _cacheBox.delete('menu_${storeId}_timestamp');
     await _cacheBox.delete('products_$storeId');
     await _cacheBox.delete('products_${storeId}_timestamp');
-
-    // Xác định các promotionId cần xóa
     final products = _productsCache[storeId] ?? [];
     final promotionIds =
         products
@@ -206,19 +237,55 @@ class StoreDetailVm extends GetxController {
             .map((p) => p.promotion!)
             .toSet()
             .toList();
-
-    // Xóa cache promotion
     for (final id in promotionIds) {
       await _cacheBox.delete('promotion_$id');
       await _cacheBox.delete('promotion_${id}_timestamp');
       _promotionsCache.remove(id);
     }
-
-    // Xóa cache bộ nhớ
     _menuCache.remove(storeId);
     _productsCache.remove(storeId);
-
-    // Load lại dữ liệu
     await loadStoreData(storeId);
+  }
+
+  void _startPromotionCheckTimer() {
+    _promotionTimer?.cancel();
+    _promotionTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+      final expiredProducts =
+          _productsCache.values
+              .expand((products) => products)
+              .where((p) => p.promotion != null && !p.isOnSale)
+              .toList();
+      if (expiredProducts.isNotEmpty) {
+        for (var product in expiredProducts) {
+          _productsCache[product.storeId] =
+              _productsCache[product.storeId]!
+                  .map(
+                    (p) =>
+                        p.id == product.id
+                            ? p.copyWith(
+                              promotion: null,
+                              promotionPrice: null,
+                              promotionEndDate: null,
+                            )
+                            : p,
+                  )
+                  .toList();
+        }
+        print('Cleared ${expiredProducts.length} expired promotions');
+      }
+    });
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    _startPromotionCheckTimer();
+  }
+
+  @override
+  void onClose() {
+    _promotionTimer?.cancel();
+    _productsSubscription?.cancel();
+    super.onClose();
   }
 }

@@ -97,7 +97,18 @@ class SellerPromotionScreen extends StatelessWidget {
         itemCount: list.value.length,
         itemBuilder: (context, index) {
           final item = list.value[index];
-          return ProductDiscountCard(discount: item);
+          return ProductDiscountCard(
+            discount: item,
+            onDelete: () => promotionVm.deleteProductDiscount(item.id),
+            onRemoveProduct:
+                (productId) =>
+                    promotionVm.removeProductFromDiscount(item.id, productId),
+            onAddProducts: (productIds) {
+              for (final id in productIds) {
+                promotionVm.addProductToDiscount(item.id, id);
+              }
+            },
+          );
         },
       );
     });

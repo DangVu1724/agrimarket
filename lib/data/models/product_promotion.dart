@@ -41,8 +41,8 @@ class ProductPromotionModel {
       'productIds': productIds,
       'discountValue': discountValue,
       'discountType': discountType,
-      'startDate': startDate,
-      'endDate': endDate,
+      'startDate': Timestamp.fromDate(startDate),
+      'endDate': Timestamp.fromDate(endDate),
       'promotionId': promotionId,
     };
   }

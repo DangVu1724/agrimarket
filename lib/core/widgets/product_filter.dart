@@ -30,9 +30,7 @@ class ProductFilterWidget extends StatelessWidget {
             decoration: InputDecoration(
               hintText: 'Tìm kiếm theo tên sản phẩm',
               prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               filled: true,
               fillColor: Colors.white,
             ),
@@ -41,10 +39,7 @@ class ProductFilterWidget extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              const Text(
-                'Danh mục: ',
-                style: TextStyle(fontSize: 16),
-              ),
+              const Text('Danh mục: ', style: TextStyle(fontSize: 16)),
               const SizedBox(width: 8),
               PopupMenuButton<String>(
                 color: AppColors.background,
@@ -54,36 +49,19 @@ class ProductFilterWidget extends StatelessWidget {
                 },
                 itemBuilder: (context) {
                   return [
-                    const PopupMenuItem<String>(
-                      value: '',
-                      child: Text('Tất cả danh mục'),
-                    ),
-                    ...categories.map(
-                      (category) => PopupMenuItem<String>(
-                        value: category,
-                        child: Text(category),
-                      ),
-                    ),
+                    const PopupMenuItem<String>(value: '', child: Text('Tất cả danh mục')),
+                    ...categories.map((category) => PopupMenuItem<String>(value: category, child: Text(category))),
                   ];
                 },
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      selectedCategory == null || selectedCategory == ''
-                          ? 'Tất cả danh mục'
-                          : selectedCategory!,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      selectedCategory == null || selectedCategory == '' ? 'Tất cả danh mục' : selectedCategory!,
+                      style: const TextStyle(fontSize: 16, color: AppColors.primary, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(width: 4),
-                    const Icon(
-                      Icons.filter_list,
-                      color: AppColors.primary,
-                    ),
+                    const Icon(Icons.filter_list, color: AppColors.primary),
                   ],
                 ),
               ),

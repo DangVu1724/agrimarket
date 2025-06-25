@@ -45,7 +45,7 @@ class BuyerHome extends StatelessWidget {
             ),
             
             BottomNavigationBarItem(
-              icon: Icon(Iconsax.shopping_cart),
+              icon: Icon(Icons.search),
               label: 'Tìm kiếm',
             ),
             BottomNavigationBarItem(

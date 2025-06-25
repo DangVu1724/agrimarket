@@ -51,8 +51,6 @@ class ImageService {
       },
     );
 
-    print('GitHub GET Response Status: ${getResponse.statusCode}');
-print('GitHub GET Response Body: ${getResponse.body}');
 
     if (getResponse.statusCode == 200) {
       final existingContent = jsonDecode(getResponse.body);

@@ -22,11 +22,7 @@ class StoreProductList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     productController.loadProductsByStore(storeId);
-    final currencyFormatter = NumberFormat.currency(
-      locale: 'vi_VN',
-      symbol: '₫',
-      decimalDigits: 0,
-    );
+    final currencyFormatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
 
     return FutureBuilder<StoreModel>(
       future: storeService.fetchStoresbyID(storeId),
@@ -67,26 +63,23 @@ class StoreProductList extends StatelessWidget {
                     final discount = discountSnapshot.data;
                     final hasValidDiscount = discount?.isValid ?? false;
 
-
                     double finalPrice = product.price;
-    String priceText = '${currencyFormatter.format(product.price)} /${product.unit}';
+                    String priceText = '${currencyFormatter.format(product.price)} /${product.unit}';
 
-    if (hasValidDiscount) {
-      // Tính toán giá sau giảm
-      if (discount!.discountType == 'percent') {
-        finalPrice = max(0, product.price * (1 - discount.discountValue / 100));
-      } else if (discount.discountType == 'fixed') {
-        finalPrice = max(0, product.price - discount.discountValue);
-      }
+                    if (hasValidDiscount) {
+                      // Tính toán giá sau giảm
+                      if (discount!.discountType == 'percent') {
+                        finalPrice = max(0, product.price * (1 - discount.discountValue / 100));
+                      } else if (discount.discountType == 'fixed') {
+                        finalPrice = max(0, product.price - discount.discountValue);
+                      }
 
-      priceText = '''
+                      priceText = '''
         ${currencyFormatter.format(product.price)} /${product.unit}
-        ${currencyFormatter.format(finalPrice)} /${product.unit} (Giảm ${discount.discountType == 'percent' 
-          ? '${discount.discountValue}%' 
-          : '${currencyFormatter.format(discount.discountValue)}'})
+        ${currencyFormatter.format(finalPrice)} /${product.unit} (Giảm ${discount.discountType == 'percent' ? '${discount.discountValue}%' : '${currencyFormatter.format(discount.discountValue)}'})
         Áp dụng đến: ${DateFormat('dd/MM/yyyy').format(discount.endDate)}
       ''';
-    }
+                    }
 
                     return GestureDetector(
                       onTap: () {
@@ -125,9 +118,7 @@ class StoreProductList extends StatelessWidget {
                                 children: [
                                   Text(
                                     product.name,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   if (hasValidDiscount) ...[
@@ -150,10 +141,7 @@ class StoreProductList extends StatelessWidget {
                                   ] else ...[
                                     Text(
                                       currencyFormatter.format(product.price),
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                                     ),
                                   ],
                                 ],

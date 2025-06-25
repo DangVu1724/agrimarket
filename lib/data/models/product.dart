@@ -1,14 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class ProductModel {
   final String id;
   final String storeId;
   final String name;
   final String description;
-  final String category; 
+  final String category;
   final double price;
   final String unit;
   final int quantity;
   final String imageUrl;
   final String? promotion;
+  final double? promotionPrice;
+  final DateTime? promotionEndDate;
 
   ProductModel({
     required this.id,
@@ -17,10 +21,12 @@ class ProductModel {
     required this.description,
     required this.price,
     required this.unit,
-    required this.imageUrl, 
+    required this.imageUrl,
     required this.category,
     required this.quantity,
     this.promotion,
+    this.promotionPrice,
+    this.promotionEndDate,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) => ProductModel(
@@ -34,6 +40,12 @@ class ProductModel {
         imageUrl: json['imageUrl'] ?? '',
         quantity: (json['quantity'] as num?)?.toInt() ?? 0,
         promotion: json['promotion'] as String?,
+        promotionPrice: (json['promotionPrice'] as num?)?.toDouble(),
+        promotionEndDate: json['promotionEndDate'] != null
+            ? (json['promotionEndDate'] is Timestamp
+                ? (json['promotionEndDate'] as Timestamp).toDate()
+                : DateTime.tryParse(json['promotionEndDate'] as String))
+            : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -47,6 +59,8 @@ class ProductModel {
         'category': category,
         'quantity': quantity,
         'promotion': promotion,
+        'promotionPrice': promotionPrice,
+        'promotionEndDate': promotionEndDate?.toIso8601String(),
       };
 
   ProductModel copyWith({
@@ -60,6 +74,8 @@ class ProductModel {
     int? quantity,
     String? imageUrl,
     String? promotion,
+    double? promotionPrice,
+    DateTime? promotionEndDate,
   }) {
     return ProductModel(
       id: id ?? this.id,
@@ -72,6 +88,25 @@ class ProductModel {
       quantity: quantity ?? this.quantity,
       imageUrl: imageUrl ?? this.imageUrl,
       promotion: promotion,
+      promotionPrice: promotionPrice,
+      promotionEndDate: promotionEndDate,
     );
+  }
+
+  double get displayPrice => isOnSale ? (promotionPrice ?? price) : price;
+
+  bool get isOnSale {
+    if (promotionPrice == null || promotion == null) return false;
+    if (promotionEndDate == null) return true;
+    return DateTime.now().isBefore(promotionEndDate!);
+  }
+
+  String get promotionTimeLeft {
+    if (!isOnSale || promotionEndDate == null) return '';
+    final duration = promotionEndDate!.difference(DateTime.now());
+    if (duration.isNegative) return 'Đã hết hạn';
+    final days = duration.inDays;
+    final hours = duration.inHours % 24;
+    return days > 0 ? 'Còn $days ngày' : 'Còn $hours giờ';
   }
 }

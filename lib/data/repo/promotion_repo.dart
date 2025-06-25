@@ -6,11 +6,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class PromotionRepository {
   final _db = FirebaseFirestore.instance;
 
-  Future<void> addProductDiscount(ProductPromotionModel discount) async {
-  await _db
-      .collection('product_discounts')
-      .doc(discount.id) 
-      .set(discount.toJson());
+  Future<ProductPromotionModel> addProductDiscount(ProductPromotionModel discount) async {
+  try {
+    final docRef = _db.collection('product_discounts').doc();
+    
+    // Tạo bản sao của discount với ID mới
+    final discountWithId = discount.copyWith(id: docRef.id);
+    
+    await docRef.set(discountWithId.toJson());
+    
+    return discountWithId; // Trả về discount đã có ID
+  } catch (e) {
+    throw Exception('Failed to add discount: ${e.toString()}');
+  }
 }
 
 
@@ -29,11 +37,18 @@ class PromotionRepository {
     await _db.collection('product_discounts').doc(id).delete();
   }
 
-  Future<void> addDiscountCode(DiscountCodeModel code) async {
-    await _db
-        .collection('discount_codes')
-        .doc(code.id) 
-        .set(code.toJson());
+  Future<DiscountCodeModel> addDiscountCode(DiscountCodeModel code) async {
+    try {
+    final docRef = _db.collection('discount_codes').doc();
+    
+    final codeId = code.copyWith(id: docRef.id);
+    
+    await docRef.set(codeId.toJson());
+    
+    return codeId; 
+  } catch (e) {
+    throw Exception('Failed to add discount: ${e.toString()}');
+  }
   }
 
   Future<List<DiscountCodeModel>> getDiscountCodesByStore(String storeId) async {

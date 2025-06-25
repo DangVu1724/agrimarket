@@ -37,9 +37,7 @@ class SellerProductScreen extends StatelessWidget {
         }
 
         if (productVm.storeModel == null) {
-          return const Center(
-            child: Text("Không tìm thấy thông tin cửa hàng."),
-          );
+          return const Center(child: Text("Không tìm thấy thông tin cửa hàng."));
         }
 
         return Column(
@@ -67,9 +65,7 @@ class SellerProductScreen extends StatelessWidget {
                   final products = productVm.getFilteredProducts();
 
                   if (products.isEmpty) {
-                    return const Center(
-                      child: Text("Chưa có sản phẩm nào phù hợp"),
-                    );
+                    return const Center(child: Text("Chưa có sản phẩm nào phù hợp"));
                   }
                   return ListView.separated(
                     padding: const EdgeInsets.all(12),
@@ -80,22 +76,15 @@ class SellerProductScreen extends StatelessWidget {
                       return _buildProductItem(
                         product: product,
                         onTap: () {
-                          Get.toNamed(
-                            AppRoutes.sellerProductDetail,
-                            arguments: product,
-                          );
+                          Get.toNamed(AppRoutes.sellerProductDetail, arguments: product);
                         },
                         onDelete: () {
                           Get.defaultDialog(
                             contentPadding: EdgeInsets.all(20),
                             backgroundColor: AppColors.background,
                             title: 'Xác nhận',
-                            titleStyle: AppTextStyles.headline.copyWith(
-                              color: AppColors.error,
-                              fontSize: 28,
-                            ),
-                            middleText:
-                                'Bạn có chắc muốn xóa sản phẩm này không?',
+                            titleStyle: AppTextStyles.headline.copyWith(color: AppColors.error, fontSize: 28),
+                            middleText: 'Bạn có chắc muốn xóa sản phẩm này không?',
                             textConfirm: 'Xóa',
                             textCancel: 'Hủy',
                             confirmTextColor: Colors.white,
@@ -120,11 +109,7 @@ class SellerProductScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProductItem({
-    required ProductModel product,
-    VoidCallback? onTap,
-    VoidCallback? onDelete,
-  }) {
+  Widget _buildProductItem({required ProductModel product, VoidCallback? onTap, VoidCallback? onDelete}) {
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -142,9 +127,7 @@ class SellerProductScreen extends StatelessWidget {
             Row(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.horizontal(
-                    left: Radius.circular(12),
-                  ),
+                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
                   child: Image.network(
                     product.imageUrl,
                     height: 100,
@@ -168,35 +151,23 @@ class SellerProductScreen extends StatelessWidget {
                     },
                   ),
                 ),
-                const SizedBox(width: 15,),
+                const SizedBox(width: 15),
                 Container(
                   width: 150,
                   padding: const EdgeInsets.all(0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        product.name,
-                        style: AppTextStyles.body.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14
-                        ),
-                      ),
+                      Text(product.name, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold, fontSize: 14)),
                       const SizedBox(height: 4),
                       Text(
                         '${product.price.toString()} VNĐ / ${product.unit}',
-                        style: AppTextStyles.body.copyWith(
-                          color: AppColors.primary,
-                          fontSize: 12,
-                        ),
+                        style: AppTextStyles.body.copyWith(color: AppColors.primary, fontSize: 12),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Số lượng: ${product.quantity}',
-                        style: AppTextStyles.body.copyWith(
-                          color: Colors.grey.shade600,
-                          fontSize: 12,
-                        ),
+                        style: AppTextStyles.body.copyWith(color: Colors.grey.shade600, fontSize: 12),
                       ),
                       const SizedBox(height: 4),
                     ],
@@ -204,10 +175,7 @@ class SellerProductScreen extends StatelessWidget {
                 ),
               ],
             ),
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red, size: 14),
-              onPressed: onDelete,
-            ),
+            IconButton(icon: const Icon(Icons.delete, color: Colors.red, size: 14), onPressed: onDelete),
           ],
         ),
       ),

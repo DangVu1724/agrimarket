@@ -44,4 +44,21 @@ class ProductRepository {
       throw Exception('Không thể xóa sản phẩm: $e');
     }
   }
+
+  Future<ProductModel?> getProductById(String productId) async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('products')
+          .doc(productId)
+          .get();
+
+      if (doc.exists) {
+        return ProductModel.fromJson(doc.data()!);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
+  }
 }
