@@ -145,7 +145,7 @@ class StoreScreen extends StatelessWidget {
                 const SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.all(16.0),
-                    child: Center(child: Text('Không có menu cho cửa hàng này.')),
+                    child: Center(child: CircularProgressIndicator(),),
                   ),
                 )
               else
@@ -191,7 +191,7 @@ class StoreScreen extends StatelessWidget {
         final cartItems = cartVm.cart.value?.items ?? [];
         final itemCount = cartItems
             .where((item) => item.storeId == store.storeId)
-            .fold<int>(0, (sum, item) => sum + item.quantity);
+            .fold<int>(0, (sum, item) => sum + item.quantity.value);
 
         return Stack(
           clipBehavior: Clip.none,

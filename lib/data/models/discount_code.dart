@@ -33,6 +33,10 @@ class DiscountCodeModel {
     this.promotionId,
   });
 
+  bool get isOnSale {
+    return DateTime.now().isBefore(expiredDate);
+  }
+
   factory DiscountCodeModel.fromJson(Map<String, dynamic> json) {
     return DiscountCodeModel(
       id: json['id'] ?? '', 

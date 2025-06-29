@@ -1,5 +1,6 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/app/theme/app_theme.dart';
+import 'package:agrimarket/data/models/adapter/store_model_adapter.dart';
 import 'package:agrimarket/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ import 'package:get_storage/get_storage.dart';
 void main() async {
   await GetStorage.init();
   await Hive.initFlutter();
+  Hive.registerAdapter(StoreModelAdapter());
   await Hive.openBox('storeCache');
   await Hive.openBox('searchCache');
   WidgetsFlutterBinding.ensureInitialized();

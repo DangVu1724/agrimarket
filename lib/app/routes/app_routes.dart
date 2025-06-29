@@ -27,6 +27,8 @@ class AppRoutes {
   static const String store = '/store';
   static const String buyerProductDetail = '/buyer-product-detail';
   static const String buyerOrderDetail = '/buyer-order-detail';
+  static const String checkOut = '/checkOut';
+
 
   // Seller
   static const String sellerProfile = '/seller-profile';

@@ -14,7 +14,8 @@ class HomeBuyerScreen extends StatelessWidget {
 
   HomeBuyerScreen({super.key}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (storeVm.storesList.isEmpty) {
+      bool hasCache = storeVm.loadStoresFromCacheOnly();
+      if (storeVm.storesList.isEmpty && !hasCache) {
         storeVm.fetchStoresList();
       }
     });
@@ -40,11 +41,8 @@ class HomeBuyerScreen extends StatelessWidget {
                 _buildCategoryIcons(),
                 _buildSectionHeader("Ưu đãi nhập trời", actionText: "Xem tất cả"),
                 _buildPromotionGrid(),
-                _buildSectionHeader(
-                  "Bỗng dưng thèm trái ngọt",
-                  actionText: "Xem tất cả",
-                ),
-                StoreProductList(storeId: 'store_Fs06RKoGxPfrFuxY8E78FtyRByD2_8165',),
+                _buildSectionHeader("Bỗng dưng thèm trái ngọt", actionText: "Xem tất cả"),
+                StoreProductList(storeId: 'store_Fs06RKoGxPfrFuxY8E78FtyRByD2_8165'),
                 _buildStoreList(),
               ],
             ),
@@ -63,10 +61,7 @@ class HomeBuyerScreen extends StatelessWidget {
         onTap: () {
           Get.toNamed(AppRoutes.buyerAddress);
         },
-        child: Text(
-          vm.defaultAddress,
-          style: TextStyle(color: Colors.black, fontSize: 16),
-        ),
+        child: Text(vm.defaultAddress, style: TextStyle(color: Colors.black, fontSize: 16)),
       ),
       actions: [
         GestureDetector(
@@ -152,10 +147,7 @@ class HomeBuyerScreen extends StatelessWidget {
         itemBuilder:
             (_, index) => GestureDetector(
               onTap: () {
-                Get.toNamed(
-                  AppRoutes.categoryStoreScreen,
-                  arguments: items[index],
-                );
+                Get.toNamed(AppRoutes.categoryStoreScreen, arguments: items[index]);
               },
               child: SizedBox(
                 width: 80,
@@ -164,12 +156,7 @@ class HomeBuyerScreen extends StatelessWidget {
                     CircleAvatar(
                       radius: 30,
                       backgroundColor: Colors.grey.shade200,
-                      child: Image.asset(
-                        imageCategory[index],
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.cover,
-                      ),
+                      child: Image.asset(imageCategory[index], width: 40, height: 40, fit: BoxFit.cover),
                     ),
                     SizedBox(height: 6),
                     Text(
@@ -193,10 +180,7 @@ class HomeBuyerScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
+          Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           if (actionText != null)
             GestureDetector(
               onTap: () {
@@ -219,13 +203,8 @@ class HomeBuyerScreen extends StatelessWidget {
             child: Container(
               margin: EdgeInsets.all(4),
               height: 100,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(
-                child: Text("Khuyến mãi", style: TextStyle(color: Colors.red)),
-              ),
+              decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(12)),
+              child: Center(child: Text("Khuyến mãi", style: TextStyle(color: Colors.red))),
             ),
           ),
         ),
@@ -241,12 +220,7 @@ class HomeBuyerScreen extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.15),
-            spreadRadius: 2,
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
+          BoxShadow(color: Colors.grey.withOpacity(0.15), spreadRadius: 2, blurRadius: 6, offset: const Offset(0, 3)),
         ],
       ),
       child: InkWell(
@@ -264,9 +238,7 @@ class HomeBuyerScreen extends StatelessWidget {
                 width: 80,
                 height: 80,
                 fit: BoxFit.cover,
-                errorBuilder:
-                    (context, error, stackTrace) =>
-                        const Icon(Icons.store, size: 50),
+                errorBuilder: (context, error, stackTrace) => const Icon(Icons.store, size: 50),
               ),
             ),
             const SizedBox(width: 12),
@@ -274,10 +246,7 @@ class HomeBuyerScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    store.name,
-                    style: AppTextStyles.headline.copyWith(fontSize: 16),
-                  ),
+                  Text(store.name, style: AppTextStyles.headline.copyWith(fontSize: 16)),
                   const SizedBox(height: 6),
                   Text(
                     store.address,

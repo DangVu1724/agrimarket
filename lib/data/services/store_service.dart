@@ -8,7 +8,6 @@ import 'package:get_storage/get_storage.dart';
 class StoreService {
   final FirestoreProvider _firestoreProvider = FirestoreProvider();
   final GetStorage _storage = GetStorage();
-  
 
   Future<StoreModel?> fetchStoreData() async {
     final local = _storage.read('storeModel');
@@ -35,14 +34,9 @@ class StoreService {
 
   Future<List<StoreModel>> fetchStores() async {
     try {
-      final querySnapshot =
-          await FirebaseFirestore.instance
-              .collection('stores')
-              .get();
+      final querySnapshot = await FirebaseFirestore.instance.collection('stores').get();
 
-      return querySnapshot.docs
-          .map((doc) => StoreModel.fromJson({...doc.data(), 'storeId': doc.id}))
-          .toList();
+      return querySnapshot.docs.map((doc) => StoreModel.fromJson({...doc.data(), 'storeId': doc.id})).toList();
     } catch (e) {
       Get.snackbar('Lỗi', 'Không thể tải danh sách cửa hàng: $e');
       return [];
@@ -51,11 +45,7 @@ class StoreService {
 
   Future<StoreModel> fetchStoresbyID(String storeID) async {
     try {
-      final querySnapshot =
-          await FirebaseFirestore.instance
-              .collection('stores')
-              .doc(storeID)
-              .get();
+      final querySnapshot = await FirebaseFirestore.instance.collection('stores').doc(storeID).get();
 
       if (querySnapshot.exists) {
         return StoreModel.fromJson({...querySnapshot.data() as Map<String, dynamic>, 'storeId': querySnapshot.id});
@@ -69,17 +59,14 @@ class StoreService {
     }
   }
 
+
+
   Future<List<StoreModel>> fetchStoresByCategory(String category) async {
     try {
       final querySnapshot =
-          await FirebaseFirestore.instance
-              .collection('stores')
-              .where('categories', arrayContains: category)
-              .get();
+          await FirebaseFirestore.instance.collection('stores').where('categories', arrayContains: category).get();
 
-      return querySnapshot.docs
-          .map((doc) => StoreModel.fromJson({...doc.data(), 'storeId': doc.id}))
-          .toList();
+      return querySnapshot.docs.map((doc) => StoreModel.fromJson({...doc.data(), 'storeId': doc.id})).toList();
     } catch (e) {
       Get.snackbar('Lỗi', 'Không thể tải danh sách cửa hàng: $e');
       return [];

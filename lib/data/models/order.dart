@@ -7,6 +7,7 @@ class OrderModel {
   final double totalPrice;
   final DateTime createdAt;
   final String deliveryAddress;
+  final String? discountCodeId;
 
   OrderModel({
     required this.orderId,
@@ -17,6 +18,7 @@ class OrderModel {
     required this.totalPrice,
     required this.createdAt,
     required this.deliveryAddress,
+    this.discountCodeId
   });
 }
 
@@ -26,6 +28,7 @@ class OrderItem {
   final int quantity;
   final double price;
   final String unit;
+  
 
   OrderItem({
     required this.productId,

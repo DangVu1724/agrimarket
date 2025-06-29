@@ -5,6 +5,7 @@ import 'package:agrimarket/data/models/product_promotion.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/data/services/store_service.dart';
 import 'package:agrimarket/features/buyer/home/viewmodel/buyer_home_vm.dart';
+import 'package:agrimarket/features/buyer/home/viewmodel/store_vm.dart';
 import 'package:agrimarket/features/buyer/store/viewmodel/store_detail_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,21 +19,22 @@ class StoreProductList extends StatelessWidget {
   final BuyerHomeScreenVm productController = Get.put(BuyerHomeScreenVm());
   final StoreService storeService = StoreService();
   final StoreDetailVm storeDetailVm = Get.find<StoreDetailVm>();
+  final StoreVm storeVm = Get.find<StoreVm>();
 
   @override
   Widget build(BuildContext context) {
     productController.loadProductsByStore(storeId);
     final currencyFormatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
 
-    return FutureBuilder<StoreModel>(
-      future: storeService.fetchStoresbyID(storeId),
+    return FutureBuilder<StoreModel?>(
+      future: storeVm.fetchStoreByID(storeId),
 
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        if (snapshot.hasError || !snapshot.hasData) {
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
           return const Center(child: Text('Lỗi khi tải thông tin cửa hàng'));
         }
 

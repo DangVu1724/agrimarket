@@ -1,4 +1,6 @@
 // lib/data/models/cart.dart
+import 'package:get/get.dart';
+
 class Cart {
   final String userId;
   final List<CartItem> items;
@@ -32,7 +34,7 @@ class Cart {
 class CartItem {
   final String productId;
   final String storeId;
-  final int quantity;
+  final RxInt quantity;
   final double priceAtAddition;
   final String productName;
   final String productImage;
@@ -43,7 +45,7 @@ class CartItem {
   CartItem({
     required this.productId,
     required this.storeId,
-    required this.quantity,
+    required int quantity,
     required this.priceAtAddition,
     required this.productName,
     required this.productImage,
@@ -51,12 +53,12 @@ class CartItem {
     this.promotionPrice,
     this.isOnSaleAtAddition
 
-  });
+  }): quantity = quantity.obs;
 
   Map<String, dynamic> toJson() => {
     'productId': productId,
     'storeId': storeId,
-    'quantity': quantity,
+    'quantity': quantity.value,
     'priceAtAddition': priceAtAddition,
     'productName': productName,
     'productImage': productImage,

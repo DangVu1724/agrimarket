@@ -11,6 +11,7 @@ class StoreModel {
   final String state;
   final bool isOpened;
   
+  
 
   StoreModel({
     required this.storeId,

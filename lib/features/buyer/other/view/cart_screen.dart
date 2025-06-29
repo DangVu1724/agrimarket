@@ -1,5 +1,6 @@
+import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/app/theme/app_colors.dart';
-import 'package:agrimarket/core/widgets/skeleton_loader.dart';
+import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/data/models/cart.dart';
 import 'package:agrimarket/data/services/store_service.dart';
 import 'package:agrimarket/features/buyer/store/viewmodel/cart_vm.dart';
@@ -14,13 +15,14 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final CartVm cartVm = Get.find<CartVm>();
 
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       cartVm.loadCart();
     });
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Giỏ hàng'),
+        title: Text('Giỏ hàng', style: AppTextStyles.headline),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
@@ -32,7 +34,7 @@ class CartScreen extends StatelessWidget {
         },
         child: Obx(() {
           if (cartVm.cart.value == null || cartVm.cart.value!.items.isEmpty) {
-            return const SkeletonLoader();
+            return Center(child: const CircularProgressIndicator());
           }
 
           final grouped = cartVm.groupCartByStore(cartVm.cart.value!.items);
@@ -60,40 +62,25 @@ class CartScreen extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                storeName,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                          
+                              Text(storeName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+
                               ElevatedButton.icon(
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(AppColors.background)
+                                style: ButtonStyle(backgroundColor: MaterialStateProperty.all(AppColors.background)),
+                                icon: const Icon(Icons.payment, color: AppColors.primary),
+                                label: const Text('Thanh toán', style: TextStyle(color: AppColors.primary)),
+                                onPressed: () {
+                                  Get.toNamed(AppRoutes.checkOut, arguments: {'storeId': storeId,});
+                                },
                               ),
-                              icon: const Icon(Icons.payment,color: AppColors.primary,),
-                              label: const Text('Thanh toán',style: TextStyle(color: AppColors.primary),),
-                              onPressed: () {
-                                Get.toNamed(
-                                  '/checkout',
-                                  arguments: {'storeId': storeId, 'items': items},
-                                );
-                              },
-                            ),
                             ],
                           ),
                         ),
                         const SizedBox(height: 8),
 
                         // Danh sách sản phẩm của cửa hàng này
-                        ...items
-                            .map((item) => _buildCartItem(item, cartVm))
-                            .toList(),
+                        ...items.map((item) => _buildCartItem(item, cartVm)).toList(),
 
                         const Divider(),
-
-                        
                       ],
                     ),
                   );
@@ -105,109 +92,102 @@ class CartScreen extends StatelessWidget {
   }
 
   Widget _buildCartItem(CartItem item, CartVm cartVm) {
-    final currencyFormatter = NumberFormat.currency(
-      locale: 'vi_VN',
-      symbol: '₫',
-      decimalDigits: 0,
-    );
+    final currencyFormatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
 
-    final StoreService storeService = StoreService();
-    final store = storeService.fetchStoresbyID(item.storeId);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      cartVm.loadStorebyId(item.storeId);
+      cartVm.loadProductbyId(item.productId);
+    });
 
-    return Card(
-      color: AppColors.background,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Hình ảnh sản phẩm
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                item.productImage,
-                width: 60,
-                height: 80,
-                fit: BoxFit.cover,
-                errorBuilder:
-                    (_, __, ___) => const Icon(Icons.shopping_cart, size: 40),
+    final store = cartVm.store.value;
+    final product = cartVm.product.value;
+
+    return GestureDetector(
+      onTap: () {
+        Get.toNamed(AppRoutes.store, arguments: store);
+      },
+      child: Card(
+        color: AppColors.background,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        elevation: 3,
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Hình ảnh sản phẩm
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  item.productImage,
+                  width: 60,
+                  height: 80,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const Icon(Icons.shopping_cart, size: 40),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
+              const SizedBox(width: 12),
 
-            // Thông tin sản phẩm
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.productName,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  if (item.isOnSaleAtAddition != null && item.isOnSaleAtAddition!) ...{
-                    Text(
-                      '${currencyFormatter.format(item.promotionPrice)}',
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Tổng: ${currencyFormatter.format(item.promotionPrice! * item.quantity)}',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  } else ...{
-                    Text(
-                      currencyFormatter.format(item.priceAtAddition),
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Tổng: ${currencyFormatter.format(item.priceAtAddition * item.quantity)}',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  },
-                ],
-              ),
-            ),
-
-            // Nút điều chỉnh số lượng và xóa
-            Column(
-              children: [
-                Row(
+              // Thông tin sản phẩm
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.remove_circle_outline,color: AppColors.primary,),
-                      onPressed: () {
-                        cartVm.decreaseQuantity(item.productId, item.storeId, item.quantity - 1 , item);
-                      },
-                    ),
-                    Text(
-                      item.quantity.toString(),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add_circle_outline,color: AppColors.primary,),
-                      onPressed: () {
-                        cartVm.increaseQuantity(item.productId,item.storeId,item.quantity + 1);
-                      },
-                    ),
+                    Text(item.productName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    if (item.isOnSaleAtAddition != null && item.isOnSaleAtAddition!) ...{
+                      Text(
+                        '${currencyFormatter.format(item.promotionPrice)}',
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Tổng: ${currencyFormatter.format(item.promotionPrice! * item.quantity.value)}',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    } else ...{
+                      Text(currencyFormatter.format(item.priceAtAddition), style: const TextStyle(color: Colors.grey)),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Tổng: ${currencyFormatter.format(item.priceAtAddition * item.quantity.value)}',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    },
                   ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  onPressed: () {
-                    cartVm.removeFromCart(item);
-                  },
-                ),
-              ],
-            ),
-          ],
+              ),
+
+              // Nút điều chỉnh số lượng và xóa
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove_circle_outline, color: AppColors.primary),
+                        onPressed: () {
+                          cartVm.decreaseQuantity(item.productId, item.storeId, item.quantity.value - 1, item);
+                        },
+                      ),
+                      Text(item.quantity.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                      IconButton(
+                        icon: const Icon(Icons.add_circle_outline, color: AppColors.primary),
+                        onPressed: () {
+                          cartVm.increaseQuantity(item.productId, item.storeId, item.quantity.value + 1);
+                        },
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    onPressed: () {
+                      cartVm.removeFromCart(item);
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
