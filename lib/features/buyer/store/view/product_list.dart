@@ -3,7 +3,7 @@ import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/data/models/menu.dart';
 import 'package:agrimarket/data/models/product_promotion.dart';
 import 'package:agrimarket/data/models/store.dart';
-import 'package:agrimarket/features/buyer/store/viewmodel/cart_vm.dart';
+import 'package:agrimarket/features/buyer/cart/viewmodel/cart_vm.dart';
 import 'package:agrimarket/features/buyer/store/viewmodel/store_detail_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

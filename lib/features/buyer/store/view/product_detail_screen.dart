@@ -6,7 +6,7 @@ import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/data/models/product.dart';
 import 'package:agrimarket/data/models/product_promotion.dart';
 import 'package:agrimarket/data/models/store.dart';
-import 'package:agrimarket/features/buyer/store/viewmodel/cart_vm.dart';
+import 'package:agrimarket/features/buyer/cart/viewmodel/cart_vm.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final ProductModel product;

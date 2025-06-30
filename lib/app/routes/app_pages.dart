@@ -9,7 +9,7 @@ import 'package:agrimarket/features/buyer/checkout/view/checkout_screen.dart';
 import 'package:agrimarket/features/buyer/checkout/viewmodel/checkout_vm.dart';
 import 'package:agrimarket/features/buyer/home/view/category_store_screen.dart';
 import 'package:agrimarket/features/buyer/other/view/add_address.dart';
-import 'package:agrimarket/features/buyer/other/view/cart_screen.dart';
+import 'package:agrimarket/features/buyer/cart/view/cart_screen.dart';
 import 'package:agrimarket/features/buyer/other/view/favourite_screen.dart';
 import 'package:agrimarket/features/buyer/profile/view/about_app_screen.dart';
 import 'package:agrimarket/features/buyer/profile/view/address_list_screen.dart';
