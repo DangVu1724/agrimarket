@@ -50,39 +50,49 @@ class SellerPromotionScreen extends StatelessWidget {
   }
 
   void _showCreateOptionDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder:
-          (_) => AlertDialog(
-            title: const Text('Tạo khuyến mãi'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    showDialog(
-                      context: context,
-                      builder: (_) => DialogPromotion(type: 'code'),
-                    );
-                  },
-                  child: const Text('Tạo mã giảm giá'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    showDialog(
-                      context: context,
-                      builder: (_) => DialogPromotion(type: 'product'),
-                    );
-                  },
-                  child: const Text('Tạo giảm giá sản phẩm'),
-                ),
-              ],
-            ),
+  showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Text('Tạo khuyến mãi', style: TextStyle(fontWeight: FontWeight.bold)),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.percent, color: Colors.green),
+            title: const Text('Tạo mã giảm giá'),
+            onTap: () {
+              Navigator.pop(context);
+              showDialog(
+                context: context,
+                builder: (_) => DialogPromotion(type: 'code'),
+              );
+            },
           ),
-    );
-  }
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.local_offer, color: Colors.orange),
+            title: const Text('Tạo giảm giá sản phẩm'),
+            onTap: () {
+              Navigator.pop(context);
+              showDialog(
+                context: context,
+                builder: (_) => DialogPromotion(type: 'product'),
+              );
+            },
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Đóng'),
+        )
+      ],
+    ),
+  );
+}
+
 
   Widget _buildProductDiscountsTab() {
     return Obx(() {

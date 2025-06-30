@@ -41,6 +41,7 @@ class AppRoutes {
   static const String sellerStaff = '/seller-staff';
   static const String sellerProduct = '/seller-product';
   static const String sellerChat = '/seller-chat';  
+  static const String storeInfo = '/store-info';  
   static const String sellerProductDetail = '/seller-product-detail';
   static const String sellerUpdateProduct = '/seller-upadate-product';
   static const String sellerCreateProduct = '/seller-create-product';

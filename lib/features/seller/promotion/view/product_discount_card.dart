@@ -1,5 +1,6 @@
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
+import 'package:agrimarket/core/widgets/dialog_promotion.dart';
 import 'package:agrimarket/data/models/product.dart';
 import 'package:agrimarket/data/models/product_promotion.dart';
 import 'package:agrimarket/features/seller/promotion/viewmodel/promotion_vm.dart';
@@ -44,22 +45,14 @@ class ProductDiscountCard extends StatelessWidget {
   Widget _buildTitle() {
     return Text(
       'Khuyến mãi ${discount.id}',
-      style: AppTextStyles.body.copyWith(
-        fontWeight: FontWeight.bold,
-        fontSize: 14,
-      ),
+      style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold, fontSize: 14),
     );
   }
 
   Widget _buildSubtitle() {
     return Text(
-      discount.discountType == 'percent'
-          ? 'Giảm ${discount.discountValue}%'
-          : 'Giảm ${discount.discountValue}k',
-      style: AppTextStyles.body.copyWith(
-        color: Colors.grey.shade600,
-        fontSize: 14,
-      ),
+      discount.discountType == 'percent' ? 'Giảm ${discount.discountValue}%' : 'Giảm ${discount.discountValue}k',
+      style: AppTextStyles.body.copyWith(color: Colors.grey.shade600, fontSize: 14),
     );
   }
 
@@ -68,11 +61,7 @@ class ProductDiscountCard extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildActionButtons(context),
-          const SizedBox(height: 8),
-          _buildProductList(context),
-        ],
+        children: [_buildActionButtons(context), const SizedBox(height: 8), _buildProductList(context)],
       ),
     );
   }
@@ -90,7 +79,9 @@ class ProductDiscountCard extends StatelessWidget {
           children: [
             IconButton(
               icon: const Icon(Icons.edit, color: AppColors.primary, size: 15),
-              onPressed: _showEditNotImplemented,
+              onPressed: () {
+                showDialog(context: context, builder: (_) => DialogPromotion(type: 'product',productPromotionModel: discount,));
+              },
               tooltip: 'Chỉnh sửa',
             ),
             IconButton(
@@ -106,10 +97,7 @@ class ProductDiscountCard extends StatelessWidget {
 
   Widget _buildProductList(BuildContext context) {
     final promotionVm = Get.find<PromotionVm>();
-    final products = promotionVm.getProductsByIds(
-      discount.productIds,
-      discount.storeId,
-    );
+    final products = promotionVm.getProductsByIds(discount.productIds, discount.storeId);
 
     if (products.isEmpty) {
       return const Center(child: Text('Chưa có sản phẩm nào trong khuyến mãi'));
@@ -135,14 +123,7 @@ class ProductDiscountCard extends StatelessWidget {
         children: [
           _buildProductImage(product),
           const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              product.name,
-              style: AppTextStyles.body,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-          ),
+          Expanded(child: Text(product.name, style: AppTextStyles.body, overflow: TextOverflow.ellipsis, maxLines: 1)),
           IconButton(
             onPressed: () => _showRemoveProductConfirmation(product.id),
             icon: const Icon(Icons.delete, size: 14, color: AppColors.error),
@@ -174,22 +155,10 @@ class ProductDiscountCard extends StatelessWidget {
             height: 50,
             width: 50,
             color: Colors.grey.shade200,
-            child: const Center(
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
+            child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
           );
         },
       ),
-    );
-  }
-
-  void _showEditNotImplemented() {
-    Get.snackbar(
-      'Thông báo',
-      'Chức năng chỉnh sửa chưa được triển khai',
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: AppColors.primary.withOpacity(0.8),
-      colorText: Colors.white,
     );
   }
 
@@ -197,19 +166,12 @@ class ProductDiscountCard extends StatelessWidget {
     Get.defaultDialog(
       title: 'Xác nhận xoá khuyến mãi',
       titleStyle: AppTextStyles.headline,
-      content: const Text(
-        'Bạn có chắc muốn xoá khuyến mãi này?',
-        textAlign: TextAlign.center,
-      ),
+      content: const Text('Bạn có chắc muốn xoá khuyến mãi này?', textAlign: TextAlign.center),
       confirm: _buildDialogButton('Xóa', () async {
         onDelete();
         Get.back();
       }, AppColors.error),
-      cancel: _buildDialogButton(
-        'Hủy',
-        () async => Get.back(),
-        const Color.fromARGB(255, 255, 255, 255),
-      ),
+      cancel: _buildDialogButton('Hủy', () async => Get.back(), const Color.fromARGB(255, 255, 255, 255)),
     );
   }
 
@@ -217,45 +179,30 @@ class ProductDiscountCard extends StatelessWidget {
     Get.defaultDialog(
       title: 'Xác nhận xoá sản phẩm',
       titleStyle: AppTextStyles.headline,
-      content: const Text(
-        'Bạn có chắc muốn xoá sản phẩm này khỏi khuyến mãi?',
-        textAlign: TextAlign.center,
-      ),
+      content: const Text('Bạn có chắc muốn xoá sản phẩm này khỏi khuyến mãi?', textAlign: TextAlign.center),
       confirm: _buildDialogButton('Xóa', () {
         onRemoveProduct(productId);
         Get.back();
         return Future.value();
       }, AppColors.error),
-      cancel: _buildDialogButton(
-        'Hủy',
-        () async => Get.back(),
-        const Color.fromARGB(255, 255, 255, 255),
-      ),
+      cancel: _buildDialogButton('Hủy', () async => Get.back(), const Color.fromARGB(255, 255, 255, 255)),
     );
   }
 
   Widget _buildDialogButton(String text, Future<void> Function()? onPressed, Color color) {
-  return ElevatedButton(
-    style: ElevatedButton.styleFrom(backgroundColor: color),
-    onPressed: onPressed,
-    child: Text(text),
-  );
-}
-
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(backgroundColor: color),
+      onPressed: onPressed,
+      child: Text(text),
+    );
+  }
 
   void _showAddProductsDialog(BuildContext context) {
     final promotionVm = Get.find<PromotionVm>();
-    final availableProducts = promotionVm.getAvailableProductsForDiscount(
-      discount.id,
-      discount.storeId,
-    );
+    final availableProducts = promotionVm.getAvailableProductsForDiscount(discount.id, discount.storeId);
 
     if (availableProducts.isEmpty) {
-      Get.snackbar(
-        'Thông báo',
-        'Tất cả sản phẩm đã được thêm vào khuyến mãi',
-        snackPosition: SnackPosition.TOP,
-      );
+      Get.snackbar('Thông báo', 'Tất cả sản phẩm đã được thêm vào khuyến mãi', snackPosition: SnackPosition.TOP);
       return;
     }
 
@@ -264,10 +211,7 @@ class ProductDiscountCard extends StatelessWidget {
     Get.dialog(
       AlertDialog(
         backgroundColor: AppColors.background,
-        title: Text(
-          'Thêm sản phẩm vào khuyến mãi',
-          style: AppTextStyles.headline,
-        ),
+        title: Text('Thêm sản phẩm vào khuyến mãi', style: AppTextStyles.headline),
         content: StatefulBuilder(
           builder: (context, setState) {
             return SizedBox(
@@ -296,27 +240,17 @@ class ProductDiscountCard extends StatelessWidget {
           },
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Hủy', style: TextStyle(color: AppColors.error)),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('Hủy', style: TextStyle(color: AppColors.error))),
           TextButton(
             onPressed: () {
               if (selectedProductIds.isEmpty) {
-                Get.snackbar(
-                  'Lỗi',
-                  'Vui lòng chọn ít nhất một sản phẩm',
-                  snackPosition: SnackPosition.TOP,
-                );
+                Get.snackbar('Lỗi', 'Vui lòng chọn ít nhất một sản phẩm', snackPosition: SnackPosition.TOP);
                 return;
               }
               onAddProducts(selectedProductIds);
               Get.back();
             },
-            child: const Text(
-              'Thêm',
-              style: TextStyle(color: AppColors.primary),
-            ),
+            child: const Text('Thêm', style: TextStyle(color: AppColors.primary)),
           ),
         ],
       ),

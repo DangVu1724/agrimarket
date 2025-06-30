@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/data/models/product_promotion.dart';
 import 'package:agrimarket/data/models/store.dart';

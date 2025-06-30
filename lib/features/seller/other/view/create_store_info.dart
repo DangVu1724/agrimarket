@@ -7,7 +7,7 @@ import 'dart:io';
 
 import 'package:image_picker/image_picker.dart';
 
-class StoreInfoScreen extends StatelessWidget {
+class CreateStoreInfoScreen extends StatelessWidget {
   final CreateStoreViewModel vm = Get.find<CreateStoreViewModel>();
   final _formKey = GlobalKey<FormState>();
 

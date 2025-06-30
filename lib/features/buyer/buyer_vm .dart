@@ -16,6 +16,7 @@ class BuyerVm extends GetxController {
   final address = RxList<Address>();
   final favoriteStoreId = <String>[].obs;
   final favoriteStores = <StoreModel>[].obs;
+  final buyerData = Rxn<BuyerModel>();
 
 
   @override
@@ -24,14 +25,16 @@ class BuyerVm extends GetxController {
     fetchBuyerData();
   }
 
+
+
   String get defaultAddress {
     if (address.isNotEmpty) {
-      return address
-          .firstWhere((addr) => addr.isDefault, orElse: () => address.first)
-          .address;
+      return address.firstWhere((addr) => addr.isDefault, orElse: () => address.first).address;
     }
     return 'Chưa có địa chỉ';
   }
+
+
 
   void fetchBuyerData() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -42,17 +45,15 @@ class BuyerVm extends GetxController {
     try {
       isLoading.value = true;
 
-      final buyerData = await firestoreProvider.getBuyerById(user.uid);
-      if (buyerData != null) {
-        if (buyerData.addresses.isNotEmpty) {
-          address.assignAll(buyerData.addresses);
-          favoriteStoreId.assignAll(buyerData.favoriteStoreIds);
-
-          print('Addresses loaded: ${buyerData.addresses.length}');
+      final buyer = await firestoreProvider.getBuyerById(user.uid);
+      buyerData.value = buyer;
+      if (buyer != null) {
+        if (buyer.addresses.isNotEmpty) {
+          address.assignAll(buyer.addresses);
+          favoriteStoreId.assignAll(buyer.favoriteStoreIds);
         } else {
           address.clear();
         }
-        print('User data loaded: ${buyerData.toJson()}');
       } else {
         Get.snackbar('Error', 'Buyer data not found');
       }
@@ -84,90 +85,82 @@ class BuyerVm extends GetxController {
   }
 
   Future<void> toggleFavoriteStore(String storeId) async {
-  final user = auth.currentUser;
-  if (user == null) {
-    Get.snackbar('Lỗi', 'Bạn chưa đăng nhập');
-    return;
-  }
-
-  try {
-    isLoading.value = true;
-
-    final buyerData = await firestoreProvider.getBuyerById(user.uid);
-    if (buyerData == null) {
-      Get.snackbar('Lỗi', 'Không tìm thấy người dùng');
+    final user = auth.currentUser;
+    if (user == null) {
+      Get.snackbar('Lỗi', 'Bạn chưa đăng nhập');
       return;
     }
 
-    final favorites = List<String>.from(buyerData.favoriteStoreIds);
-    final isFavorite = favorites.contains(storeId);
+    try {
+      isLoading.value = true;
 
-    if (isFavorite) {
-      favorites.remove(storeId);
-    } else {
-      favorites.add(storeId);
+      final buyerData = await firestoreProvider.getBuyerById(user.uid);
+      if (buyerData == null) {
+        Get.snackbar('Lỗi', 'Không tìm thấy người dùng');
+        return;
+      }
+
+      final favorites = List<String>.from(buyerData.favoriteStoreIds);
+      final isFavorite = favorites.contains(storeId);
+
+      if (isFavorite) {
+        favorites.remove(storeId);
+      } else {
+        favorites.add(storeId);
+      }
+
+      await firestoreProvider.updateBuyer(user.uid, {'favoriteStoreIds': favorites});
+
+      favoriteStoreId.assignAll(favorites);
+
+      if (isFavorite) {
+        favoriteStores.removeWhere((store) => store.storeId == storeId);
+      }
+    } catch (e) {
+      Get.snackbar('Lỗi', 'Không thể cập nhật: $e');
+    } finally {
+      isLoading.value = false;
     }
-
-    await firestoreProvider.updateBuyer(user.uid, {
-      'favoriteStoreIds': favorites,
-    });
-
-    favoriteStoreId.assignAll(favorites);
-
-    if (isFavorite) {
-      favoriteStores.removeWhere((store) => store.storeId == storeId);
-    }
-
-    
-  } catch (e) {
-    Get.snackbar('Lỗi', 'Không thể cập nhật: $e');
-  } finally {
-    isLoading.value = false;
   }
-}
-
 
   Future<void> getFavoriteStores() async {
-  final user = auth.currentUser;
-  if (user == null) {
-    Get.snackbar('Lỗi', 'Bạn chưa đăng nhập');
-    return;
-  }
-
-  try {
-    isLoading.value = true;
-
-    final buyerData = await firestoreProvider.getBuyerById(user.uid);
-    if (buyerData == null) {
-      Get.snackbar('Lỗi', 'Không tìm thấy người dùng');
+    final user = auth.currentUser;
+    if (user == null) {
+      Get.snackbar('Lỗi', 'Bạn chưa đăng nhập');
       return;
     }
 
-    final ids = buyerData.favoriteStoreIds;
-    favoriteStoreId.assignAll(ids); 
+    try {
+      isLoading.value = true;
 
-    if (ids.isEmpty) {
-      favoriteStores.clear(); 
-      return;
+      final buyerData = await firestoreProvider.getBuyerById(user.uid);
+      if (buyerData == null) {
+        Get.snackbar('Lỗi', 'Không tìm thấy người dùng');
+        return;
+      }
+
+      final ids = buyerData.favoriteStoreIds;
+      favoriteStoreId.assignAll(ids);
+
+      if (ids.isEmpty) {
+        favoriteStores.clear();
+        return;
+      }
+
+      final snapshot = await firestore.collection('stores').where(FieldPath.documentId, whereIn: ids).get();
+
+      final stores =
+          snapshot.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            return StoreModel.fromJson(data);
+          }).toList();
+
+      favoriteStores.assignAll(stores);
+    } catch (e) {
+      Get.snackbar('Lỗi', 'Không thể tải cửa hàng yêu thích: $e');
+    } finally {
+      isLoading.value = false;
     }
-
-    final snapshot = await firestore
-        .collection('stores')
-        .where(FieldPath.documentId, whereIn: ids)
-        .get();
-
-    final stores = snapshot.docs.map((doc) {
-      final data = doc.data();
-      data['id'] = doc.id;
-      return StoreModel.fromJson(data);
-    }).toList();
-
-    favoriteStores.assignAll(stores); 
-  } catch (e) {
-    Get.snackbar('Lỗi', 'Không thể tải cửa hàng yêu thích: $e');
-  } finally {
-    isLoading.value = false;
   }
-}
-
 }

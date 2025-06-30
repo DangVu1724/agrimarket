@@ -52,6 +52,17 @@ class BuyerModel {
       orderIds: orderIds ?? this.orderIds,
     );
   }
+
+  List<double>? getDefaultLatLng() {
+    if (addresses.isEmpty) return null;
+
+    final defaultAddress = addresses.firstWhere(
+      (addr) => addr.isDefault,
+      orElse: () => addresses.first,
+    );
+
+    return [defaultAddress.latitude, defaultAddress.longitude];
+  }
 }
 
 class Address {
@@ -100,7 +111,11 @@ class Address {
       isDefault: isDefault ?? this.isDefault,
     );
   }
+
+  
 }
+
+
 
 class Review {
   final String userId;

@@ -29,7 +29,8 @@ class StoreVm extends GetxController {
     if (cachedStores != null && cacheTimestamp != null && now - cacheTimestamp < cacheDuration) {
       try {
         final parsedStores =
-            (cachedStores as List<dynamic>).map((s) => StoreModel.fromJson(Map<String, dynamic>.from(s))).toList();
+            (cachedStores as List).map((s) => StoreModel.fromJson(Map<String, dynamic>.from(s as Map))).toList();
+
         storesList.assignAll(parsedStores);
         print('Loaded ${parsedStores.length} stores from cache');
         return;
@@ -73,7 +74,8 @@ class StoreVm extends GetxController {
     if (cachedStores != null && cacheTimestamp != null && now - cacheTimestamp < cacheDuration) {
       try {
         final parsedStores =
-            (cachedStores as List<dynamic>).map((s) => StoreModel.fromJson(Map<String, dynamic>.from(s))).toList();
+            (cachedStores as List).map((s) => StoreModel.fromJson(Map<String, dynamic>.from(s as Map))).toList();
+
         storesList.assignAll(parsedStores);
         print('Loaded ${parsedStores.length} stores from cache');
         return true;

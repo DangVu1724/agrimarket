@@ -12,11 +12,8 @@ class PromotionVm extends GetxController {
   final ProductRepository _productRepository = ProductRepository();
   final SellerProductVm productVm = Get.find<SellerProductVm>();
 
-  final Rx<List<ProductPromotionModel>> productDiscounts =
-      Rx<List<ProductPromotionModel>>([]);
-  final Rx<List<DiscountCodeModel>> discountCodes = Rx<List<DiscountCodeModel>>(
-    [],
-  );
+  final Rx<List<ProductPromotionModel>> productDiscounts = Rx<List<ProductPromotionModel>>([]);
+  final Rx<List<DiscountCodeModel>> discountCodes = Rx<List<DiscountCodeModel>>([]);
   final Rx<List<ProductModel>> allProducts = Rx<List<ProductModel>>([]);
   final RxBool isLoading = false.obs;
 
@@ -46,52 +43,46 @@ class PromotionVm extends GetxController {
   }
 
   Future<void> addDiscountCode(DiscountCodeModel code) async {
-  try {
+    try {
       await _promotionService.createDiscountCode(code);
 
       await loadAllPromotions(code.storeId!);
-
-      Get.snackbar('Thành công', 'Đã tạo khuyến mãi mới');
     } catch (e) {
       Get.snackbar('Lỗi', 'Tạo khuyến mãi thất bại: ${e.toString()}');
       rethrow;
     }
-    
-}
+  }
 
   Future<void> addProductDiscount(ProductPromotionModel discount) async {
     try {
       await _promotionService.createProductDiscount(discount);
 
       await loadAllPromotions(discount.storeId);
-
-      Get.snackbar('Thành công', 'Đã tạo khuyến mãi mới');
     } catch (e) {
       Get.snackbar('Lỗi', 'Tạo khuyến mãi thất bại: ${e.toString()}');
       rethrow;
     }
   }
-Future<void> deleteProductDiscount(String? id) async {
-  try {
-    if (id == null || id.isEmpty) {
-      throw Exception('ID khuyến mãi không hợp lệ');
-    }
-    final discount = productDiscounts.value.firstWhereOrNull((e) => e.id == id);
-    if (discount == null) {
-      throw Exception('Không tìm thấy khuyến mãi với ID: $id');
-    }
 
-    await _removeDiscountFromProducts(discount.productIds);
-    await _promotionService.removeProductDiscount(id);
+  Future<void> deleteProductDiscount(String? id) async {
+    try {
+      if (id == null || id.isEmpty) {
+        throw Exception('ID khuyến mãi không hợp lệ');
+      }
+      final discount = productDiscounts.value.firstWhereOrNull((e) => e.id == id);
+      if (discount == null) {
+        throw Exception('Không tìm thấy khuyến mãi với ID: $id');
+      }
 
-    productDiscounts.value = productDiscounts.value.where((e) => e.id != id).toList();
-    
-    Get.snackbar('Thành công', 'Đã xóa khuyến mãi');
-  } catch (e) {
-    Get.snackbar('Lỗi', 'Xóa khuyến mãi thất bại: ${e.toString()}', snackPosition: SnackPosition.BOTTOM);
-    rethrow; 
+      await _removeDiscountFromProducts(discount.productIds);
+      await _promotionService.removeProductDiscount(id);
+
+      productDiscounts.value = productDiscounts.value.where((e) => e.id != id).toList();
+    } catch (e) {
+      Get.snackbar('Lỗi', 'Xóa khuyến mãi thất bại: ${e.toString()}', snackPosition: SnackPosition.BOTTOM);
+      rethrow;
+    }
   }
-}
 
   Future<void> addProductToDiscount(String discountId, String productId) async {
     try {
@@ -115,71 +106,73 @@ Future<void> deleteProductDiscount(String? id) async {
         discountType: promotion.discountType,
       );
 
-      await _applyDiscountToProduct(
-        discountId,
-        productId,
-        discountedPrice,
-        promotion.endDate,
-      );
-
-      Get.snackbar('Thành công', 'Đã áp dụng khuyến mãi cho sản phẩm');
+      await _applyDiscountToProduct(discountId, productId, discountedPrice, promotion.endDate);
     } catch (e) {
-      Get.snackbar(
-        'Lỗi',
-        'Thêm sản phẩm vào khuyến mãi thất bại: ${e.toString()}',
-      );
+      Get.snackbar('Lỗi', 'Thêm sản phẩm vào khuyến mãi thất bại: ${e.toString()}');
       rethrow;
     }
   }
 
-  Future<void> removeProductFromDiscount(
-    String discountId,
-    String productId,
-  ) async {
+  Future<void> removeProductFromDiscount(String discountId, String productId) async {
     try {
       await Future.wait([
         _promotionService.removeProductFromDiscount(discountId, productId),
-        FirebaseFirestore.instance
-            .collection('products')
-            .doc(productId)
-            .update({
-              'promotion': FieldValue.delete(),
-              'price': FieldValue.delete(),
-              'promotionEndDate': FieldValue.delete(),
-            }),
+        FirebaseFirestore.instance.collection('products').doc(productId).update({
+          'promotion': FieldValue.delete(),
+          'price': FieldValue.delete(),
+          'promotionEndDate': FieldValue.delete(),
+        }),
       ]);
 
       _updateLocalDiscounts(discountId, productId);
-      Get.snackbar('Thành công', 'Đã xóa sản phẩm khỏi khuyến mãi');
     } catch (e) {
-      Get.snackbar(
-        'Lỗi',
-        'Xóa sản phẩm khỏi khuyến mãi thất bại: ${e.toString()}',
-      );
+      Get.snackbar('Lỗi', 'Xóa sản phẩm khỏi khuyến mãi thất bại: ${e.toString()}');
       rethrow;
     }
   }
 
   Future<void> deleteDiscountCode(String id) async {
-  try {
-    await _promotionService.removeDiscountCode(id);
-    discountCodes.value = discountCodes.value.where((e) => e.id != id).toList();
-    Get.snackbar('Thành công', 'Đã xóa mã giảm giá');
-  } catch (e) {
-    Get.snackbar('Lỗi', 'Xóa mã giảm giá thất bại: ${e.toString()}');
-    rethrow;
+    try {
+      await _promotionService.removeDiscountCode(id);
+      discountCodes.value = discountCodes.value.where((e) => e.id != id).toList();
+    } catch (e) {
+      Get.snackbar('Lỗi', 'Xóa mã giảm giá thất bại: ${e.toString()}');
+      rethrow;
+    }
   }
-}
 
+  Future<void> updateDiscountCode(DiscountCodeModel code) async {
+    try {
+      await _promotionService.updateDiscountCode(code);
+
+      int index = discountCodes.value.indexWhere((c) => c.id == code.id);
+      if (index != -1) {
+        discountCodes.value[index] = code;
+        discountCodes.refresh();
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> updateProductDiscount(ProductPromotionModel product) async {
+    try {
+      await _promotionService.updateProductDiscount(product);
+      int index = productDiscounts.value.indexWhere((c) => c.id == product.id);
+      if (index != -1) {
+        productDiscounts.value[index] = product;
+        productDiscounts.refresh();
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   void _updateLocalDiscounts(String discountId, String productId) {
     final updatedDiscounts =
         productDiscounts.value.map((discount) {
           if (discount.id == discountId) {
-            return discount.copyWith(
-              productIds:
-                  discount.productIds.where((id) => id != productId).toList(),
-            );
+            return discount.copyWith(productIds: discount.productIds.where((id) => id != productId).toList());
           }
           return discount;
         }).toList();
@@ -188,11 +181,7 @@ Future<void> deleteProductDiscount(String? id) async {
     final updatedProducts =
         allProducts.value.map((product) {
           if (product.id == productId) {
-            return product.copyWith(
-              promotion: null,
-              promotionPrice: null,
-              promotionEndDate: null,
-            );
+            return product.copyWith(promotion: null, promotionPrice: null, promotionEndDate: null);
           }
           return product;
         }).toList();
@@ -206,9 +195,7 @@ Future<void> deleteProductDiscount(String? id) async {
       if (product.promotion == discountId) {
         throw Exception('Sản phẩm đã thuộc khuyến mãi này');
       } else {
-        throw Exception(
-          'Sản phẩm đã thuộc khuyến mãi khác (ID: ${product.promotion})',
-        );
+        throw Exception('Sản phẩm đã thuộc khuyến mãi khác (ID: ${product.promotion})');
       }
     }
   }
@@ -221,38 +208,24 @@ Future<void> deleteProductDiscount(String? id) async {
   ) async {
     final batch = FirebaseFirestore.instance.batch();
 
-    final promotionRef = FirebaseFirestore.instance
-        .collection('product_discounts')
-        .doc(discountId);
+    final promotionRef = FirebaseFirestore.instance.collection('product_discounts').doc(discountId);
     batch.update(promotionRef, {
       'productIds': FieldValue.arrayUnion([productId]),
     });
 
-    final productRef = FirebaseFirestore.instance
-        .collection('products')
-        .doc(productId);
-    batch.update(productRef, {
-      'promotion': discountId,
-      'promotionPrice': discountedPrice,
-      'promotionEndDate': endDate,
-    });
+    final productRef = FirebaseFirestore.instance.collection('products').doc(productId);
+    batch.update(productRef, {'promotion': discountId, 'promotionPrice': discountedPrice, 'promotionEndDate': endDate});
 
     await batch.commit();
     _syncLocalData(discountId, productId, discountedPrice);
   }
 
-  void _syncLocalData(
-    String discountId,
-    String productId,
-    double discountedPrice,
-  ) {
+  void _syncLocalData(String discountId, String productId, double discountedPrice) {
     // Cập nhật danh sách khuyến mãi
     final updatedDiscounts =
         productDiscounts.value.map((discount) {
           if (discount.id == discountId) {
-            return discount.copyWith(
-              productIds: [...discount.productIds, productId],
-            );
+            return discount.copyWith(productIds: [...discount.productIds, productId]);
           }
           return discount;
         }).toList();
@@ -262,10 +235,7 @@ Future<void> deleteProductDiscount(String? id) async {
     final updatedProducts =
         allProducts.value.map((product) {
           if (product.id == productId) {
-            return product.copyWith(
-              promotion: discountId,
-              promotionPrice: discountedPrice,
-            );
+            return product.copyWith(promotion: discountId, promotionPrice: discountedPrice);
           }
           return product;
         }).toList();
@@ -275,9 +245,7 @@ Future<void> deleteProductDiscount(String? id) async {
   Future<void> _removeDiscountFromProducts(List<String> productIds) async {
     final batch = FirebaseFirestore.instance.batch();
     for (final productId in productIds) {
-      final productRef = FirebaseFirestore.instance
-          .collection('products')
-          .doc(productId);
+      final productRef = FirebaseFirestore.instance.collection('products').doc(productId);
       batch.update(productRef, {
         'promotion': FieldValue.delete(),
         'promotionPrice': FieldValue.delete(),
@@ -291,9 +259,7 @@ Future<void> deleteProductDiscount(String? id) async {
     allProducts.value =
         allProducts.value.map((product) {
           if (product.promotion != null) {
-            final discount = productDiscounts.value.firstWhereOrNull(
-              (d) => d.id == product.promotion,
-            );
+            final discount = productDiscounts.value.firstWhereOrNull((d) => d.id == product.promotion);
 
             if (discount == null) {
               return product.copyWith(promotion: null, promotionPrice: null);
@@ -308,26 +274,18 @@ Future<void> deleteProductDiscount(String? id) async {
     required double discountValue,
     required String discountType,
   }) {
-    final discountedPrice =
-        discountType == 'percent'
-            ? price * (1 - discountValue / 100)
-            : price - discountValue;
+    final discountedPrice = discountType == 'percent' ? price * (1 - discountValue / 100) : price - discountValue;
 
     return discountedPrice > 0 ? discountedPrice : 0;
   }
 
-List<ProductModel> getProductsByIds(List<String> ids, String storeId) {
-  return allProducts.value
-      .where((p) => ids.contains(p.id) && p.storeId == storeId)
-      .toList();
-}
+  List<ProductModel> getProductsByIds(List<String> ids, String storeId) {
+    return allProducts.value.where((p) => ids.contains(p.id) && p.storeId == storeId).toList();
+  }
 
-
-List<ProductModel> getAvailableProductsForDiscount(String discountId, String storeId) {
-  return allProducts.value.where((p) =>
-    (p.promotion == null || p.promotion != discountId) &&
-    p.storeId == storeId
-  ).toList();
-}
-
+  List<ProductModel> getAvailableProductsForDiscount(String discountId, String storeId) {
+    return allProducts.value
+        .where((p) => (p.promotion == null || p.promotion != discountId) && p.storeId == storeId)
+        .toList();
+  }
 }

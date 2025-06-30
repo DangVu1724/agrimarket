@@ -6,14 +6,14 @@ import 'package:get/get.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../app/theme/app_text_styles.dart';
 
-class ProfileScreen extends StatelessWidget {
-  ProfileScreen({super.key});
+class SellerProfileScreen extends StatelessWidget {
+  SellerProfileScreen({super.key});
   final UserVm vm = Get.find<UserVm>();
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> sectionItems = [
       {'icon': Iconsax.tag_user, 'title': 'Thông tin cá nhân'},
-      {'icon': Iconsax.location, 'title': 'Địa chỉ cửa hàng'},
+      {'icon': Iconsax.location, 'title': 'Thông tin cửa hàng'},
       {'icon': Iconsax.setting_2, 'title': 'Cài đặt'},
       {'icon': Icons.logout, 'title': 'Đăng xuất'},
     ];
@@ -112,8 +112,8 @@ class ProfileScreen extends StatelessWidget {
             case 'Thông tin cá nhân':
               Get.toNamed(AppRoutes.buyerAccount);
               break;
-            case 'Địa chỉ giao hàng':
-              Get.toNamed(AppRoutes.buyerAddress);
+            case 'Thông tin cửa hàng':
+              Get.toNamed(AppRoutes.storeInfo);
               break;
             case 'Cài đặt':
               Get.toNamed(AppRoutes.settings);

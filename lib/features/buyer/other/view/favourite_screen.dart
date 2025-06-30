@@ -153,7 +153,7 @@ class _StoreCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      store.address,
+                      store.storeLocation!.address,
                       style: AppTextStyles.body.copyWith(color: Colors.grey.shade600, fontSize: 14),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

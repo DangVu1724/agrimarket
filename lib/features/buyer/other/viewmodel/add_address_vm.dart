@@ -16,6 +16,7 @@ class AddressViewModel extends GetxController {
   final isLoading = false.obs;
   final mapController = MapController();
   final AddressRepository _addressRepo = AddressRepository();
+  
   void selectLocation(LatLng latLng) async {
     selectedLocation.value = latLng;
     try {

@@ -25,6 +25,36 @@ class SellerHomeVm extends GetxController {
     fetchStoreInfo();
   }
 
+  Future<void> migrateAddressToObject() async {
+  final firestore = FirebaseFirestore.instance;
+  final snapshot = await firestore.collection('stores').get();
+
+  for (var doc in snapshot.docs) {
+    final data = doc.data();
+    if (data.containsKey('address')) {
+      final oldAddress = data['address'];
+
+      final addressObj = StoreAddress(
+  label: 'Cửa hàng chính',
+  address: oldAddress,
+  latitude: 21.0285,
+  longitude: 105.8542,
+);
+
+      await doc.reference.update({
+        'storeLocation': addressObj.toJson(), // đổi key thành storeLocation
+        'address': FieldValue.delete(), // xóa trường cũ nếu cần
+      });
+
+      print('Migrated store ${doc.id}');
+    } else {
+      print('Store ${doc.id} has no address field');
+    }
+  }
+
+  print('✅ Migration complete.');
+}
+
   Future<void> fetchStoreInfo() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {

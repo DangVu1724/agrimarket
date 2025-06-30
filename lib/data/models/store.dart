@@ -4,14 +4,12 @@ class StoreModel {
   final String name;
   final String description;
   final List<String> categories;
-  final String address;
+  final StoreAddress storeLocation;
   final String? businessLicenseUrl;
   final String? foodSafetyCertificateUrl;
-  final String? storeImageUrl ;
+  final String? storeImageUrl;
   final String state;
   final bool isOpened;
-  
-  
 
   StoreModel({
     required this.storeId,
@@ -19,10 +17,10 @@ class StoreModel {
     required this.name,
     required this.description,
     required this.categories,
-    required this.address,
+    required this.storeLocation,
     this.businessLicenseUrl,
     this.foodSafetyCertificateUrl,
-    this.storeImageUrl ,
+    this.storeImageUrl,
     this.state = 'pending',
     this.isOpened = false,
   });
@@ -33,11 +31,11 @@ class StoreModel {
     'name': name,
     'description': description,
     'categories': categories,
-    'address': address,
+    'storeLocation': storeLocation.toJson(),
     'state': state,
     'businessLicenseUrl': businessLicenseUrl,
     'foodSafetyCertificateUrl': foodSafetyCertificateUrl,
-    'storeImageUrl ': storeImageUrl ,
+    'storeImageUrl': storeImageUrl,
     'isOpened': isOpened,
   };
 
@@ -47,10 +45,12 @@ class StoreModel {
     name: json['name'],
     description: json['description'],
     categories: List<String>.from(json['categories']),
-    address: json['address'],
+
+    storeLocation: StoreAddress.fromJson(Map<String, dynamic>.from(json['storeLocation'])), 
+
     businessLicenseUrl: json['businessLicenseUrl'],
     foodSafetyCertificateUrl: json['foodSafetyCertificateUrl'],
-    storeImageUrl : json['storeImageUrl '],
+    storeImageUrl: json['storeImageUrl'],
     state: json['state'] ?? 'pending',
     isOpened: json['isOpened'] ?? false,
   );
@@ -61,10 +61,10 @@ class StoreModel {
     String? name,
     String? description,
     List<String>? categories,
-    String? address,
+    StoreAddress? storeLocation,
     String? businessLicenseUrl,
     String? foodSafetyCertificateUrl,
-    String? storeImageUrl ,
+    String? storeImageUrl,
     String? state,
     bool? isOpened,
   }) {
@@ -74,12 +74,43 @@ class StoreModel {
       name: name ?? this.name,
       description: description ?? this.description,
       categories: categories ?? this.categories,
-      address: address ?? this.address,
+      storeLocation: storeLocation ?? this.storeLocation,
       businessLicenseUrl: businessLicenseUrl ?? this.businessLicenseUrl,
       foodSafetyCertificateUrl: foodSafetyCertificateUrl ?? this.foodSafetyCertificateUrl,
-      storeImageUrl : storeImageUrl ?? this.storeImageUrl ,
+      storeImageUrl: storeImageUrl ?? this.storeImageUrl,
       state: state ?? this.state,
       isOpened: isOpened ?? this.isOpened,
+    );
+  }
+
+  List<double>? getDefaultLatLng() {
+    return [storeLocation.latitude, storeLocation.longitude];
+  }
+}
+
+class StoreAddress {
+  final String label;
+  final String address;
+  final double latitude;
+  final double longitude;
+
+  StoreAddress({required this.label, required this.address, required this.latitude, required this.longitude});
+
+  factory StoreAddress.fromJson(Map<String, dynamic> json) => StoreAddress(
+    label: json['label'],
+    address: json['address'],
+    latitude: (json['latitude'] as num?)!.toDouble(),
+    longitude: (json['longitude'] as num?)!.toDouble(),
+  );
+
+  Map<String, dynamic> toJson() => {'label': label, 'address': address, 'latitude': latitude, 'longitude': longitude};
+
+  StoreAddress copyWith({String? label, String? address, double? latitude, double? longitude, bool? isDefault}) {
+    return StoreAddress(
+      label: label ?? this.label,
+      address: address ?? this.address,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
     );
   }
 }

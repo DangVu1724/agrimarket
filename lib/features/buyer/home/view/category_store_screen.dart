@@ -129,7 +129,7 @@ class CategoryStoreScreen extends StatelessWidget {
                                   Text(store.name, style: AppTextStyles.headline.copyWith(fontSize: 16)),
                                   const SizedBox(height: 6),
                                   Text(
-                                    store.address,
+                                    store.storeLocation!.address,
                                     style: AppTextStyles.body.copyWith(fontSize: 13),
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,

@@ -10,13 +10,14 @@ class StoreModelAdapter extends TypeAdapter<StoreModel> {
     return StoreModel(
       storeId: reader.readString(),
       name: reader.readString(),
-      address: reader.readString(),
       storeImageUrl: reader.readString(),
       isOpened: reader.readBool(),
       state: reader.readString(),
       ownerUid: reader.readString(),
       description: reader.readString(),
       categories: (reader.readList()).cast<String>(),
+      storeLocation: reader.read() as StoreAddress,
+
     );
   }
 
@@ -24,12 +25,13 @@ class StoreModelAdapter extends TypeAdapter<StoreModel> {
   void write(BinaryWriter writer, StoreModel obj) {
     writer.writeString(obj.storeId);
     writer.writeString(obj.name);
-    writer.writeString(obj.address);
     writer.writeString(obj.storeImageUrl ?? '');
     writer.writeBool(obj.isOpened);
     writer.writeString(obj.state);
     writer.writeString(obj.ownerUid);
     writer.writeString(obj.description);
     writer.writeList(obj.categories);
+    writer.write(obj.storeLocation);
+
   }
 }

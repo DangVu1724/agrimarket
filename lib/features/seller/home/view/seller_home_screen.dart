@@ -161,9 +161,9 @@ class SellerHomeScreen extends StatelessWidget {
                   // case 3:
                   //   Get.toNamed('/finance');
                   //   break;
-                  // case 4:
-                  //   Get.toNamed('/staff');
-                  //   break;
+                  case 4:
+                   vm.migrateAddressToObject();
+                    break;
                   case 7:
                     vm.toggleOpen();
                     break;

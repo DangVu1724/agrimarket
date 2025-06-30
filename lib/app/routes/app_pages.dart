@@ -39,6 +39,8 @@ import 'package:agrimarket/features/seller/product/view/seller_create_product_sc
 import 'package:agrimarket/features/seller/product/view/seller_product_details_screen.dart';
 import 'package:agrimarket/features/seller/product/view/seller_product_screen.dart';
 import 'package:agrimarket/features/seller/product/view/seller_update_product_screen.dart';
+import 'package:agrimarket/features/seller/profile/view/profile_screen.dart';
+import 'package:agrimarket/features/seller/profile/view/store_info_screen.dart';
 import 'package:agrimarket/features/seller/promotion/view/promotion_screen.dart';
 import 'package:agrimarket/features/seller/seller_home.dart';
 import 'package:flutter/material.dart';
@@ -55,7 +57,7 @@ class AppPages {
     GetPage(name: AppRoutes.register, page: () => RegisterScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.roleSelection, page: () => RoleSelectionScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.addAddress, page: () => AddressScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.createStoreInfo, page: () => StoreInfoScreen(), binding: AuthBinding()),
+    GetPage(name: AppRoutes.createStoreInfo, page: () => CreateStoreInfoScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.createStoreAddress, page: () => StoreAddressScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.emailVerify, page: () => EmailVerificationScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.buyerHome, page: () => BuyerHome(), binding: AuthBinding()),
@@ -112,7 +114,9 @@ class AppPages {
     GetPage(name: AppRoutes.sellerHomeScreen, page: () => const SellerHomeScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.sellerOrderList, page: () => const OrderlistScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.sellerMenu, page: () => SellerMenuScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.sellerProduct, page: () => SellerProductScreen(), binding: AuthBinding()),
+    GetPage(name: AppRoutes.sellerMenu, page: () => SellerMenuScreen(), binding: AuthBinding()),
+    GetPage(name: AppRoutes.sellerProfile, page: () => SellerProfileScreen(), binding: AuthBinding()),
+    GetPage(name: AppRoutes.storeInfo, page: () => StoreInfoScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.sellerCreateProduct, page: () => SellerCreateProductScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.sellerChat, page: () => SellerChatScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.sellerOrderList, page: () => OrderlistScreen(), binding: AuthBinding()),

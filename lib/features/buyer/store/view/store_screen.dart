@@ -113,7 +113,7 @@ class StoreScreen extends StatelessWidget {
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              store.address,
+                              store.storeLocation!.address,
                               style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,

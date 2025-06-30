@@ -1,12 +1,15 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/core/widgets/store_product_list.dart';
+import 'package:agrimarket/data/models/buyer.dart';
 import 'package:agrimarket/data/models/store.dart';
+import 'package:agrimarket/data/services/address_service.dart';
 import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
 import 'package:agrimarket/features/buyer/home/viewmodel/store_vm.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class HomeBuyerScreen extends StatelessWidget {
   final BuyerVm vm = Get.find<BuyerVm>();
@@ -212,7 +215,18 @@ class HomeBuyerScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStoreItem(StoreModel store) {
+  Widget _buildStoreItem(StoreModel store, BuyerModel buyer) {
+    final AddressService addressService = AddressService();
+    final storeLatLng = store.getDefaultLatLng();
+    final buyerLatLng = buyer.getDefaultLatLng();
+    double? distance;
+    if (buyerLatLng != null && storeLatLng != null) {
+      distance = addressService.calculateDistance(buyerLatLng[0], buyerLatLng[1], storeLatLng[0], storeLatLng[1]);
+    }
+
+    final distanceFormatter = NumberFormat('#,##0.00', 'vi_VN');
+    final formattedDistance = '${distanceFormatter.format(distance)} km';
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(12),
@@ -248,12 +262,7 @@ class HomeBuyerScreen extends StatelessWidget {
                 children: [
                   Text(store.name, style: AppTextStyles.headline.copyWith(fontSize: 16)),
                   const SizedBox(height: 6),
-                  Text(
-                    store.address,
-                    style: AppTextStyles.body.copyWith(fontSize: 13),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  Text(" 🛵 ~ $formattedDistance", style: AppTextStyles.body.copyWith(fontSize: 13)),
                 ],
               ),
             ),
@@ -271,7 +280,11 @@ class HomeBuyerScreen extends StatelessWidget {
       itemCount: storeVm.storesList.length,
       itemBuilder: (context, index) {
         final store = storeVm.storesList[index];
-        return _buildStoreItem(store);
+        final buyer = vm.buyerData.value;
+        if (buyer == null) {
+          return SizedBox.shrink();
+        }
+        return _buildStoreItem(store, buyer);
       },
     );
   }

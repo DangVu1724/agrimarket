@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:geocoding/geocoding.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -22,4 +24,29 @@ class AddressService {
     }
     return null;
   }
+
+
+/// Trả về khoảng cách (km) giữa 2 điểm theo tọa độ
+double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+  const R = 6371; // Bán kính Trái Đất (km)
+
+  final dLat = _deg2rad(lat2 - lat1);
+  final dLon = _deg2rad(lon2 - lon1);
+
+  final a = sin(dLat / 2) * sin(dLat / 2) +
+      cos(_deg2rad(lat1)) * cos(_deg2rad(lat2)) *
+          sin(dLon / 2) * sin(dLon / 2);
+  final c = 2 * atan2(sqrt(a), sqrt(1 - a));
+  final distance = R * c;
+
+  return distance;
+}
+
+double _deg2rad(double deg) => deg * pi / 180;
+
+
+
+
+
+  
 }
