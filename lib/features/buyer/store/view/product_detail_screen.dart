@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/data/models/product.dart';
-import 'package:agrimarket/data/models/product_promotion.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/features/buyer/cart/viewmodel/cart_vm.dart';
 

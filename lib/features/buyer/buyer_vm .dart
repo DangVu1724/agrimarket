@@ -19,22 +19,22 @@ class BuyerVm extends GetxController {
   final buyerData = Rxn<BuyerModel>();
 
 
+
   @override
   void onInit() {
     super.onInit();
     fetchBuyerData();
   }
 
-
-
-  String get defaultAddress {
+  Address? get defaultAddress {
     if (address.isNotEmpty) {
-      return address.firstWhere((addr) => addr.isDefault, orElse: () => address.first).address;
-    }
-    return 'Chưa có địa chỉ';
+    return address.firstWhere(
+      (addr) => addr.isDefault,
+      orElse: () => address.first,
+    );
   }
-
-
+  return null;
+  }
 
   void fetchBuyerData() async {
     final user = FirebaseAuth.instance.currentUser;

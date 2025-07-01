@@ -7,27 +7,23 @@ import 'package:latlong2/latlong.dart';
 import 'package:agrimarket/features/buyer/other/viewmodel/add_address_vm.dart';
 
 class AddressScreen extends StatelessWidget {
-  final AddressViewModel vm = Get.put(AddressViewModel());
+  const AddressScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final AddressViewModel vm = Get.put(AddressViewModel());
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           'Thêm địa chỉ',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
         ),
         backgroundColor: AppColors.primary,
         centerTitle: true,
       ),
       body: Obx(() {
-        final selected =
-            vm.selectedLocation.value ??
-            const LatLng(21.0278, 105.8342); // Hà Nội
+        final selected = vm.selectedLocation.value ?? const LatLng(21.0278, 105.8342); // Hà Nội
         return Stack(
           children: [
             FlutterMap(
@@ -51,11 +47,7 @@ class AddressScreen extends StatelessWidget {
                         point: vm.selectedLocation.value!,
                         width: 40,
                         height: 40,
-                        child: const Icon(
-                          Icons.location_pin,
-                          size: 40,
-                          color: Colors.red,
-                        ),
+                        child: const Icon(Icons.location_pin, size: 40, color: Colors.red),
                       ),
                     ],
                   ),
@@ -112,10 +104,7 @@ class AddressScreen extends StatelessWidget {
                   backgroundColor: AppColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 15),
                 ),
-                child: const Text(
-                  'Lưu địa chỉ',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
+                child: const Text('Lưu địa chỉ', style: TextStyle(fontSize: 18, color: Colors.white)),
               ),
             ),
           ],

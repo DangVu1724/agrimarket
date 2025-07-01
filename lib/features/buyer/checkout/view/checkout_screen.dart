@@ -2,8 +2,10 @@ import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/data/models/cart.dart';
+import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
 import 'package:agrimarket/features/buyer/checkout/viewmodel/checkout_vm.dart';
 import 'package:agrimarket/features/buyer/cart/viewmodel/cart_vm.dart';
+import 'package:agrimarket/features/buyer/user_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -16,9 +18,12 @@ class CheckoutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final CartVm cartVm = Get.find<CartVm>();
-    final store = cartVm.store.value;
     final CheckoutVm checkoutVm = Get.find<CheckoutVm>();
+    final BuyerVm vm = Get.find<BuyerVm>();
+    final UserVm userVm = Get.find<UserVm>();
     final formatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
+
+    checkoutVm.getStore(storeId);
 
     return Scaffold(
       appBar: AppBar(
@@ -32,13 +37,54 @@ class CheckoutScreen extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           child: Column(
             children: [
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Thông tin', style: AppTextStyles.headline.copyWith(fontSize: 16)),
+                        GestureDetector(
+                          onTap: () {
+                            // Get.toNamed(AppRoutes.store, arguments: checkoutVm.store.value);
+                          },
+                          child: Text(
+                            'Chỉnh sửa',
+                            style: AppTextStyles.headline.copyWith(color: AppColors.primary, fontSize: 14),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade300, width: 1),
+                      ),
+                      child: Column(
+                        children: [
+                          _buildRowWithPadding('Họ tên', userVm.userName.value),
+                          _buildDivider(),
+                          _buildRowWithPadding('Số điện thoại', userVm.userPhone.value),
+                          _buildDivider(),
+                          _buildAddressRowWithLabel('Địa chỉ', vm.defaultAddress!.label ,vm.defaultAddress!.address),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 15),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Tóm tắt đơn hàng', style: AppTextStyles.headline.copyWith(fontSize: 14)),
                   GestureDetector(
                     onTap: () {
-                      Get.toNamed(AppRoutes.store, arguments: store);
+                      Get.toNamed(AppRoutes.store, arguments: checkoutVm.store.value);
                     },
                     child: Text(
                       'Thêm món',
@@ -65,6 +111,7 @@ class CheckoutScreen extends StatelessWidget {
                 children: [
                   Obx(() {
                     final total = cartVm.getTotalPriceByStore(storeId);
+                    final totalQuantity = cartVm.getTotalQuantity(storeId);
                     // final discount = cartVm.getTotalDiscountByStore(storeId);
                     final serviceFee = 5000;
                     final shippingFee = 20000;
@@ -115,7 +162,24 @@ class CheckoutScreen extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text("Tổng cộng:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: "Tổng cộng (",
+                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                  ),
+                                  TextSpan(
+                                    text: "$totalQuantity sản phẩm",
+                                    style: const TextStyle(fontSize: 13, color: Colors.grey),
+                                  ),
+                                  TextSpan(
+                                    text: ") :",
+                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
                             Text(
                               formatter.format(finalTotal),
                               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -133,6 +197,56 @@ class CheckoutScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildRowWithPadding(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(title, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+          Flexible(child: Text(value, textAlign: TextAlign.right, style: const TextStyle(fontWeight: FontWeight.bold))),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAddressRowWithLabel(String title, String label, String value) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 90, 
+          child: Text(
+            title,
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
+
+  Widget _buildDivider() => Container(width: double.infinity, height: 1, color: Colors.grey.shade300);
 
   Widget _buildCartItem(CartItem item, CartVm cartVm) {
     final currencyFormatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
@@ -176,12 +290,15 @@ class CheckoutScreen extends StatelessWidget {
                   const SizedBox(height: 4),
                   if (item.isOnSaleAtAddition != null && item.isOnSaleAtAddition!) ...{
                     Text(
-                      '${currencyFormatter.format(item.promotionPrice)} / ${product!.unit}',
+                      '${currencyFormatter.format(item.promotionPrice)} / ${product?.unit}',
                       style: const TextStyle(color: Colors.grey),
                     ),
                     const SizedBox(height: 4),
                   } else ...{
-                    Text(currencyFormatter.format(item.priceAtAddition), style: const TextStyle(color: Colors.grey)),
+                    Text(
+                      "${currencyFormatter.format(item.priceAtAddition)} / ${product?.unit} ",
+                      style: const TextStyle(color: Colors.grey),
+                    ),
                     const SizedBox(height: 4),
                   },
                 ],

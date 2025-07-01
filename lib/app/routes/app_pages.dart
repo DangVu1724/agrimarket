@@ -117,6 +117,7 @@ class AppPages {
     GetPage(name: AppRoutes.sellerMenu, page: () => SellerMenuScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.sellerProfile, page: () => SellerProfileScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.storeInfo, page: () => StoreInfoScreen(), binding: AuthBinding()),
+    GetPage(name: AppRoutes.sellerProduct, page: () => SellerProductScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.sellerCreateProduct, page: () => SellerCreateProductScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.sellerChat, page: () => SellerChatScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.sellerOrderList, page: () => OrderlistScreen(), binding: AuthBinding()),

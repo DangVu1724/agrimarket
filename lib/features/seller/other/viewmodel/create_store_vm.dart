@@ -16,6 +16,7 @@ class CreateStoreViewModel extends GetxController {
   final ImageService _imageService = ImageService();
   final StoreRepository _storeRepository = StoreRepository();
   final formKey = GlobalKey<FormState>();
+  final StoreRepository _storeRepo = StoreRepository();
 
   // Controllers
   final nameController = TextEditingController();
@@ -34,6 +35,7 @@ class CreateStoreViewModel extends GetxController {
   final businessLicenseFile = Rxn<XFile>();
   final foodSafetyCertificateFile = Rxn<XFile>();
   final storeImageFile = Rxn<XFile>();
+
 
   final Rx<LatLng?> selectedLocation = Rx<LatLng?>(null);
 
@@ -61,6 +63,20 @@ class CreateStoreViewModel extends GetxController {
 
   void toggleCategory(String category) {
     categories.contains(category) ? categories.remove(category) : categories.add(category);
+  }
+
+  StoreAddress toStoreAddress() {
+    final LatLng loc = selectedLocation.value!;
+    return StoreAddress(
+      label: labelController.text.trim(),
+      address: addressController.text.trim(),
+      latitude: loc.latitude,
+      longitude: loc.longitude,
+    );
+  }
+
+  Future<void> updateStoreLocation(StoreModel newStore) async {
+    await _storeRepo.updateStore(newStore);
   }
 
   Future<void> pickImage({required String imageType, bool fromCamera = false}) async {

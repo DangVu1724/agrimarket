@@ -64,7 +64,7 @@ class HomeBuyerScreen extends StatelessWidget {
         onTap: () {
           Get.toNamed(AppRoutes.buyerAddress);
         },
-        child: Text(vm.defaultAddress, style: TextStyle(color: Colors.black, fontSize: 16)),
+        child: Text(vm.defaultAddress!.address, style: TextStyle(color: Colors.black, fontSize: 16)),
       ),
       actions: [
         GestureDetector(
@@ -216,16 +216,31 @@ class HomeBuyerScreen extends StatelessWidget {
   }
 
   Widget _buildStoreItem(StoreModel store, BuyerModel buyer) {
-    final AddressService addressService = AddressService();
+    final addressService = AddressService();
     final storeLatLng = store.getDefaultLatLng();
     final buyerLatLng = buyer.getDefaultLatLng();
-    double? distance;
-    if (buyerLatLng != null && storeLatLng != null) {
-      distance = addressService.calculateDistance(buyerLatLng[0], buyerLatLng[1], storeLatLng[0], storeLatLng[1]);
+
+    if (storeLatLng == null || buyerLatLng == null) {
+      return _buildStoreTile(store, distanceText: null, estimatedTime: null);
     }
 
-    final distanceFormatter = NumberFormat('#,##0.00', 'vi_VN');
-    final formattedDistance = '${distanceFormatter.format(distance)} km';
+    final distance = addressService.calculateDistance(buyerLatLng[0], buyerLatLng[1], storeLatLng[0], storeLatLng[1]);
+    final formattedDistance = NumberFormat('#,##0.00', 'vi_VN').format(distance);
+
+    return FutureBuilder<int>(
+      future: addressService.getEstimatedTravelTime(storeLatLng[0], storeLatLng[1], buyerLatLng[0], buyerLatLng[1]),
+      builder: (context, snapshot) {
+        final estimatedTime = snapshot.hasData ? snapshot.data! : 0;
+        final int prepareTime = 15;
+        final int totalTime = prepareTime + estimatedTime;
+
+        return _buildStoreTile(store, distanceText: '$formattedDistance km', estimatedTime: totalTime);
+      },
+    );
+  }
+
+  Widget _buildStoreTile(StoreModel store, {String? distanceText, int? estimatedTime}) {
+    final timeInfo = (distanceText != null) ? "🛵 $distanceText • ⏱ $estimatedTime phút" : "Không xác định vị trí";
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -238,22 +253,23 @@ class HomeBuyerScreen extends StatelessWidget {
         ],
       ),
       child: InkWell(
-        onTap: () {
-          Get.toNamed(AppRoutes.store, arguments: store);
-        },
+        onTap: () => Get.toNamed(AppRoutes.store, arguments: store),
         borderRadius: BorderRadius.circular(12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                store.storeImageUrl ?? '',
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => const Icon(Icons.store, size: 50),
-              ),
+              child:
+                  store.storeImageUrl?.isNotEmpty == true
+                      ? Image.network(
+                        store.storeImageUrl!,
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.store, size: 50),
+                      )
+                      : const Icon(Icons.store, size: 50),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -262,7 +278,7 @@ class HomeBuyerScreen extends StatelessWidget {
                 children: [
                   Text(store.name, style: AppTextStyles.headline.copyWith(fontSize: 16)),
                   const SizedBox(height: 6),
-                  Text(" 🛵 ~ $formattedDistance", style: AppTextStyles.body.copyWith(fontSize: 13)),
+                  Text(timeInfo, style: AppTextStyles.body.copyWith(fontSize: 13)),
                 ],
               ),
             ),

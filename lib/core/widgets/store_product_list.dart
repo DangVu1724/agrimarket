@@ -61,27 +61,6 @@ class StoreProductList extends StatelessWidget {
                           ? storeDetailVm.getDiscountInfo(product.promotion!)
                           : Future.value(null),
                   builder: (context, discountSnapshot) {
-                    final discount = discountSnapshot.data;
-                    final hasValidDiscount = discount?.isValid ?? false;
-
-                    double finalPrice = product.price;
-                    String priceText = '${currencyFormatter.format(product.price)} /${product.unit}';
-
-                    if (hasValidDiscount) {
-                      // Tính toán giá sau giảm
-                      if (discount!.discountType == 'percent') {
-                        finalPrice = max(0, product.price * (1 - discount.discountValue / 100));
-                      } else if (discount.discountType == 'fixed') {
-                        finalPrice = max(0, product.price - discount.discountValue);
-                      }
-
-                      priceText = '''
-        ${currencyFormatter.format(product.price)} /${product.unit}
-        ${currencyFormatter.format(finalPrice)} /${product.unit} (Giảm ${discount.discountType == 'percent' ? '${discount.discountValue}%' : '${currencyFormatter.format(discount.discountValue)}'})
-        Áp dụng đến: ${DateFormat('dd/MM/yyyy').format(discount.endDate)}
-      ''';
-                    }
-
                     return GestureDetector(
                       onTap: () {
                         Get.toNamed(AppRoutes.store, arguments: store);
@@ -122,27 +101,31 @@ class StoreProductList extends StatelessWidget {
                                     style: const TextStyle(fontWeight: FontWeight.bold),
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  if (hasValidDiscount) ...[
+                                  if (product.isOnSale) ...[
                                     Text(
-                                      currencyFormatter.format(product.price),
+                                      '${currencyFormatter.format(product.price)} /${product.unit}',
                                       style: const TextStyle(
-                                        fontSize: 12,
+                                        fontSize: 11,
                                         color: Colors.grey,
                                         decoration: TextDecoration.lineThrough,
                                       ),
                                     ),
+                                    const SizedBox(height: 4),
                                     Text(
-                                      currencyFormatter.format(finalPrice),
+                                      '${currencyFormatter.format(product.displayPrice)} /${product.unit}',
                                       style: TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 13,
                                         color: Colors.red.shade700,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ] else ...[
                                     Text(
-                                      currencyFormatter.format(product.price),
-                                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                                      '${currencyFormatter.format(product.price)} /${product.unit}',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black,
+                                      ),
                                     ),
                                   ],
                                 ],

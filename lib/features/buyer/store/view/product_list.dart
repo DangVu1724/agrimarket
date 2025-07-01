@@ -1,7 +1,6 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/data/models/menu.dart';
-import 'package:agrimarket/data/models/product_promotion.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/features/buyer/cart/viewmodel/cart_vm.dart';
 import 'package:agrimarket/features/buyer/store/viewmodel/store_detail_vm.dart';
@@ -178,10 +177,6 @@ class productListWidget extends StatelessWidget {
                                   product: product,
                                   store: store,
                                   itemCount: 1,
-                                );
-                                Get.snackbar(
-                                  'Thành công',
-                                  'Đã thêm ${product.name} vào giỏ hàng',
                                 );
                               }
                               : null,

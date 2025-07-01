@@ -17,6 +17,9 @@ class CartVm extends GetxController {
   final Rxn<ProductModel> product = Rxn<ProductModel>();
   final StoreService storeService = StoreService();
   final ProductRepository productRepository = ProductRepository();
+  final Set<String> _processingKeys = {};
+
+  final isLoadingCart = true.obs;
 
   CartVm(this._cartRepository);
 
@@ -35,6 +38,8 @@ class CartVm extends GetxController {
     }
 
     try {
+      isLoadingCart.value = true;
+
       final loadedCart = await _cartRepository.getCart(userId!);
 
       if (loadedCart != null) {
@@ -52,6 +57,8 @@ class CartVm extends GetxController {
       cart.value = loadedCart;
     } catch (e) {
       Get.snackbar('Lỗi', 'Không thể tải giỏ hàng: $e');
+    } finally {
+      isLoadingCart.value = false;
     }
   }
 
@@ -109,31 +116,46 @@ class CartVm extends GetxController {
   }
 
   Future<void> decreaseQuantity(String productId, String storeId, int newQuantity, CartItem item) async {
-    final currentItem = cart.value?.items.firstWhereOrNull(
-      (item) => item.productId == productId && item.storeId == storeId,
-    );
+    final key = '$productId|$storeId';
+    if (_processingKeys.contains(key)) return;
 
-    if (currentItem == null) return;
+    _processingKeys.add(key);
+    try {
+      final currentItem = cart.value?.items.firstWhereOrNull(
+        (item) => item.productId == productId && item.storeId == storeId,
+      );
 
-    final updatedQuantity = currentItem.quantity - 1;
+      if (currentItem == null) return;
 
-    if (updatedQuantity < 1) {
-      await removeFromCart(item);
+      if (currentItem.quantity <= 1) {
+        await removeFromCart(item);
+        return;
+      }
+
+      final updatedQuantity = currentItem.quantity - 1;
+      await updateQuantity(productId, storeId, updatedQuantity.value);
+    } finally {
+      _processingKeys.remove(key);
     }
-
-    await updateQuantity(productId, storeId, updatedQuantity.value);
   }
 
   Future<void> increaseQuantity(String productId, String storeId, int newQuantity) async {
-    final currentItem = cart.value?.items.firstWhereOrNull(
-      (item) => item.productId == productId && item.storeId == storeId,
-    );
+    final key = '$productId|$storeId';
+    if (_processingKeys.contains(key)) return;
 
-    if (currentItem == null) return;
+    _processingKeys.add(key);
+    try {
+      final currentItem = cart.value?.items.firstWhereOrNull(
+        (item) => item.productId == productId && item.storeId == storeId,
+      );
 
-    final updatedQuantity = currentItem.quantity + 1;
+      if (currentItem == null) return;
 
-    await updateQuantity(productId, storeId, updatedQuantity.value);
+      final updatedQuantity = currentItem.quantity + 1;
+      await updateQuantity(productId, storeId, updatedQuantity.value);
+    } finally {
+      _processingKeys.remove(key);
+    }
   }
 
   Future<void> loadStorebyId(String storeId) async {
@@ -154,6 +176,16 @@ class CartVm extends GetxController {
       total += price * item.quantity.value;
     }
     return total;
+  }
+
+  int getTotalQuantity(String storeId){
+    final filteredItems = cart.value?.items.where((item) => item.storeId == storeId) ?? [];
+
+    int totalQuantity = 0;
+    for (var item in filteredItems) {
+      totalQuantity += item.quantity.value;
+    }
+    return totalQuantity;
   }
 
   // int getTotalDiscountByStore(String storeId) {

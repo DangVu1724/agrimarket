@@ -9,6 +9,8 @@ class BuyerHomeScreenVm extends GetxController {
   var products = <ProductModel>[].obs;
   var store = Rxn<StoreModel>();
   var isLoading = false.obs;
+  
+
 
   Future<void> loadProductsByStore(String storeId) async {
     isLoading.value = true;
@@ -24,4 +26,6 @@ class BuyerHomeScreenVm extends GetxController {
       isLoading.value = false;
     }
   }
+
+
 }

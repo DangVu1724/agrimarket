@@ -9,6 +9,8 @@ import 'package:agrimarket/features/buyer/store/viewmodel/store_detail_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:get/get.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
 class StoreScreen extends StatelessWidget {
@@ -64,7 +66,7 @@ class StoreScreen extends StatelessWidget {
                     },
                   ),
 
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.store_mall_directory, color: Colors.white)),
+                  IconButton(onPressed: () {}, icon: const Icon(LucideIcons.messageCircle, color: Colors.white)),
                 ],
                 flexibleSpace: FlexibleSpaceBar(
                   background: Stack(
@@ -113,7 +115,7 @@ class StoreScreen extends StatelessWidget {
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              store.storeLocation!.address,
+                              store.storeLocation.address,
                               style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -137,16 +139,15 @@ class StoreScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 8),
+                      // Chat
+                     
                     ],
                   ),
                 ),
               ),
               if (menu == null)
                 const SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Center(child: CircularProgressIndicator(),),
-                  ),
+                  child: Padding(padding: EdgeInsets.all(16.0), child: Center(child: Text('Chưa có thực đơn'))),
                 )
               else
                 MultiSliver(

@@ -5,7 +5,7 @@ import 'package:hive/hive.dart';
 
 class StoreVm extends GetxController {
   final StoreService _storeService = StoreService();
-  final Box _cacheBox = Hive.box('storeCache'); // Dùng chung box với StoreDetailVm
+  final Box _cacheBox = Hive.box('storeCache');
 
   final RxList<StoreModel> storesByCategory = <StoreModel>[].obs;
   final RxList<StoreModel> storesList = <StoreModel>[].obs;
@@ -20,7 +20,6 @@ class StoreVm extends GetxController {
   }
 
   Future<void> fetchStoresList() async {
-    // Kiểm tra cache trước
     final cachedStores = _cacheBox.get('stores_list');
     final cacheTimestamp = _cacheBox.get('stores_list_timestamp');
     final now = DateTime.now().millisecondsSinceEpoch;
@@ -28,9 +27,9 @@ class StoreVm extends GetxController {
 
     if (cachedStores != null && cacheTimestamp != null && now - cacheTimestamp < cacheDuration) {
       try {
-        final parsedStores =
-            (cachedStores as List).map((s) => StoreModel.fromJson(Map<String, dynamic>.from(s as Map))).toList();
-
+        final parsedStores = (cachedStores as List)
+            .map((s) => StoreModel.fromJson(Map<String, dynamic>.from(s as Map)))
+            .toList();
         storesList.assignAll(parsedStores);
         print('Loaded ${parsedStores.length} stores from cache');
         return;
@@ -41,14 +40,12 @@ class StoreVm extends GetxController {
       }
     }
 
-    // Fetch từ server nếu không có cache hoặc cache hết hạn
     try {
       isLoading.value = true;
       final stores = await _storeService.fetchStores();
       final filteredStores = _filterPendingStores(stores);
       storesList.assignAll(filteredStores);
 
-      // Lưu vào cache
       if (filteredStores.isNotEmpty) {
         await _cacheBox.put('stores_list', filteredStores.map((s) => s.toJson()).toList());
         await _cacheBox.put('stores_list_timestamp', now);
@@ -64,7 +61,6 @@ class StoreVm extends GetxController {
     }
   }
 
-  // Phương thức chỉ lấy từ cache
   bool loadStoresFromCacheOnly() {
     final cachedStores = _cacheBox.get('stores_list');
     final cacheTimestamp = _cacheBox.get('stores_list_timestamp');
@@ -73,9 +69,9 @@ class StoreVm extends GetxController {
 
     if (cachedStores != null && cacheTimestamp != null && now - cacheTimestamp < cacheDuration) {
       try {
-        final parsedStores =
-            (cachedStores as List).map((s) => StoreModel.fromJson(Map<String, dynamic>.from(s as Map))).toList();
-
+        final parsedStores = (cachedStores as List)
+            .map((s) => StoreModel.fromJson(Map<String, dynamic>.from(s as Map)))
+            .toList();
         storesList.assignAll(parsedStores);
         print('Loaded ${parsedStores.length} stores from cache');
         return true;
@@ -88,7 +84,6 @@ class StoreVm extends GetxController {
     return false;
   }
 
-  // Phương thức làm mới, xóa cache và fetch lại
   Future<void> refreshStoresList() async {
     await _cacheBox.delete('stores_list');
     await _cacheBox.delete('stores_list_timestamp');
@@ -103,9 +98,18 @@ class StoreVm extends GetxController {
     const cacheDuration = 10 * 60 * 1000;
 
     if (cachedStores != null && cacheTimestamp != null && now - cacheTimestamp < cacheDuration) {
-      storesByCategory.assignAll(cachedStores.cast<StoreModel>());
-      print('Loaded ${cachedStores.length} stores for category $category from cache');
-      return;
+      try {
+        final parsedStores = (cachedStores as List)
+            .map((s) => StoreModel.fromJson(Map<String, dynamic>.from(s as Map)))
+            .toList();
+        storesByCategory.assignAll(parsedStores);
+        print('Loaded ${parsedStores.length} stores for category $category from cache');
+        return;
+      } catch (e) {
+        print('Error parsing cached category stores: $e');
+        _cacheBox.delete(cacheKey);
+        _cacheBox.delete('${cacheKey}_timestamp');
+      }
     }
 
     try {
@@ -115,7 +119,7 @@ class StoreVm extends GetxController {
       storesByCategory.assignAll(filteredStores);
 
       if (filteredStores.isNotEmpty) {
-        await _cacheBox.put(cacheKey, filteredStores);
+        await _cacheBox.put(cacheKey, filteredStores.map((s) => s.toJson()).toList());
         await _cacheBox.put('${cacheKey}_timestamp', now);
         print('Fetched and cached ${filteredStores.length} stores for category $category');
       } else {
@@ -137,9 +141,16 @@ class StoreVm extends GetxController {
     const cacheDuration = 10 * 60 * 1000;
 
     if (cachedStore != null && cacheTimestamp != null && now - cacheTimestamp < cacheDuration) {
-      storeData.value = cachedStore as StoreModel;
-      print('Loaded store $id from cache');
-      return storeData.value!;
+      try {
+        final store = StoreModel.fromJson(Map<String, dynamic>.from(cachedStore));
+        storeData.value = store;
+        print('Loaded store $id from cache');
+        return store;
+      } catch (e) {
+        print('Error parsing cached store $id: $e');
+        _cacheBox.delete(cacheKey);
+        _cacheBox.delete('${cacheKey}_timestamp');
+      }
     }
 
     try {
@@ -148,7 +159,7 @@ class StoreVm extends GetxController {
       storeData.value = store;
 
       if (store != null) {
-        await _cacheBox.put(cacheKey, store);
+        await _cacheBox.put(cacheKey, store.toJson());
         await _cacheBox.put('${cacheKey}_timestamp', now);
         print('Fetched and cached store $id');
         return store;
@@ -176,14 +187,12 @@ class StoreVm extends GetxController {
   List<StoreModel> getFilteredStores() {
     var list = storesByCategory.toList();
 
-    // Lọc theo filter
     if (filterType.value == 'opened') {
       list = list.where((s) => s.isOpened).toList();
     } else if (filterType.value == 'certified') {
       list = list.where((s) => s.foodSafetyCertificateUrl != null).toList();
     }
 
-    // Sắp xếp theo tên
     list.sort((a, b) => isAscending.value ? a.name.compareTo(b.name) : b.name.compareTo(a.name));
 
     return list;

@@ -14,7 +14,6 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final CartVm cartVm = Get.find<CartVm>();
 
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       cartVm.loadCart();
     });
@@ -32,11 +31,15 @@ class CartScreen extends StatelessWidget {
           cartVm.loadCart();
         },
         child: Obx(() {
-          if (cartVm.cart.value == null || cartVm.cart.value!.items.isEmpty) {
-            return Center(child: const CircularProgressIndicator());
+          if (cartVm.isLoadingCart.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final cartData = cartVm.cart.value;
+          if (cartData == null || cartData.items.isEmpty) {
+            return Center(child: Text('Giỏ hàng đang trống', style: AppTextStyles.headline));
           }
 
-          final grouped = cartVm.groupCartByStore(cartVm.cart.value!.items);
+          final grouped = cartVm.groupCartByStore(cartData.items);
 
           return ListView(
             children:
@@ -68,7 +71,7 @@ class CartScreen extends StatelessWidget {
                                 icon: const Icon(Icons.payment, color: AppColors.primary),
                                 label: const Text('Thanh toán', style: TextStyle(color: AppColors.primary)),
                                 onPressed: () {
-                                  Get.toNamed(AppRoutes.checkOut, arguments: {'storeId': storeId,});
+                                  Get.toNamed(AppRoutes.checkOut, arguments: {'storeId': storeId});
                                 },
                               ),
                             ],
@@ -135,9 +138,9 @@ class CartScreen extends StatelessWidget {
                   children: [
                     Text(item.productName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
-                    if (item.isOnSaleAtAddition != null && item.isOnSaleAtAddition!) ...{
+                    if (item.isOnSaleAtAddition == true && item.promotionPrice != null) ...{
                       Text(
-                        '${currencyFormatter.format(item.promotionPrice)}',
+                        '${currencyFormatter.format(item.promotionPrice)} / ${product?.unit ?? ""}',
                         style: const TextStyle(color: Colors.grey),
                       ),
                       const SizedBox(height: 4),
@@ -146,7 +149,10 @@ class CartScreen extends StatelessWidget {
                         style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                     } else ...{
-                      Text(currencyFormatter.format(item.priceAtAddition), style: const TextStyle(color: Colors.grey)),
+                      Text(
+                        '${currencyFormatter.format(item.priceAtAddition)} / ${product?.unit ?? ""}',
+                        style: const TextStyle(color: Colors.grey),
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         'Tổng: ${currencyFormatter.format(item.priceAtAddition * item.quantity.value)}',

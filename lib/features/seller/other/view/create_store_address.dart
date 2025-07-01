@@ -1,3 +1,4 @@
+import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/features/seller/other/viewmodel/create_store_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -90,11 +91,18 @@ class StoreAddressScreen extends StatelessWidget {
               left: 20,
               right: 20,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   final args = Get.arguments;
                   if (args != null && args['isEditing'] == true) {
-                    // addressVm.updateAddress(args['index']);
-                  } else {
+    final StoreModel store = args['store'];
+    final newStore = store.copyWith(
+      storeLocation: vm.toStoreAddress(),
+    );
+
+    await vm.updateStoreLocation(newStore);
+    Get.back(); 
+    Get.snackbar('Thành công', 'Cập nhật địa chỉ cửa hàng thành công');
+  } else {
                     vm.saveStore();
                   }
                 },

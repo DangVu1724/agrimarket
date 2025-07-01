@@ -15,23 +15,21 @@ class CartRepository {
           // Cập nhật giỏ hàng đã tồn tại
           final items = List<Map<String, dynamic>>.from(doc.data()!['items']);
           final existingIndex = items.indexWhere(
-            (i) =>
-                i['productId'] == item.productId &&
-                i['storeId'] == item.storeId,
+            (i) => i['productId'] == item.productId && i['storeId'] == item.storeId,
           );
 
           if (existingIndex >= 0) {
             // Cập nhật số lượng nếu sản phẩm đã có
-            items[existingIndex]['quantity'] += item.quantity;
+            final currentQtyRaw = items[existingIndex]['quantity'];
+            final currentQty = currentQtyRaw is int ? currentQtyRaw : int.tryParse(currentQtyRaw.toString()) ?? 0;
+
+            items[existingIndex]['quantity'] = currentQty + item.quantity.value;
           } else {
             // Thêm sản phẩm mới
             items.add(item.toJson());
           }
 
-          transaction.update(cartRef, {
-            'items': items,
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
+          transaction.update(cartRef, {'items': items, 'updatedAt': FieldValue.serverTimestamp()});
         } else {
           // Tạo giỏ hàng mới
           transaction.set(cartRef, {
@@ -58,18 +56,9 @@ class CartRepository {
           // Cập nhật giỏ hàng đã tồn tại
           final items = List<Map<String, dynamic>>.from(doc.data()!['items']);
           final updateItem =
-              items
-                  .where(
-                    (i) =>
-                        !(i['productId'] == item.productId &&
-                            i['storeId'] == item.storeId),
-                  )
-                  .toList();
+              items.where((i) => !(i['productId'] == item.productId && i['storeId'] == item.storeId)).toList();
 
-          transaction.update(cartRef, {
-            'items': updateItem,
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
+          transaction.update(cartRef, {'items': updateItem, 'updatedAt': FieldValue.serverTimestamp()});
         }
       });
     } catch (e) {
@@ -85,15 +74,9 @@ class CartRepository {
         final data = doc.data()!;
         return Cart(
           userId: userId,
-          items:
-              (data['items'] as List)
-                  .map((item) => CartItem.fromJson(item))
-                  .toList(),
+          items: (data['items'] as List).map((item) => CartItem.fromJson(item)).toList(),
           createdAt: (data['createdAt'] as Timestamp).toDate(),
-          updatedAt:
-              data['updatedAt'] != null
-                  ? (data['updatedAt'] as Timestamp).toDate()
-                  : null,
+          updatedAt: data['updatedAt'] != null ? (data['updatedAt'] as Timestamp).toDate() : null,
         );
       }
       return null;
@@ -116,9 +99,7 @@ class CartRepository {
 
         if (doc.exists) {
           final items = List<Map<String, dynamic>>.from(doc.data()!['items']);
-          final index = items.indexWhere(
-            (i) => i['productId'] == productId && i['storeId'] == storeId,
-          );
+          final index = items.indexWhere((i) => i['productId'] == productId && i['storeId'] == storeId);
 
           if (index >= 0) {
             if (newQuantity > 0) {
@@ -127,10 +108,7 @@ class CartRepository {
               items.removeAt(index);
             }
 
-            transaction.update(cartRef, {
-              'items': items,
-              'updatedAt': FieldValue.serverTimestamp(),
-            });
+            transaction.update(cartRef, {'items': items, 'updatedAt': FieldValue.serverTimestamp()});
           }
         }
       });
