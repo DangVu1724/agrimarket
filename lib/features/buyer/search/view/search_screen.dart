@@ -19,7 +19,11 @@ class SearchScreen extends StatelessWidget {
       searchVm.searchResults.clear();
     });
 
-    final currencyFormatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
+    final currencyFormatter = NumberFormat.currency(
+      locale: 'vi_VN',
+      symbol: '₫',
+      decimalDigits: 0,
+    );
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -51,7 +55,9 @@ class SearchScreen extends StatelessWidget {
                       )
                       : const SizedBox.shrink();
                 }),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 filled: true,
                 fillColor: Colors.white,
               ),
@@ -77,13 +83,18 @@ class SearchScreen extends StatelessWidget {
                       final result = results[index];
                       final product = result.product;
                       final store = result.store;
-
                       return Container(
                         margin: const EdgeInsets.symmetric(vertical: 8),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(12),
                           onTap: () {
-                            Get.toNamed(AppRoutes.store, arguments: store);
+                            Get.toNamed(
+                              AppRoutes.buyerProductDetail,
+                              arguments: {
+                                'store': store!.toJson(),
+                                'product': product.toJson(),
+                              },
+                            );
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(12),
@@ -98,14 +109,24 @@ class SearchScreen extends StatelessWidget {
                                     width: 80,
                                     height: 80,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.image, size: 60),
-                                    loadingBuilder: (context, child, loadingProgress) {
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            const Icon(Icons.image, size: 60),
+                                    loadingBuilder: (
+                                      context,
+                                      child,
+                                      loadingProgress,
+                                    ) {
                                       if (loadingProgress == null) return child;
                                       return Container(
                                         width: 80,
                                         height: 80,
                                         color: Colors.grey[300],
-                                        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                        child: const Center(
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        ),
                                       );
                                     },
                                   ),
@@ -115,18 +136,23 @@ class SearchScreen extends StatelessWidget {
                                 // Thông tin sản phẩm
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         product.name,
-                                        style: AppTextStyles.headline.copyWith(fontSize: 16),
+                                        style: AppTextStyles.headline.copyWith(
+                                          fontSize: 16,
+                                        ),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
                                         store?.name ?? '',
-                                        style: AppTextStyles.body.copyWith(color: Colors.grey[600]),
+                                        style: AppTextStyles.body.copyWith(
+                                          color: Colors.grey[600],
+                                        ),
                                       ),
                                       const SizedBox(height: 4),
                                       if (product.isOnSale) ...[
@@ -137,7 +163,8 @@ class SearchScreen extends StatelessWidget {
                                               style: const TextStyle(
                                                 fontSize: 12,
                                                 color: Colors.grey,
-                                                decoration: TextDecoration.lineThrough,
+                                                decoration:
+                                                    TextDecoration.lineThrough,
                                               ),
                                             ),
                                             const SizedBox(width: 5),
@@ -151,10 +178,15 @@ class SearchScreen extends StatelessWidget {
                                             ),
                                           ],
                                         ),
-                                        if (product.promotionTimeLeft.isNotEmpty)
+                                        if (product
+                                            .promotionTimeLeft
+                                            .isNotEmpty)
                                           Text(
                                             product.promotionTimeLeft,
-                                            style: TextStyle(fontSize: 12, color: Colors.blue.shade600),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.blue.shade600,
+                                            ),
                                           ),
                                       ] else ...[
                                         Text(
@@ -176,16 +208,25 @@ class SearchScreen extends StatelessWidget {
                       );
                     },
                   );
-                } else if (keyword.isNotEmpty && results.isEmpty && !isSearching && searchVm.hasSearched.value) {
+                } else if (keyword.isNotEmpty &&
+                    results.isEmpty &&
+                    !isSearching &&
+                    searchVm.hasSearched.value) {
                   return Center(
-                    child: Text('Không có sản phẩm bạn muốn tìm', style: AppTextStyles.headline.copyWith(fontSize: 16)),
+                    child: Text(
+                      'Không có sản phẩm bạn muốn tìm',
+                      style: AppTextStyles.headline.copyWith(fontSize: 16),
+                    ),
                   );
                 } else if (history.isNotEmpty && keyword.isEmpty) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 10),
-                      const Text('Tìm kiếm gần đây', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text(
+                        'Tìm kiếm gần đây',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       const SizedBox(height: 8),
                       Expanded(
                         child: ListView.builder(
@@ -206,7 +247,9 @@ class SearchScreen extends StatelessWidget {
                     ],
                   );
                 } else {
-                  return const Center(child: Text('Hãy nhập từ khoá để tìm kiếm'));
+                  return const Center(
+                    child: Text('Hãy nhập từ khoá để tìm kiếm'),
+                  );
                 }
               }),
             ),

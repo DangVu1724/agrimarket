@@ -106,7 +106,7 @@ class CartScreen extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        Get.toNamed(AppRoutes.store, arguments: store);
+        Get.toNamed(AppRoutes.buyerProductDetail, arguments: {'store': store!.toJson(),'product': product!.toJson()});
       },
       child: Card(
         color: AppColors.background,

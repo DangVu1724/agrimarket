@@ -179,7 +179,7 @@ class StoreScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              sliver: productListWidget(group: group, vm: vm, store: store),
+                              sliver: ProductListWidget(group: group, vm: vm, store: store),
                             ),
                           )
                           .toList(),

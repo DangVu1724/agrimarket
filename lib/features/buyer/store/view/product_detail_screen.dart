@@ -1,11 +1,14 @@
+import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/data/models/product.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/features/buyer/cart/viewmodel/cart_vm.dart';
+import 'package:uuid/uuid.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final ProductModel product;
@@ -68,13 +71,13 @@ class ProductDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 10),
-            _buildStoreInfo(),
             _buildProductTitle(),
             const SizedBox(height: 8),
             _buildPriceInfo(currencyFormatter),
             const SizedBox(height: 8),
             _buildProductDescription(),
             const SizedBox(height: 16),
+            _buildStoreInfo(),
           ],
         ),
       ),
@@ -82,11 +85,25 @@ class ProductDetailScreen extends StatelessWidget {
   }
 
   Widget _buildStoreInfo() {
-    return Text(
-      'Cửa hàng: ${store.name}',
-      style: AppTextStyles.body.copyWith(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: ()=>Get.toNamed(AppRoutes.store, arguments: store),
+      child: Container(
+        decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.all(Radius.circular(20))),
+        padding: EdgeInsets.all(15),
+        child: Row(
+          children: [
+            Icon(Iconsax.shop, color: Colors.white,size: 30,),
+            SizedBox(width: 20,),
+            Text(
+              store.name,
+              style: AppTextStyles.body.copyWith(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -206,7 +223,7 @@ class ProductDetailScreen extends StatelessWidget {
             store: store,
             itemCount: cartVm.itemCount.value,
           );
-          Get.back();
+          Get.snackbar("Success", "Đã thêm ${product.name} vào giỏ!");
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,

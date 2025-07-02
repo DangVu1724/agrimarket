@@ -23,7 +23,11 @@ class StoreProductList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     productController.loadProductsByStore(storeId);
-    final currencyFormatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
+    final currencyFormatter = NumberFormat.currency(
+      locale: 'vi_VN',
+      symbol: '₫',
+      decimalDigits: 0,
+    );
 
     return FutureBuilder<StoreModel?>(
       future: storeVm.fetchStoreByID(storeId),
@@ -63,7 +67,13 @@ class StoreProductList extends StatelessWidget {
                   builder: (context, discountSnapshot) {
                     return GestureDetector(
                       onTap: () {
-                        Get.toNamed(AppRoutes.store, arguments: store);
+                        Get.toNamed(
+                          AppRoutes.buyerProductDetail,
+                          arguments: {
+                            'store': store.toJson(),
+                            'product': product.toJson(),
+                          },
+                        );
                       },
                       child: Container(
                         width: 120,
@@ -98,7 +108,9 @@ class StoreProductList extends StatelessWidget {
                                 children: [
                                   Text(
                                     product.name,
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   if (product.isOnSale) ...[

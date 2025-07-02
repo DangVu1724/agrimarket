@@ -64,7 +64,7 @@ class HomeBuyerScreen extends StatelessWidget {
         onTap: () {
           Get.toNamed(AppRoutes.buyerAddress);
         },
-        child: Text(vm.defaultAddress!.address, style: TextStyle(color: Colors.black, fontSize: 16)),
+        child: Text(vm.defaultAddress?.address??'hi', style: TextStyle(color: Colors.black, fontSize: 16)),
       ),
       actions: [
         GestureDetector(

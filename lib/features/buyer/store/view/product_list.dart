@@ -8,8 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-class productListWidget extends StatelessWidget {
-  const productListWidget({
+class ProductListWidget extends StatelessWidget {
+  const ProductListWidget({
     super.key,
     required this.group,
     required this.vm,

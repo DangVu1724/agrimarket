@@ -105,7 +105,7 @@ class CategoryStoreScreen extends StatelessWidget {
                       ),
                       child: InkWell(
                         onTap: () {
-                          Get.toNamed(AppRoutes.store, arguments: store.storeId);
+                          Get.toNamed(AppRoutes.store, arguments: store);
                         },
                         borderRadius: BorderRadius.circular(12),
                         child: Row(
