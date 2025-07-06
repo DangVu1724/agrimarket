@@ -67,6 +67,15 @@ dependencies:
   sticky_headers: ^0.3.0+2
   sliver_tools: ^0.2.12
   lucide_icons: ^0.257.0
+  flutter_launcher_icons: ^0.14.4
+
+
+
+  
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.png"
 
 
 dev_dependencies:

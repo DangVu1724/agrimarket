@@ -1,18 +1,18 @@
 import 'package:agrimarket/data/repo/product_repo.dart';
-import 'package:agrimarket/data/services/product_filter_service.dart';
+import 'package:agrimarket/data/services/product_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:agrimarket/data/models/product.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/data/services/image_service.dart';
-import 'package:agrimarket/data/services/store_service.dart';
+import 'package:agrimarket/data/services/seller_store_service.dart';
 import 'package:image_picker/image_picker.dart';
 
 class SellerProductVm extends GetxController {
-  final StoreService _storeService = StoreService();
+  final SellerStoreService _sellerStoreService = SellerStoreService();
   final ProductRepository _productRepository = ProductRepository();
   final ImageService _imageService = ImageService();
-  final ProductFilterService _filterService = ProductFilterService();
+  final ProductService _filterService = ProductService();
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descController = TextEditingController();
@@ -42,7 +42,7 @@ class SellerProductVm extends GetxController {
 
   Future<void> _loadStoreData() async {
     try {
-      storeModel = await _storeService.fetchStoreData();
+      storeModel = await _sellerStoreService.getCurrentSellerStore();
       if (storeModel != null) {
         categories.assignAll(storeModel!.categories);
         categoryDefault.value = categories.isNotEmpty ? categories.first : null;

@@ -3,7 +3,7 @@ import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/core/widgets/product_filter.dart';
 import 'package:agrimarket/data/models/product.dart';
-import 'package:agrimarket/data/services/store_service.dart';
+import 'package:agrimarket/data/services/seller_store_service.dart';
 import 'package:agrimarket/features/seller/product/viewmodel/seller_product_screen_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,7 +12,7 @@ class SellerProductScreen extends StatelessWidget {
   SellerProductScreen({super.key});
 
   final SellerProductVm productVm = Get.find<SellerProductVm>();
-  final StoreService _storeService = StoreService();
+  final SellerStoreService _sellerStoreService = SellerStoreService();
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +57,7 @@ class SellerProductScreen extends StatelessWidget {
               child: RefreshIndicator(
                 onRefresh: () async {
                   if (productVm.storeModel != null) {
-                    await _storeService.fetchStoreData();
+                    await _sellerStoreService.getCurrentSellerStore();
                     productVm.clearFilters();
                   }
                 },

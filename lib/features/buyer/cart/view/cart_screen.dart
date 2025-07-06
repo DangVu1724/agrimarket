@@ -71,7 +71,7 @@ class CartScreen extends StatelessWidget {
                                 icon: const Icon(Icons.payment, color: AppColors.primary),
                                 label: const Text('Thanh toán', style: TextStyle(color: AppColors.primary)),
                                 onPressed: () {
-                                  Get.toNamed(AppRoutes.checkOut, arguments: {'storeId': storeId});
+                                  Get.toNamed(AppRoutes.checkOut, arguments: storeId);
                                 },
                               ),
                             ],
@@ -101,12 +101,12 @@ class CartScreen extends StatelessWidget {
       cartVm.loadProductbyId(item.productId);
     });
 
-    final store = cartVm.store.value;
     final product = cartVm.product.value;
+    final store = cartVm.store.value[item.storeId];
 
     return GestureDetector(
       onTap: () {
-        Get.toNamed(AppRoutes.buyerProductDetail, arguments: {'store': store!.toJson(),'product': product!.toJson()});
+        Get.toNamed(AppRoutes.store, arguments: store);
       },
       child: Card(
         color: AppColors.background,
@@ -140,7 +140,7 @@ class CartScreen extends StatelessWidget {
                     const SizedBox(height: 4),
                     if (item.isOnSaleAtAddition == true && item.promotionPrice != null) ...{
                       Text(
-                        '${currencyFormatter.format(item.promotionPrice)} / ${product?.unit ?? ""}',
+                        '${currencyFormatter.format(item.promotionPrice)} / ${item.unit}',
                         style: const TextStyle(color: Colors.grey),
                       ),
                       const SizedBox(height: 4),
@@ -150,7 +150,7 @@ class CartScreen extends StatelessWidget {
                       ),
                     } else ...{
                       Text(
-                        '${currencyFormatter.format(item.priceAtAddition)} / ${product?.unit ?? ""}',
+                        '${currencyFormatter.format(item.priceAtAddition)} / ${item.unit}',
                         style: const TextStyle(color: Colors.grey),
                       ),
                       const SizedBox(height: 4),

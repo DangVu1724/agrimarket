@@ -1,16 +1,22 @@
-import 'package:agrimarket/data/providers/firestore_provider.dart';
+import 'package:agrimarket/data/repo/buyer_repo.dart';
+import 'package:agrimarket/data/repo/store_repo.dart';
+import 'package:agrimarket/data/repo/user_repo.dart';
 import 'package:agrimarket/data/services/auth_service.dart';
+import 'package:agrimarket/features/seller/home/viewmodel/seller_home_screen_vm.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive/hive.dart';
 import '../../data/models/user.dart';
 import '../../data/models/buyer.dart';
 import '../routes/app_routes.dart';
 
 class AuthController extends GetxController {
   final AuthService _authService = AuthService();
-  final FirestoreProvider _firestoreProvider = FirestoreProvider();
-  final box = GetStorage();
+  final UserRepository _userRepository = UserRepository();
+  final BuyerRepository _buyerRepository = BuyerRepository();
+  final StoreRepository _storeRepository = StoreRepository();
+  final Box _box = Hive.box('storeCache');
 
   var isLoading = false.obs;
 
@@ -18,23 +24,36 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
 
-      final user = await _authService.signInWithEmailAndPassword(
-        email,
-        password,
-      );
+      // Clear cache trước khi sign in
+      _box.clear();
+      await _clearAllHiveCache();
+
+      final user = await _authService.signInWithEmailAndPassword(email, password);
       if (user != null) {
         final isEmailVerified = await _authService.checkEmailVerified();
         if (!isEmailVerified) {
           return _promptEmailVerification();
         }
 
-        final userModel = await _firestoreProvider.getUserById(user.uid);
+        final userModel = await _userRepository.getUserById(user.uid);
 
         if (userModel == null) {
           throw Exception('Không tìm thấy thông tin người dùng');
         }
 
-        box.write('user', {'uid': userModel.uid, 'role': userModel.role});
+        _box.put('user', {'uid': userModel.uid, 'role': userModel.role});
+
+        // Force refresh seller controllers if user is seller
+        if (userModel.role == 'seller') {
+          try {
+            // Delete and recreate SellerHomeVm to clear old data
+            Get.delete<SellerHomeVm>();
+            Get.put(SellerHomeVm());
+            print('🔄 Recreated SellerHomeVm for new user');
+          } catch (e) {
+            print('⚠️ Could not recreate SellerHomeVm: $e');
+          }
+        }
 
         await _navigateByRole(user.uid, userModel.role);
       }
@@ -59,10 +78,7 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
 
-      final user = await _authService.registerWithEmailAndPassword(
-        email,
-        password,
-      );
+      final user = await _authService.registerWithEmailAndPassword(email, password);
       if (user != null) {
         await _authService.sendEmailVerification();
         _savePendingUser(email, name, phone, address, latitude, longitude);
@@ -80,10 +96,7 @@ class AuthController extends GetxController {
     if (verified) {
       Get.offAllNamed(AppRoutes.roleSelection);
     } else {
-      Get.snackbar(
-        "Xác minh email",
-        "Vui lòng xác minh email trước khi tiếp tục.",
-      );
+      Get.snackbar("Xác minh email", "Vui lòng xác minh email trước khi tiếp tục.");
     }
   }
 
@@ -103,9 +116,9 @@ class AuthController extends GetxController {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) throw Exception('Người dùng chưa đăng nhập');
 
-      final pendingUser = box.read('pendingUser');
-      if (pendingUser == null)
-        throw Exception('Không tìm thấy thông tin người dùng tạm thời');
+      final pendingUser = _box.get('pendingUser');
+
+      if (pendingUser == null) throw Exception('Không tìm thấy thông tin người dùng tạm thời');
 
       final newUser = UserModel(
         uid: user.uid,
@@ -116,7 +129,7 @@ class AuthController extends GetxController {
         createdAt: DateTime.now(),
       );
 
-      await _firestoreProvider.createUser(newUser);
+      await _userRepository.createUser(newUser);
 
       if (role == 'buyer') {
         final addresses = <Address>[];
@@ -131,21 +144,13 @@ class AuthController extends GetxController {
           );
         }
 
-        final buyer = BuyerModel(
-          uid: user.uid,
-          favoriteStoreIds: [],
-          addresses: addresses,
-          reviews: [],
-          orderIds: [],
-        );
-        await _firestoreProvider.createBuyer(buyer);
+        final buyer = BuyerModel(uid: user.uid, favoriteStoreIds: [], addresses: addresses, reviews: [], orderIds: []);
+        await _buyerRepository.createBuyer(buyer);
       }
 
-      box.remove('pendingUser');
+      _box.delete('pendingUser');
 
-      Get.offAllNamed(
-        role == 'buyer' ? AppRoutes.buyerHome : AppRoutes.createStoreInfo,
-      );
+      Get.offAllNamed(role == 'buyer' ? AppRoutes.buyerHome : AppRoutes.createStoreInfo);
     } catch (e) {
       Get.snackbar("Lỗi", e.toString());
     } finally {
@@ -159,17 +164,10 @@ class AuthController extends GetxController {
 
       final user = await _authService.signInWithGoogle();
       if (user != null) {
-        final userModel = await _firestoreProvider.getUserById(user.uid);
+        final userModel = await _userRepository.getUserById(user.uid);
 
         if (userModel == null) {
-          _savePendingUser(
-            user.email ?? '',
-            user.displayName ?? '',
-            user.phoneNumber ?? '',
-            null,
-            null,
-            null,
-          );
+          _savePendingUser(user.email ?? '', user.displayName ?? '', user.phoneNumber ?? '', null, null, null);
           Get.offAllNamed(AppRoutes.roleSelection);
         } else {
           await _navigateByRole(user.uid, userModel.role);
@@ -185,25 +183,21 @@ class AuthController extends GetxController {
 
   void _promptEmailVerification() {
     Get.offAllNamed(AppRoutes.emailVerify);
-    Get.snackbar(
-      'Xác minh email',
-      'Vui lòng xác minh email trước khi tiếp tục.',
-      snackPosition: SnackPosition.BOTTOM,
-    );
+    Get.snackbar('Xác minh email', 'Vui lòng xác minh email trước khi tiếp tục.', snackPosition: SnackPosition.BOTTOM);
   }
 
   Future<void> _navigateByRole(String uid, String? role) async {
     if (role == null) {
       Get.offAllNamed(AppRoutes.roleSelection);
     } else if (role == 'seller') {
-      final storedNeedsStoreCreation = box.read('needsStoreCreation') ?? false;
-      final stores = await _firestoreProvider.getStoresByOwner(uid);
+      final storedNeedsStoreCreation = _box.get('needsStoreCreation') ?? false;
+      final stores = await _storeRepository.getStoresByOwner(uid);
 
       if (stores.isEmpty || storedNeedsStoreCreation) {
-        box.write('needsStoreCreation', true);
+        _box.put('needsStoreCreation', true);
         Get.offAllNamed(AppRoutes.createStoreInfo);
       } else {
-        box.remove('needsStoreCreation');
+        _box.delete('needsStoreCreation');
         Get.offAllNamed(AppRoutes.sellerHome);
       }
     } else {
@@ -230,7 +224,7 @@ class AuthController extends GetxController {
     double? latitude,
     double? longitude,
   ]) {
-    box.write('pendingUser', {
+    _box.put('pendingUser', {
       'email': email,
       'name': name,
       'phone': phone,
@@ -238,5 +232,31 @@ class AuthController extends GetxController {
       'latitude': latitude,
       'longitude': longitude,
     });
+  }
+
+  Future<void> _clearAllHiveCache() async {
+    try {
+      final boxes = [
+        'userCache',
+        'storeCache',
+        'productCache',
+        'menuCache',
+        'promotionCache',
+        'searchCache',
+        'discountCodeCache',
+        'payment_method',
+      ];
+
+      for (final boxName in boxes) {
+        try {
+          final box = Hive.box(boxName);
+          await box.clear();
+        } catch (e) {
+          // Box might not exist, ignore error
+        }
+      }
+    } catch (e) {
+      // Ignore errors when clearing cache
+    }
   }
 }

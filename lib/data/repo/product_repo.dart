@@ -61,4 +61,15 @@ class ProductRepository {
       return null;
     }
   }
+
+  Future<List<ProductModel>> fetchProductListByStore(String storeID) async {
+    try {
+      final querySnapshot =
+          await FirebaseFirestore.instance.collection('products').where('storeId', isEqualTo: storeID).get();
+
+      return querySnapshot.docs.map((doc) => ProductModel.fromJson({...doc.data(), 'id': doc.id})).toList();
+    } catch (e) {
+      return [];
+    }
+  }
 }

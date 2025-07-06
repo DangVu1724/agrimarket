@@ -38,6 +38,7 @@ class CartItem {
   final double priceAtAddition;
   final String productName;
   final String productImage;
+  final String unit;
   final String storeName;
   final double? promotionPrice;
   bool? isOnSaleAtAddition;
@@ -51,7 +52,8 @@ class CartItem {
     required this.productImage,
     required this.storeName,
     this.promotionPrice,
-    this.isOnSaleAtAddition
+    this.isOnSaleAtAddition,
+    required this.unit,
 
   }): quantity = quantity.obs;
 
@@ -65,7 +67,7 @@ class CartItem {
     'storeName': storeName,
     'promotionPrice': promotionPrice,
     'isOnSaleAtAddition': isOnSaleAtAddition,
-
+    'unit': unit,
   };
 
   factory CartItem.fromJson(Map<String, dynamic> json) => CartItem(
@@ -78,5 +80,6 @@ class CartItem {
     storeName: json['storeName'],
     promotionPrice: json['promotionPrice']?.toDouble(),
     isOnSaleAtAddition: json['isOnSaleAtAddition'] ?? false,
+    unit: json['unit'],
   );
 }

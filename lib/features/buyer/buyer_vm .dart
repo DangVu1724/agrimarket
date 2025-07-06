@@ -1,13 +1,13 @@
 import 'package:agrimarket/data/models/buyer.dart';
 import 'package:agrimarket/data/models/store.dart';
-import 'package:agrimarket/data/providers/firestore_provider.dart';
+import 'package:agrimarket/data/repo/buyer_repo.dart';
 import 'package:agrimarket/features/buyer/home/viewmodel/store_vm.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
 class BuyerVm extends GetxController {
-  final FirestoreProvider firestoreProvider = FirestoreProvider();
+  final BuyerRepository _buyerRepository = BuyerRepository();
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
   final StoreVm storeVm = Get.find<StoreVm>();
@@ -18,15 +18,13 @@ class BuyerVm extends GetxController {
   final favoriteStores = <StoreModel>[].obs;
   final buyerData = Rxn<BuyerModel>();
 
-
-
   @override
   void onInit() {
     super.onInit();
     fetchBuyerData();
   }
 
-  Address? get defaultAddress {
+  Address? get defaultAddress { 
     if (address.isNotEmpty) {
     return address.firstWhere(
       (addr) => addr.isDefault,
@@ -45,7 +43,7 @@ class BuyerVm extends GetxController {
     try {
       isLoading.value = true;
 
-      final buyer = await firestoreProvider.getBuyerById(user.uid);
+      final buyer = await _buyerRepository.getBuyerById(user.uid);
       buyerData.value = buyer;
       if (buyer != null) {
         if (buyer.addresses.isNotEmpty) {
@@ -73,7 +71,7 @@ class BuyerVm extends GetxController {
 
     try {
       isLoading.value = true;
-      await firestoreProvider.updateBuyer(user.uid, newData);
+      await _buyerRepository.updateBuyer(user.uid, newData);
       Get.snackbar('Thành công', 'Cập nhật thông tin thành công');
 
       fetchBuyerData();
@@ -94,7 +92,7 @@ class BuyerVm extends GetxController {
     try {
       isLoading.value = true;
 
-      final buyerData = await firestoreProvider.getBuyerById(user.uid);
+      final buyerData = await _buyerRepository.getBuyerById(user.uid);
       if (buyerData == null) {
         Get.snackbar('Lỗi', 'Không tìm thấy người dùng');
         return;
@@ -109,7 +107,7 @@ class BuyerVm extends GetxController {
         favorites.add(storeId);
       }
 
-      await firestoreProvider.updateBuyer(user.uid, {'favoriteStoreIds': favorites});
+      await _buyerRepository.updateBuyer(user.uid, {'favoriteStoreIds': favorites});
 
       favoriteStoreId.assignAll(favorites);
 
@@ -133,7 +131,7 @@ class BuyerVm extends GetxController {
     try {
       isLoading.value = true;
 
-      final buyerData = await firestoreProvider.getBuyerById(user.uid);
+      final buyerData = await _buyerRepository.getBuyerById(user.uid);
       if (buyerData == null) {
         Get.snackbar('Lỗi', 'Không tìm thấy người dùng');
         return;

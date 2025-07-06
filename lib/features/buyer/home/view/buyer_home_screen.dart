@@ -15,15 +15,8 @@ class HomeBuyerScreen extends StatelessWidget {
   final BuyerVm vm = Get.find<BuyerVm>();
   final StoreVm storeVm = Get.find<StoreVm>();
 
-  HomeBuyerScreen({super.key}) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      bool hasCache = storeVm.loadStoresFromCacheOnly();
-      if (storeVm.storesList.isEmpty && !hasCache) {
-        storeVm.fetchStoresList();
-      }
-    });
-  }
-
+  HomeBuyerScreen({super.key});
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,7 +57,7 @@ class HomeBuyerScreen extends StatelessWidget {
         onTap: () {
           Get.toNamed(AppRoutes.buyerAddress);
         },
-        child: Text(vm.defaultAddress?.address??'hi', style: TextStyle(color: Colors.black, fontSize: 16)),
+        child: Text(vm.defaultAddress?.address?? '... Loading', style: TextStyle(color: Colors.black, fontSize: 16)),
       ),
       actions: [
         GestureDetector(

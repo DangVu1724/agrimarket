@@ -62,7 +62,6 @@ class AddressService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-
       // data['durations'] là ma trận thời gian (giây)
       // durations[0][1] là thời gian từ điểm 0 đến điểm 1
       final durations = data['durations'] as List<dynamic>?;
@@ -76,7 +75,6 @@ class AddressService {
       }
       return 0;
     } else {
-      print('Error OpenRouteService: ${response.statusCode} ${response.body}');
       return 0;
     }
   }

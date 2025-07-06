@@ -1,0 +1,210 @@
+import 'package:agrimarket/app/theme/app_colors.dart';
+import 'package:agrimarket/app/theme/app_text_styles.dart';
+import 'package:agrimarket/data/models/order.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+
+class OrderDetailScreen extends StatelessWidget {
+  final OrderModel order;
+
+  const OrderDetailScreen({super.key, required this.order});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Text(
+          'Chi tiết đơn hàng',
+          style: AppTextStyles.headline.copyWith(color: Colors.black87, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black87), onPressed: () => Get.back()),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _sectionTitle('Thông tin đơn hàng'),
+            const SizedBox(height: 8),
+            _infoRow('Mã đơn hàng', order.orderId),
+            _infoRow('Ngày đặt', _formatDate(order.createdAt)),
+            _infoRow('Phương thức thanh toán', order.paymentMethod),
+            _infoRow('Cửa hàng', order.storeName?.isNotEmpty == true ? order.storeName! : order.storeId),
+            const Divider(height: 32),
+
+            _sectionTitle('Trạng thái đơn hàng'),
+            const SizedBox(height: 8),
+            _buildStatusChip(order.status),
+            const Divider(height: 32),
+            const SizedBox(height: 8),
+
+            _sectionTitle('Thông tin giao hàng'),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.location_on, size: 20, color: Colors.grey),
+                const SizedBox(width: 15),
+                Expanded(child: Text(order.deliveryAddress, style: AppTextStyles.body)),
+              ],
+            ),
+            const Divider(height: 32),
+
+            _sectionTitle('Sản phẩm đã đặt'),
+            const SizedBox(height: 12),
+            ...order.items.map(_buildOrderItem).toList(),
+            const Divider(height: 32),
+
+            _sectionTitle('Tổng cộng'),
+            const SizedBox(height: 8),
+            if (order.discountPrice != null && order.discountPrice! > 0) ...[
+              _priceRow('Tổng tiền hàng', _formatPrice(order.totalPrice + order.discountPrice!)),
+              _priceRow('Giảm giá', '-${_formatPrice(order.discountPrice!)}', isDiscount: true),
+            ],
+            _priceRow('Tổng thanh toán', _formatPrice(order.totalPrice), isTotal: true),
+            const Divider(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String title) {
+    return Text(
+      title,
+      style: AppTextStyles.headline.copyWith(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+    );
+  }
+
+  Widget _infoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(width: 140, child: Text('$label:', style: AppTextStyles.body.copyWith(color: Colors.grey[600]))),
+          Expanded(child: Text(value, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w500))),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOrderItem(OrderItem item) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(item.name, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600)),
+                const SizedBox(height: 4),
+                Text(
+                  '${item.quantity} x ${_formatPrice(item.price)}/${item.unit}',
+                  style: AppTextStyles.body.copyWith(color: Colors.grey[600], fontSize: 14),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              _formatPrice(item.price * item.quantity),
+              style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold, color: AppColors.primary),
+              textAlign: TextAlign.right,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _priceRow(String label, String value, {bool isDiscount = false, bool isTotal = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: AppTextStyles.body.copyWith(color: Colors.grey[700])),
+          Text(
+            value,
+            style: AppTextStyles.body.copyWith(
+              fontWeight: FontWeight.bold,
+              color: isDiscount ? Colors.red : (isTotal ? AppColors.primary : Colors.black87),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusChip(String status) {
+    Color backgroundColor;
+    Color textColor;
+    IconData icon;
+
+    switch (status) {
+      case 'pending':
+        backgroundColor = Colors.orange[100]!;
+        textColor = Colors.orange[800]!;
+        icon = Icons.schedule;
+        break;
+      case 'confirmed':
+        backgroundColor = Colors.blue[100]!;
+        textColor = Colors.blue[800]!;
+        icon = Icons.check_circle_outline;
+        break;
+      case 'shipping':
+        backgroundColor = Colors.yellow[100]!;
+        textColor = Colors.yellow[800]!;
+        icon = Icons.local_shipping;
+        break;
+      case 'shipped':
+        backgroundColor = Colors.green[100]!;
+        textColor = Colors.green[800]!;
+        icon = Icons.done_all;
+        break;
+      case 'cancelled':
+        backgroundColor = Colors.red[100]!;
+        textColor = Colors.red[800]!;
+        icon = Icons.cancel;
+        break;
+      default:
+        backgroundColor = Colors.grey[200]!;
+        textColor = Colors.grey[800]!;
+        icon = Icons.info_outline;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: textColor.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: textColor, size: 18),
+          const SizedBox(width: 6),
+          Text(status, style: AppTextStyles.body.copyWith(color: textColor, fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+  }
+
+  String _formatPrice(double price) {
+    final formatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
+    return formatter.format(price);
+  }
+}

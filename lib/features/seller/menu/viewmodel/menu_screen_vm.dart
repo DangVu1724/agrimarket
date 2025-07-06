@@ -41,7 +41,7 @@ class SellerMenuVm extends GetxController {
 
     try {
       isLoading.value = true;
-      final menu = await _menuRepository.fetchMenu(
+      final menu = await _menuService.fetchMenu(
         productVm.storeModel!.storeId,
       );
       menuModel.value =
@@ -56,10 +56,9 @@ class SellerMenuVm extends GetxController {
   Future<void> saveMenu() async {
     if (menuModel.value == null) return;
     try {
-      await _menuRepository.saveMenu(menuModel.value!);
-      Get.snackbar('Thành công', 'Đã lưu menu');
+      await _menuService.saveMenu(menuModel.value!);
     } catch (e) {
-      Get.snackbar('Lỗi', 'Không thể lưu menu: $e');
+      return;
     }
   }
 

@@ -28,6 +28,8 @@ class AppRoutes {
   static const String buyerProductDetail = '/buyer-product-detail';
   static const String buyerOrderDetail = '/buyer-order-detail';
   static const String checkOut = '/checkOut';
+  static const String discountCode = '/discount-code';
+  static const String paymentMethod = '/payment-method';
 
 
   // Seller

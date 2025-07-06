@@ -1,5 +1,4 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
-import 'package:agrimarket/data/providers/firestore_provider.dart';
 import 'package:agrimarket/data/services/user_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,7 +7,6 @@ import 'package:get/get.dart';
 class UserVm extends GetxController {
   final UserService _userService = UserService();
   final FirebaseAuth auth = FirebaseAuth.instance;
-  final FirestoreProvider firestore = FirestoreProvider();
   final userName = RxString('');
   final userEmail = RxString('');
   final userPhone = RxString('');

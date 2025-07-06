@@ -1,14 +1,14 @@
 import 'dart:ui';
 
 import 'package:agrimarket/data/models/store.dart';
-import 'package:agrimarket/data/providers/firestore_provider.dart';
+import 'package:agrimarket/data/services/seller_store_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class SellerHomeVm extends GetxController {
-  final FirestoreProvider firestoreProvider = FirestoreProvider();
+  final SellerStoreService _sellerStoreService = SellerStoreService();
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -22,38 +22,49 @@ class SellerHomeVm extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    clearStoreData();
     fetchStoreInfo();
   }
 
-  Future<void> migrateAddressToObject() async {
-  final firestore = FirebaseFirestore.instance;
-  final snapshot = await firestore.collection('stores').get();
-
-  for (var doc in snapshot.docs) {
-    final data = doc.data();
-    if (data.containsKey('address')) {
-      final oldAddress = data['address'];
-
-      final addressObj = StoreAddress(
-  label: 'Cửa hàng chính',
-  address: oldAddress,
-  latitude: 21.0285,
-  longitude: 105.8542,
-);
-
-      await doc.reference.update({
-        'storeLocation': addressObj.toJson(), // đổi key thành storeLocation
-        'address': FieldValue.delete(), // xóa trường cũ nếu cần
-      });
-
-      print('Migrated store ${doc.id}');
-    } else {
-      print('Store ${doc.id} has no address field');
-    }
+  void clearStoreData() {
+    print('🧹 Clearing seller store data...');
+    store.value = null;
+    isLoading.value = false;
+    hasError.value = false;
+    errorMessage.value = '';
+    storeStateColor.value = Colors.grey;
+    isOpened.value = true;
   }
 
-  print('✅ Migration complete.');
-}
+  Future<void> migrateAddressToObject() async {
+    final firestore = FirebaseFirestore.instance;
+    final snapshot = await firestore.collection('stores').get();
+
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      if (data.containsKey('address')) {
+        final oldAddress = data['address'];
+
+        final addressObj = StoreAddress(
+          label: 'Cửa hàng chính',
+          address: oldAddress,
+          latitude: 21.0285,
+          longitude: 105.8542,
+        );
+
+        await doc.reference.update({
+          'storeLocation': addressObj.toJson(), // đổi key thành storeLocation
+          'address': FieldValue.delete(), // xóa trường cũ nếu cần
+        });
+
+        print('Migrated store ${doc.id}');
+      } else {
+        print('Store ${doc.id} has no address field');
+      }
+    }
+
+    print('✅ Migration complete.');
+  }
 
   Future<void> fetchStoreInfo() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -64,25 +75,30 @@ class SellerHomeVm extends GetxController {
       return;
     }
 
+    print('🔍 Fetching store info for user: ${user.uid}');
+    print('🔍 User email: ${user.email}');
+
     try {
       isLoading.value = true;
       hasError.value = false;
       errorMessage.value = '';
 
-      // Lấy cửa hàng từ Firestore dựa trên ownerUid
-      final stores = await firestoreProvider.getStoresByOwner(user.uid);
-      if (stores.isNotEmpty) {
-        final s = stores.first;
-        store.value = s;
-        isOpened.value = s.isOpened;
-        storeStateColor.value = getStateColor(s.state);
+      // Lấy cửa hàng từ SellerStoreService
+      final sellerStore = await _sellerStoreService.getCurrentSellerStore();
 
+      if (sellerStore != null) {
+        print('✅ Selected store: ${sellerStore.storeId} - ${sellerStore.name}');
+        store.value = sellerStore;
+        isOpened.value = sellerStore.isOpened;
+        storeStateColor.value = getStateColor(sellerStore.state);
       } else {
+        print('❌ No stores found for user: ${user.uid}');
         hasError.value = true;
         errorMessage.value = 'Không tìm thấy cửa hàng nào cho người dùng này.';
         Get.snackbar('Lỗi', errorMessage.value);
       }
     } catch (e) {
+      print('❌ Error fetching store info: $e');
       hasError.value = true;
       errorMessage.value = 'Lỗi khi lấy thông tin cửa hàng: $e';
 
@@ -91,8 +107,6 @@ class SellerHomeVm extends GetxController {
       isLoading.value = false;
     }
   }
-
-
 
   Color getStateColor(String state) {
     switch (state.toLowerCase()) {
@@ -107,21 +121,25 @@ class SellerHomeVm extends GetxController {
     }
   }
 
-   Future<void> toggleOpen() async {
+  Future<void> toggleOpen() async {
     if (store.value == null) return;
 
     final newStatus = !store.value!.isOpened;
-  try {
-    await firestore.collection('stores').doc(store.value!.storeId).update({
-      'isOpened': newStatus,
-    });
+    try {
+      await firestore.collection('stores').doc(store.value!.storeId).update({'isOpened': newStatus});
 
-    store.value = store.value!.copyWith(isOpened: newStatus);
-    store.refresh();
-    isOpened.value = newStatus;
-
-  } catch (e) {
-    Get.snackbar('Lỗi', 'Không thể cập nhật trạng thái cửa hàng: $e');
+      store.value = store.value!.copyWith(isOpened: newStatus);
+      store.refresh();
+      isOpened.value = newStatus;
+    } catch (e) {
+      Get.snackbar('Lỗi', 'Không thể cập nhật trạng thái cửa hàng: $e');
+    }
   }
-}
+
+  // Method to refresh store data (useful when switching users)
+  Future<void> refreshStoreData() async {
+    print('🔄 Refreshing seller store data...');
+    clearStoreData();
+    await fetchStoreInfo();
+  }
 }

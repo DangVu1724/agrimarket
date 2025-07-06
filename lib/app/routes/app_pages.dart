@@ -6,6 +6,8 @@ import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/features/auth/view/dashboard.dart';
 import 'package:agrimarket/features/auth/view/email_verify_screen.dart';
 import 'package:agrimarket/features/buyer/checkout/view/checkout_screen.dart';
+import 'package:agrimarket/features/buyer/checkout/view/discount_code_screen.dart';
+import 'package:agrimarket/features/buyer/checkout/view/payment_method_screen.dart';
 import 'package:agrimarket/features/buyer/checkout/viewmodel/checkout_vm.dart';
 import 'package:agrimarket/features/buyer/home/view/category_store_screen.dart';
 import 'package:agrimarket/features/buyer/other/view/add_address.dart';
@@ -43,7 +45,6 @@ import 'package:agrimarket/features/seller/profile/view/profile_screen.dart';
 import 'package:agrimarket/features/seller/profile/view/store_info_screen.dart';
 import 'package:agrimarket/features/seller/promotion/view/promotion_screen.dart';
 import 'package:agrimarket/features/seller/seller_home.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../features/auth/view/login_screen.dart';
 import 'app_routes.dart';
@@ -63,6 +64,17 @@ class AppPages {
     GetPage(name: AppRoutes.buyerHome, page: () => BuyerHome(), binding: AuthBinding()),
     GetPage(name: AppRoutes.buyerHomeScreen, page: () => HomeBuyerScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.categoryStoreScreen, page: () => CategoryStoreScreen(), binding: AuthBinding()),
+    GetPage(name: AppRoutes.paymentMethod, page: () => PaymentMethodScreen(), binding: AuthBinding()),
+    GetPage(
+      name: AppRoutes.discountCode,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        final String storeId = args['storeId'] as String;
+        final double total = args['total'] as double;
+        return DiscountCodeScreen(storeId: storeId, total: total);
+      },
+      binding: AuthBinding(),
+    ),
     GetPage(
       name: AppRoutes.store,
       page: () {
@@ -90,9 +102,7 @@ class AppPages {
     GetPage(
       name: AppRoutes.checkOut,
       page: () {
-        final args = Get.arguments as Map<String, dynamic>;
-
-        final String storeId = args['storeId'] as String;
+        final String storeId = Get.arguments as String;
         return CheckoutScreen(storeId: storeId);
       },
       binding: AuthBinding(),
@@ -148,3 +158,5 @@ class AppPages {
     // ),
   ];
 }
+
+

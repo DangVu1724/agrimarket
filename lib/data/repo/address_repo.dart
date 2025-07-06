@@ -1,15 +1,15 @@
 import 'package:agrimarket/data/models/buyer.dart';
-import 'package:agrimarket/data/providers/firestore_provider.dart';
+import 'package:agrimarket/data/repo/buyer_repo.dart';
 
 class AddressRepository {
-  final FirestoreProvider _firestoreProvider = FirestoreProvider();
+  final BuyerRepository _buyerRepository = BuyerRepository();
 
   Future<BuyerModel?> getBuyer(String uid) async {
-    return await _firestoreProvider.getBuyerById(uid);
+    return await _buyerRepository.getBuyerById(uid);
   }
 
   Future<void> saveBuyer(BuyerModel buyer) async {
-    await _firestoreProvider.createBuyer(buyer);
+    await _buyerRepository.createBuyer(buyer);
   }
 
   Future<void> addAddress(String uid, Address newAddress) async {

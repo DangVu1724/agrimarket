@@ -5,7 +5,6 @@ class DiscountCodeModel {
   final String code;
   final String? storeId; // null nếu là mã toàn hệ thống
   final String creatorRole; // "admin" hoặc "seller"
-  final String creatorId;
   final String discountType; // "percent" hoặc "fixed"
   final double value;
   final double minOrder;
@@ -21,7 +20,6 @@ class DiscountCodeModel {
     required this.code,
     this.storeId,
     required this.creatorRole,
-    required this.creatorId,
     required this.discountType,
     required this.value,
     required this.minOrder,
@@ -43,7 +41,6 @@ class DiscountCodeModel {
       code: json['code'] ?? '',
       storeId: json['storeId'],
       creatorRole: json['creatorRole'] ?? 'seller',
-      creatorId: json['creatorId'] ?? '',
       discountType: json['discountType'] ?? 'fixed',
       value: (json['value'] ?? 0).toDouble(),
       minOrder: (json['minOrder'] ?? 0).toDouble(),
@@ -62,7 +59,6 @@ class DiscountCodeModel {
       'code': code,
       'storeId': storeId,
       'creatorRole': creatorRole,
-      'creatorId': creatorId,
       'discountType': discountType,
       'value': value,
       'minOrder': minOrder,
@@ -80,7 +76,6 @@ class DiscountCodeModel {
     String? code,
     String? storeId,
     String? creatorRole,
-    String? creatorId,
     String? discountType,
     double? value,
     double? minOrder,
@@ -96,7 +91,6 @@ class DiscountCodeModel {
       code: code ?? this.code,
       storeId: storeId ?? this.storeId,
       creatorRole: creatorRole ?? this.creatorRole,
-      creatorId: creatorId ?? this.creatorId,
       discountType: discountType ?? this.discountType,
       value: value ?? this.value,
       minOrder: minOrder ?? this.minOrder,

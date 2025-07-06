@@ -2,136 +2,71 @@ import 'package:agrimarket/data/models/cart.dart';
 import 'package:agrimarket/data/models/product.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/data/repo/cart_repo.dart';
-import 'package:agrimarket/data/repo/product_repo.dart';
-import 'package:agrimarket/data/services/store_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:agrimarket/data/services/cart_service.dart';
 import 'package:get/get.dart';
 
 class CartVm extends GetxController {
-  final CartRepository _cartRepository;
+  final CartService _cartService;
   final Rx<Cart?> cart = Rx<Cart?>(null);
   final RxBool isLoading = false.obs;
   final RxInt itemCount = 1.obs;
-  final Rxn<StoreModel> store = Rxn<StoreModel>();
+  final Rx<Map<String, StoreModel>> store = Rx<Map<String, StoreModel>>({});
   final Rxn<ProductModel> product = Rxn<ProductModel>();
-  final StoreService storeService = StoreService();
-  final ProductRepository productRepository = ProductRepository();
   final Set<String> _processingKeys = {};
-
   final isLoadingCart = true.obs;
 
-  CartVm(this._cartRepository);
-
-  String? get userId => FirebaseAuth.instance.currentUser?.uid;
-
-  Future<ProductModel?> fetchProduct(String productId) async {
-    final doc = await FirebaseFirestore.instance.collection('products').doc(productId).get();
-    if (!doc.exists) return null;
-    return ProductModel.fromJson({...doc.data()!, 'id': doc.id});
-  }
+  CartVm(CartRepository cartRepository) : _cartService = CartService(cartRepository);
 
   Future<void> loadCart() async {
-    if (userId == null) {
-      Get.snackbar('Lỗi', 'Người dùng chưa đăng nhập');
-      return;
-    }
-
-    try {
-      isLoadingCart.value = true;
-
-      final loadedCart = await _cartRepository.getCart(userId!);
-
-      if (loadedCart != null) {
-        final futures = loadedCart.items.map((item) => fetchProduct(item.productId));
-        final productList = await Future.wait(futures);
-
-        for (int i = 0; i < loadedCart.items.length; i++) {
-          final product = productList.elementAt(i);
-          if (product != null) {
-            loadedCart.items[i].isOnSaleAtAddition = product.isOnSale;
-          }
-        }
-      }
-
-      cart.value = loadedCart;
-    } catch (e) {
-      Get.snackbar('Lỗi', 'Không thể tải giỏ hàng: $e');
-    } finally {
-      isLoadingCart.value = false;
-    }
+    isLoadingCart.value = true;
+    cart.value = await _cartService.loadCart();
+    isLoadingCart.value = false;
   }
 
   Future<void> addItem({required ProductModel product, required StoreModel store, required int itemCount}) async {
-    try {
-      await _cartRepository.addToCart(
-        userId!,
-        CartItem(
-          productId: product.id,
-          storeId: store.storeId,
-          quantity: itemCount,
-          priceAtAddition: product.price,
-          promotionPrice: product.promotionPrice,
-          productName: product.name,
-          productImage: product.imageUrl,
-          storeName: store.name,
-          isOnSaleAtAddition: product.isOnSale,
-        ),
-      );
-      await loadCart();
-    } catch (e) {
-      Get.snackbar('Lỗi', 'Không thể thêm vào giỏ hàng');
-    }
+    await _cartService.addItem(product: product, store: store, itemCount: itemCount);
+    await loadCart();
   }
 
   Future<void> removeFromCart(CartItem item) async {
-    try {
-      await _cartRepository.removeItems(userId!, item);
-      await loadCart();
-    } catch (e) {
-      Get.snackbar('Lỗi', 'Không thể xóa sản phẩm khỏi giỏ hàng');
+    await _cartService.removeFromCart(item);
+    await loadCart();
+  }
+
+  Future<void> removeItemsByStoreId(String storeId) async {
+    if (cart.value == null) return;
+
+    final itemsToRemove = cart.value!.items.where((item) => item.storeId == storeId).toList();
+
+    for (final item in itemsToRemove) {
+      await _cartService.removeFromCart(item);
     }
+
+    await loadCart();
   }
 
   Future<void> updateQuantity(String productId, String storeId, int newQuantity) async {
-    try {
-      await _cartRepository.updateCartItemQuantity(
-        userId: userId!,
-        productId: productId,
-        storeId: storeId,
-        newQuantity: newQuantity,
-      );
-      await loadCart();
-    } catch (e) {
-      Get.snackbar('Lỗi', 'Không thể cập nhật số lượng');
-    }
+    await _cartService.updateQuantity(productId, storeId, newQuantity);
+    await loadCart();
   }
 
   Map<String, List<CartItem>> groupCartByStore(List<CartItem> items) {
-    final Map<String, List<CartItem>> grouped = {};
-    for (var item in items) {
-      grouped.putIfAbsent(item.storeId, () => []).add(item);
-    }
-    return grouped;
+    return _cartService.groupCartByStore(items);
   }
 
   Future<void> decreaseQuantity(String productId, String storeId, int newQuantity, CartItem item) async {
     final key = '$productId|$storeId';
     if (_processingKeys.contains(key)) return;
-
     _processingKeys.add(key);
     try {
       final currentItem = cart.value?.items.firstWhereOrNull(
         (item) => item.productId == productId && item.storeId == storeId,
       );
-
       if (currentItem == null) return;
-
       if (currentItem.quantity <= 1) {
         await removeFromCart(item);
         return;
       }
-
       final updatedQuantity = currentItem.quantity - 1;
       await updateQuantity(productId, storeId, updatedQuantity.value);
     } finally {
@@ -142,15 +77,12 @@ class CartVm extends GetxController {
   Future<void> increaseQuantity(String productId, String storeId, int newQuantity) async {
     final key = '$productId|$storeId';
     if (_processingKeys.contains(key)) return;
-
     _processingKeys.add(key);
     try {
       final currentItem = cart.value?.items.firstWhereOrNull(
         (item) => item.productId == productId && item.storeId == storeId,
       );
-
       if (currentItem == null) return;
-
       final updatedQuantity = currentItem.quantity + 1;
       await updateQuantity(productId, storeId, updatedQuantity.value);
     } finally {
@@ -159,44 +91,29 @@ class CartVm extends GetxController {
   }
 
   Future<void> loadStorebyId(String storeId) async {
-    store.value = await storeService.fetchStoresbyID(storeId);
+    final loadedStore = await _cartService.loadStoreById(storeId);
+    if (loadedStore != null) {
+      store.value[storeId] = loadedStore;
+    }
   }
 
   Future<void> loadProductbyId(String productId) async {
-    product.value = await productRepository.getProductById(productId);
+    product.value = await _cartService.loadProductById(productId);
   }
 
   double getTotalPriceByStore(String storeId) {
-    final filteredItems = cart.value?.items.where((item) => item.storeId == storeId) ?? [];
-
-    double total = 0;
-    for (var item in filteredItems) {
-      final price =
-          (item.isOnSaleAtAddition ?? false) ? (item.promotionPrice ?? item.priceAtAddition) : item.priceAtAddition;
-      total += price * item.quantity.value;
-    }
-    return total;
+    return _cartService.getTotalPriceByStore(storeId, cart.value);
   }
 
-  int getTotalQuantity(String storeId){
-    final filteredItems = cart.value?.items.where((item) => item.storeId == storeId) ?? [];
-
-    int totalQuantity = 0;
-    for (var item in filteredItems) {
-      totalQuantity += item.quantity.value;
-    }
-    return totalQuantity;
+  int getTotalQuantity(String storeId) {
+    return _cartService.getTotalQuantity(storeId, cart.value);
   }
 
-  // int getTotalDiscountByStore(String storeId) {
-  //   final filteredItems = cart.value?.items.where((item) => item.storeId == storeId) ?? [];
+  double getTotalDiscountByStore(String storeId) {
+    return _cartService.getTotalDiscountByStore(storeId, cart.value);
+  }
 
-  //   int discount = 0;
-  //   for (var item in filteredItems) {
-  //     if ((item.isOnSaleAtAddition ?? false) && item.promotionPrice != null) {
-  //       discount += (item.priceAtAddition - item.promotionPrice!) * item.quantity.value;
-  //     }
-  //   }
-  //   return discount;
-  // }
+  void clearCache() {
+    _cartService.clearAllCache();
+  }
 }

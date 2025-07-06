@@ -235,7 +235,6 @@ class _DialogPromotionState extends State<DialogPromotion> {
       code: codeController.text.trim(),
       storeId: sellerHomeVm.store.value?.storeId,
       creatorRole: 'seller',
-      creatorId: sellerHomeVm.store.value!.storeId,
       discountType: selectedDiscountType ?? 'percent',
       value: double.parse(percentController.text.trim()),
       minOrder: double.parse(minOrderController.text.trim()),

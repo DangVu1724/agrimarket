@@ -1,7 +1,7 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/core/widgets/custom_text_form_field.dart';
-import 'package:agrimarket/data/services/store_service.dart';
+import 'package:agrimarket/data/services/seller_store_service.dart';
 import 'package:agrimarket/features/seller/home/viewmodel/seller_home_screen_vm.dart';
 import 'package:agrimarket/features/seller/profile/viewmodel/store_info_vm.dart';
 import 'package:flutter/material.dart';
@@ -14,13 +14,15 @@ class StoreInfoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final StoreInfoVm storeInfoVm = Get.find<StoreInfoVm>();
     final SellerHomeVm vm = Get.find<SellerHomeVm>();
-    final StoreService storeService = StoreService();
+    final SellerStoreService sellerStoreService = SellerStoreService();
     final formKey = GlobalKey<FormState>();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (vm.store.value != null && storeInfoVm.currentStore.value == null) {
-        storeService.fetchStoresbyID(vm.store.value!.storeId).then((store) {
-          storeInfoVm.loadExistingStore(store);
+        sellerStoreService.getCurrentSellerStore().then((store) {
+          if (store != null) {
+            storeInfoVm.loadExistingStore(store);
+          }
         });
       }
     });
@@ -40,7 +42,7 @@ class StoreInfoScreen extends StatelessWidget {
 
         return RefreshIndicator(
           onRefresh: () async {
-            final refreshed = await storeService.fetchStoresbyID(currentStore.storeId);
+            final refreshed = await sellerStoreService.getCurrentSellerStore();
             if (refreshed != null) {
               storeInfoVm.updateCurrentStore(refreshed);
             }

@@ -9,7 +9,6 @@ import 'package:agrimarket/features/buyer/store/viewmodel/store_detail_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:get/get.dart';
-import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 

@@ -4,6 +4,8 @@ import 'package:agrimarket/features/auth/viewmodel/email_verify_vm.dart';
 import 'package:agrimarket/features/auth/viewmodel/login_vm.dart';
 import 'package:agrimarket/features/auth/viewmodel/register_view_model.dart';
 import 'package:agrimarket/features/buyer/checkout/viewmodel/checkout_vm.dart';
+import 'package:agrimarket/features/buyer/checkout/viewmodel/discount_vm.dart';
+import 'package:agrimarket/features/buyer/checkout/viewmodel/payment_vm.dart';
 import 'package:agrimarket/features/buyer/home/viewmodel/buyer_home_vm.dart';
 import 'package:agrimarket/features/buyer/home/viewmodel/store_vm.dart';
 import 'package:agrimarket/features/buyer/profile/viewmodel/address_list_vm.dart';
@@ -48,5 +50,7 @@ class AuthBinding extends Bindings {
     Get.put(StoreDetailVm(), permanent: true);
     Get.lazyPut<CheckoutVm>(() => CheckoutVm());
     Get.lazyPut<StoreInfoVm>(() => StoreInfoVm());
+    Get.lazyPut<DiscountVm>(() => DiscountVm());
+    Get.lazyPut<PaymentVm>(() => PaymentVm());
   }
 }
