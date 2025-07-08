@@ -51,7 +51,8 @@ class AppRoutes {
   static const String sellerCreateDiscountCode = '/seller-create-discount-code';
   static const String adminPromotion = '/admin-promotion';
   static const String settings = '/settings';
-
+  static const String revenue = '/revenue';
+  static const String sellerFinancial = '/seller-financial';
   // Common
   static const String aboutApp = '/about-app';
   static const String help = '/help';

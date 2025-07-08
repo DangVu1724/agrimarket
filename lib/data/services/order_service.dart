@@ -113,4 +113,12 @@ class OrderService {
       throw Exception('Failed to delete order: $e');
     }
   }
+
+  Future<void> updateOrdersCommissionPaidStatus(List<String> orderIds, bool isCommissionPaid) async {
+    try {
+      await _orderRepository.updateOrdersCommissionPaidStatus(orderIds, isCommissionPaid);
+    } catch (e) {
+      throw Exception('Failed to update commission paid status: $e');
+    }
+  }
 }

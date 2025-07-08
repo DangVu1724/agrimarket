@@ -142,4 +142,14 @@ class SellerHomeVm extends GetxController {
     clearStoreData();
     await fetchStoreInfo();
   }
+
+  // Simple refresh method for error recovery
+  Future<void> refresh() async {
+    print('🔄 Simple refresh...');
+    try {
+      await fetchStoreInfo();
+    } catch (e) {
+      print('❌ Error in refresh: $e');
+    }
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'package:agrimarket/core/utils/cache_utils.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/data/repo/store_repo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -55,27 +56,59 @@ class StoreService {
   Future<List<StoreModel>> getStoresByCategoryWithCache(String category) async {
     final key = 'stores_category_$category';
     final timestampKey = '${key}_timestamp';
-    final cached = _box.get(key);
-    final timestamp = _box.get(timestampKey);
-    final now = DateTime.now().millisecondsSinceEpoch;
 
-    if (cached != null && timestamp != null && now - timestamp < _cacheDuration) {
-      try {
-        return (cached as List)
-            .map((s) => StoreModel.fromJson(Map<String, dynamic>.from(s)))
-            .where((s) => s.state.toLowerCase() == 'verify')
-            .toList();
-      } catch (e) {
-        _box.delete(key);
-        _box.delete(timestampKey);
+    print('🔍 Searching for stores with category: $category');
+
+    try {
+      final cached = CacheUtils.safeGet(_box, key, null);
+      final timestamp = CacheUtils.safeGet(_box, timestampKey, null);
+      final now = DateTime.now().millisecondsSinceEpoch;
+
+      if (cached != null && timestamp != null && now - timestamp < _cacheDuration) {
+        try {
+          final cachedStores =
+              (cached as List)
+                  .map((s) => StoreModel.fromJson(Map<String, dynamic>.from(s)))
+                  .where((s) => s.state.toLowerCase() == 'verify')
+                  .toList();
+          print('📦 Found ${cachedStores.length} stores from cache');
+          return cachedStores;
+        } catch (e) {
+          print('❌ Cache error: $e - Clearing corrupted cache');
+          await CacheUtils.safeDelete(_box, key);
+          await CacheUtils.safeDelete(_box, timestampKey);
+        }
       }
+    } catch (e) {
+      print('❌ Error accessing cache: $e');
     }
 
-    final stores = await fetchStoresByCategory(category);
-    final filtered = stores.where((s) => s.state.toLowerCase() == 'verify').toList();
-    _box.put(key, filtered.map((s) => s.toJson()).toList());
-    _box.put(timestampKey, now);
-    return filtered;
+    try {
+      final stores = await fetchStoresByCategory(category);
+      print('🌐 Found ${stores.length} stores from database');
+
+      final filtered = stores.where((s) => s.state.toLowerCase() == 'verify').toList();
+      print('✅ Filtered to ${filtered.length} verified stores');
+
+      // Debug: Print store details
+      for (var store in stores) {
+        print('🏪 Store: ${store.name}, State: ${store.state}, Categories: ${store.categories}');
+      }
+
+      // Cache the results
+      try {
+        await CacheUtils.safePut(_box, key, filtered.map((s) => s.toJson()).toList());
+        await CacheUtils.safePut(_box, timestampKey, DateTime.now().millisecondsSinceEpoch);
+        print('💾 Cached ${filtered.length} stores successfully');
+      } catch (e) {
+        print('❌ Error caching stores: $e');
+      }
+
+      return filtered;
+    } catch (e) {
+      print('❌ Error fetching stores: $e');
+      return [];
+    }
   }
 
   Future<StoreModel> getStoreByIdWithCache(String id) async {
@@ -116,5 +149,9 @@ class StoreService {
     _box.delete('stores_list');
     _box.delete('stores_list_timestamp');
   }
-}
 
+  // Debug method
+  Future<void> debugAllStores() async {
+    await _storeRepository.debugAllStores();
+  }
+}

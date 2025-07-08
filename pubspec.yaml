@@ -68,6 +68,7 @@ dependencies:
   sliver_tools: ^0.2.12
   lucide_icons: ^0.257.0
   flutter_launcher_icons: ^0.14.4
+  fl_chart: ^1.0.0
 
 
 

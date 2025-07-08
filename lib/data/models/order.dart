@@ -9,8 +9,12 @@ class OrderModel {
   final double totalPrice;
   final double? discountPrice;
   final DateTime createdAt;
+  final DateTime? updatedAt;
   final String deliveryAddress;
   final String? discountCodeId;
+  final bool? isPaid;
+  final bool? isCommissionPaid;
+  final DateTime? deliveredAt;
 
   OrderModel({
     required this.orderId,
@@ -22,9 +26,13 @@ class OrderModel {
     required this.totalPrice,
     required this.paymentMethod,
     required this.createdAt,
+    this.updatedAt,
     required this.deliveryAddress,
     this.discountCodeId,
     this.discountPrice,
+    this.isPaid,
+    this.isCommissionPaid,
+    this.deliveredAt,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -38,9 +46,13 @@ class OrderModel {
       paymentMethod: json['paymentMethod'],
       totalPrice: (json['totalPrice'] as num).toDouble(),
       createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
       deliveryAddress: json['deliveryAddress'],
       discountCodeId: json['discountCodeId'],
       discountPrice: json['discountPrice'] != null ? (json['discountPrice'] as num).toDouble() : null,
+      isPaid: json['isPaid'] ?? false,
+      isCommissionPaid: json['isCommissionPaid'] ?? false,
+      deliveredAt: json['deliveredAt'] != null ? DateTime.parse(json['deliveredAt']) : null,
     );
   }
 
@@ -55,8 +67,12 @@ class OrderModel {
     'paymentMethod': paymentMethod,
     'discountPrice': discountPrice,
     'createdAt': createdAt.toIso8601String(),
+    'updatedAt': updatedAt?.toIso8601String(),
     'deliveryAddress': deliveryAddress,
     'discountCodeId': discountCodeId,
+    'isPaid': isPaid,
+    'isCommissionPaid': isCommissionPaid,
+    'deliveredAt': deliveredAt?.toIso8601String(),
   };
   OrderModel copyWith({
     String? orderId,
@@ -69,8 +85,12 @@ class OrderModel {
     double? discountPrice,
     String? paymentMethod,
     DateTime? createdAt,
+    DateTime? updatedAt,
     String? deliveryAddress,
     String? discountCodeId,
+    bool? isPaid,
+    bool? isCommissionPaid,
+    DateTime? deliveredAt,
   }) => OrderModel(
     orderId: orderId ?? this.orderId,
     buyerUid: buyerUid ?? this.buyerUid,
@@ -82,8 +102,12 @@ class OrderModel {
     discountPrice: discountPrice ?? this.discountPrice,
     paymentMethod: paymentMethod ?? this.paymentMethod,
     createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
     deliveryAddress: deliveryAddress ?? this.deliveryAddress,
     discountCodeId: discountCodeId ?? this.discountCodeId,
+    isPaid: isPaid ?? this.isPaid,
+    isCommissionPaid: isCommissionPaid ?? this.isCommissionPaid,
+    deliveredAt: deliveredAt ?? this.deliveredAt,
   );
 }
 

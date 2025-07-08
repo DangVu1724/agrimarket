@@ -49,7 +49,13 @@ class StoreScreen extends StatelessWidget {
                 expandedHeight: 150,
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => Get.back(),
+                  onPressed: () {
+                    if (Get.isSnackbarOpen) {
+                      Get.closeCurrentSnackbar();
+                    } else {
+                      Get.back();
+                    }
+                  },
                 ),
                 actions: [
                   IconButton(
@@ -138,8 +144,8 @@ class StoreScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 8),
+
                       // Chat
-                     
                     ],
                   ),
                 ),

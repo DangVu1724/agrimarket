@@ -1,9 +1,12 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/app/theme/app_theme.dart';
+import 'package:agrimarket/core/utils/cache_utils.dart';
+import 'package:agrimarket/core/widgets/error_boundary.dart';
 import 'package:agrimarket/data/models/adapter/store_address.dart';
 import 'package:agrimarket/data/models/adapter/store_model_adapter.dart';
 import 'package:agrimarket/data/models/adapter/user_model_adapter.dart';
 import 'package:agrimarket/data/models/adapter/product_model_adapter.dart';
+import 'package:agrimarket/data/models/adapter/timestamp_adapter.dart';
 import 'package:agrimarket/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -16,27 +19,23 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
 
-  // Comment out cache deletion to prevent crashes
-  // await Hive.deleteBoxFromDisk('storeCache');
-  // await Hive.deleteBoxFromDisk('userCache');
-  // await Hive.deleteBoxFromDisk('productCache');
-  // await Hive.deleteBoxFromDisk('menuCache');
-  // await Hive.deleteBoxFromDisk('promotionCache');
-  // await Hive.deleteBoxFromDisk('discountCodeCache');
-  // await Hive.deleteBoxFromDisk('payment_method');
+  // Clear cache on app start to prevent corruption issues
+  await CacheUtils.clearAllCache();
 
-  Hive.registerAdapter(StoreModelAdapter());
-  Hive.registerAdapter(StoreAddressAdapter());
-  Hive.registerAdapter(UserModelAdapter());
-  Hive.registerAdapter(ProductModelAdapter());
-  await Hive.openBox('storeCache');
-  await Hive.openBox('searchCache');
-  await Hive.openBox('userCache');
-  await Hive.openBox('productCache');
-  await Hive.openBox('menuCache');
-  await Hive.openBox('promotionCache');
-  await Hive.openBox('discountCodeCache');
-  await Hive.openBox('payment_method');
+  // Register adapters
+  try {
+    Hive.registerAdapter(StoreModelAdapter());
+    Hive.registerAdapter(StoreAddressAdapter());
+    Hive.registerAdapter(UserModelAdapter());
+    Hive.registerAdapter(ProductModelAdapter());
+    Hive.registerAdapter(TimestampAdapter());
+  } catch (e) {
+    print('Error registering adapters: $e');
+  }
+
+  // Open boxes with error handling
+  await CacheUtils.openAllBoxes();
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   try {
     await dotenv.load(fileName: ".env");
@@ -51,13 +50,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'Chợ Nông Sản Sạch',
-      initialRoute: AppRoutes.splash,
-      getPages: AppPages.pages,
-      theme: AppTheme.lightTheme,
-      debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.light,
+    return ErrorBoundary(
+      child: GetMaterialApp(
+        title: 'Chợ Nông Sản Sạch',
+        initialRoute: AppRoutes.splash,
+        getPages: AppPages.pages,
+        theme: AppTheme.lightTheme,
+        debugShowCheckedModeBanner: false,
+        themeMode: ThemeMode.light,
+      ),
     );
   }
 }

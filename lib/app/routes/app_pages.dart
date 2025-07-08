@@ -32,6 +32,7 @@ import 'package:agrimarket/features/buyer/profile/view/setting_screen.dart';
 import 'package:agrimarket/features/buyer/store/view/product_detail_screen.dart';
 import 'package:agrimarket/features/buyer/store/view/store_screen.dart';
 import 'package:agrimarket/features/seller/chat/view/seller_chat_screen.dart';
+import 'package:agrimarket/features/seller/financial/view/financial_screen.dart';
 import 'package:agrimarket/features/seller/menu/view/menu_screen.dart';
 import 'package:agrimarket/features/seller/orders/view/orderList_screen.dart';
 import 'package:agrimarket/features/seller/other/view/create_store_address.dart';
@@ -44,6 +45,7 @@ import 'package:agrimarket/features/seller/product/view/seller_update_product_sc
 import 'package:agrimarket/features/seller/profile/view/profile_screen.dart';
 import 'package:agrimarket/features/seller/profile/view/store_info_screen.dart';
 import 'package:agrimarket/features/seller/promotion/view/promotion_screen.dart';
+import 'package:agrimarket/features/seller/revenue/view/revenue_screen.dart';
 import 'package:agrimarket/features/seller/seller_home.dart';
 import 'package:get/get.dart';
 import '../../features/auth/view/login_screen.dart';
@@ -131,6 +133,8 @@ class AppPages {
     GetPage(name: AppRoutes.sellerCreateProduct, page: () => SellerCreateProductScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.sellerChat, page: () => SellerChatScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.sellerOrderList, page: () => OrderlistScreen(), binding: AuthBinding()),
+    GetPage(name: AppRoutes.sellerFinancial, page: () => const CommissionScreen(), binding: AuthBinding()),
+    GetPage(name: AppRoutes.revenue, page: () => RevenueScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.buyerChat, page: () => SellerCreateProductScreen(), binding: AuthBinding()),
     GetPage(
       name: AppRoutes.sellerProductDetail,

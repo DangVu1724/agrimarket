@@ -72,6 +72,8 @@ class CheckoutVm extends GetxController {
     required String deliveryAddress,
     String? discountCodeId,
     double? discountPrice,
+    bool? isPaid,
+    bool? isCommissionPaid,
   }) async {
     if (items.isEmpty) {
       throw Exception('Không có sản phẩm nào trong đơn hàng');
@@ -119,6 +121,7 @@ class CheckoutVm extends GetxController {
       final shippingFee = 20000;
       final finalTotal = totalPrice + serviceFee + shippingFee - (discountPrice ?? 0);
 
+
       // Create order
       final order = OrderModel(
         orderId: '',
@@ -133,6 +136,8 @@ class CheckoutVm extends GetxController {
         createdAt: DateTime.now(),
         deliveryAddress: deliveryAddress,
         discountCodeId: discountCodeId,
+        isPaid: isPaid,
+        isCommissionPaid: isCommissionPaid,
       );
 
       final orderId = await orderService.createOrder(order);

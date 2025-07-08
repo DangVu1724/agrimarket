@@ -102,4 +102,22 @@ class OrderRepository {
       throw Exception('Failed to get orders by status: $e');
     }
   }
+
+  Future<void> updateOrdersCommissionPaidStatus(List<String> orderIds, bool isCommissionPaid) async {
+    try {
+      print('Updating commission paid status for ${orderIds.length} orders');
+
+      // Use batch write for better performance
+      final batch = FirebaseFirestore.instance.batch();
+
+      for (String orderId in orderIds) {
+        final orderRef = _ordersCollection.doc(orderId);
+        batch.update(orderRef, {'isCommissionPaid': isCommissionPaid, 'updatedAt': DateTime.now().toIso8601String()});
+      }
+
+      await batch.commit();
+    } catch (e) {
+      throw Exception('Failed to update commission paid status: $e');
+    }
+  }
 }

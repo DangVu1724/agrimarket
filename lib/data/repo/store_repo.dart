@@ -59,13 +59,44 @@ class StoreRepository {
 
   Future<List<StoreModel>> fetchStoresByCategory(String category) async {
     try {
+      print('🔍 Repository: Searching for stores with category: $category');
+
       final querySnapshot =
           await FirebaseFirestore.instance.collection('stores').where('categories', arrayContains: category).get();
 
-      return querySnapshot.docs.map((doc) => StoreModel.fromJson({...doc.data(), 'storeId': doc.id})).toList();
+      print('🌐 Repository: Found ${querySnapshot.docs.length} documents from Firestore');
+
+      final stores =
+          querySnapshot.docs.map((doc) {
+            final data = {...doc.data(), 'storeId': doc.id};
+            print(
+              '📄 Document ${doc.id}: ${data['name']} - State: ${data['state']} - Categories: ${data['categories']}',
+            );
+            return StoreModel.fromJson(data);
+          }).toList();
+
+      print('✅ Repository: Successfully parsed ${stores.length} stores');
+      return stores;
     } catch (e) {
+      print('❌ Repository error: $e');
       Get.snackbar('Lỗi', 'Không thể tải danh sách cửa hàng: $e');
       return [];
+    }
+  }
+
+  // Debug method to check all stores
+  Future<void> debugAllStores() async {
+    try {
+      print('🔍 Debug: Fetching all stores from database');
+      final querySnapshot = await FirebaseFirestore.instance.collection('stores').get();
+      print('🌐 Debug: Total stores in database: ${querySnapshot.docs.length}');
+
+      for (var doc in querySnapshot.docs) {
+        final data = doc.data();
+        print('📄 Debug Store: ${data['name']} - State: ${data['state']} - Categories: ${data['categories']}');
+      }
+    } catch (e) {
+      print('❌ Debug error: $e');
     }
   }
 }

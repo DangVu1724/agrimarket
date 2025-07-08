@@ -101,8 +101,14 @@ class OrderCard extends StatelessWidget {
             ] else if (order.status == 'confirmed') ...[
               ElevatedButton(
                 onPressed: () => _updateOrderStatus('shipped', order),
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow[100], foregroundColor: Colors.white),
                 child: const Text('Bắt đầu giao hàng'),
+              ),
+            ] else if (order.status == 'shipped') ...[
+              ElevatedButton(
+                onPressed: () => _updateOrderStatus('delivered', order),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
+                child: const Text('Giao hàng thành công'),
               ),
             ],
           ],

@@ -168,21 +168,15 @@ class CheckoutScreen extends StatelessWidget {
                       final shippingFee = 20000;
                       double discountPrice = 0;
                       try {
-                        print(
-                          'Calculating discount, selectedDiscountCode: ${discountVm.selectedDiscountCode.value?.code}',
-                        );
                         if (discountVm.selectedDiscountCode.value?.discountType == 'fixed') {
                           final discount = discountVm.selectedDiscountCode.value?.value ?? 0;
                           discountPrice = discount;
-                          print('Fixed discount: $discount');
                         }
                         if (discountVm.selectedDiscountCode.value?.discountType == 'percent') {
                           final discountPercent = discountVm.selectedDiscountCode.value?.value ?? 0;
                           discountPrice = total * discountPercent / 100;
-                          print('Percent discount: $discountPercent%, amount: $discountPrice');
                         }
                       } catch (discountError) {
-                        print('Error calculating discount: $discountError');
                         discountPrice = 0;
                       }
                       final finalTotal = total + serviceFee + shippingFee - discountPrice;
@@ -291,7 +285,6 @@ class CheckoutScreen extends StatelessWidget {
                         ),
                       );
                     } catch (e) {
-                      print('Error building discount subtitle: $e');
                       return Text(
                         "Chọn mã giảm giá",
                         style: AppTextStyles.headline.copyWith(fontSize: 14, color: Colors.grey),
@@ -328,7 +321,6 @@ class CheckoutScreen extends StatelessWidget {
                         ),
                       );
                     } catch (e) {
-                      print('Error building payment subtitle: $e');
                       return Text(
                         "Chọn phương thức thanh toán",
                         style: AppTextStyles.headline.copyWith(fontSize: 14, color: Colors.grey),
@@ -359,12 +351,11 @@ class CheckoutScreen extends StatelessWidget {
           child: Obx(
             () => CustomButton(
               text: checkoutVm.isCreatingOrder.value ? 'Đang tạo đơn hàng...' : 'Xác nhận thanh toán',
-              onPressed:
-                  checkoutVm.isCreatingOrder.value
-                      ? null
-                      : () async {
-                        await _handleOrderCreation();
-                      },
+              onPressed: () async {
+                Get.dialog(const Center(child: CircularProgressIndicator()), barrierDismissible: false);
+                await _handleOrderCreation();
+                Get.back();
+              },
             ),
           ),
         ),
@@ -431,8 +422,6 @@ class CheckoutScreen extends StatelessWidget {
     final DiscountVm discountVm = Get.find<DiscountVm>();
     final BuyerVm buyerVm = Get.find<BuyerVm>();
 
-    print('Starting order creation process...');
-
     try {
       // Validate required fields
       if (!paymentVm.hasPaymentMethod) {
@@ -473,8 +462,6 @@ class CheckoutScreen extends StatelessWidget {
         }
       }
 
-      print('Creating order with ${items.length} items...');
-
       // Create order
       final orderId = await checkoutVm.createOrder(
         storeId: storeId,
@@ -484,53 +471,21 @@ class CheckoutScreen extends StatelessWidget {
         deliveryAddress: buyerVm.defaultAddress!.address,
         discountCodeId: discountCodeId,
         discountPrice: discountPrice,
+        isPaid: paymentVm.paymentMethod.value == 'Thanh toán khi nhận hàng' ? false : true,
+        isCommissionPaid: paymentVm.paymentMethod.value == 'Thanh toán khi nhận hàng' ? false : true,
       );
 
-      print('Order creation result: $orderId');
-
       if (orderId != null) {
-        print('Order created successfully, clearing states...');
-
         try {
-          // Remove items from cart
-          print('Removing items from cart...');
           await cartVm.removeItemsByStoreId(storeId);
-          print('Items removed from cart successfully');
 
-          // Clear selected discount code
-          print('Clearing discount code...');
           discountVm.clearSelectedDiscountCode();
-          print('Discount code cleared successfully');
 
-          // Clear payment method
-          print('Clearing payment method...');
           paymentVm.clearPaymentMethod();
-          print('Payment method cleared successfully');
-        } catch (clearError) {
-          print('Error clearing states: $clearError');
-          // Continue even if clearing fails
-        }
-
-        print('Showing success message...');
-        // Show success message
-        Get.snackbar(
-          'Thành công',
-          'Đơn hàng đã được tạo thành công!',
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
-
-        print('Navigating to home...');
-        // Navigate to home screen
+        } catch (clearError) {}
         Get.offAllNamed(AppRoutes.buyerHome);
-        print('Navigation to home completed');
-      } else {
-        Get.snackbar('Lỗi', 'Không thể tạo đơn hàng. Vui lòng thử lại.');
-      }
-    } catch (e) {
-      print('Error in order creation: $e');
-      Get.snackbar('Lỗi', 'Có lỗi xảy ra: $e');
-    }
+      } else {}
+    } catch (e) {}
   }
 
   Widget _buildDivider() => Container(width: double.infinity, height: 1, color: Colors.grey.shade300);

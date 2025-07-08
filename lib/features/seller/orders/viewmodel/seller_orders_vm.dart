@@ -1,5 +1,6 @@
 import 'package:agrimarket/data/models/order.dart';
 import 'package:agrimarket/data/services/order_service.dart';
+import 'package:agrimarket/data/services/revenue_service.dart';
 import 'package:agrimarket/data/services/seller_store_service.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,6 +9,7 @@ import 'package:get/get.dart';
 class SellerOrdersVm extends GetxController {
   final OrderService _orderService = OrderService();
   final SellerStoreService _sellerStoreService = SellerStoreService();
+  final RevenueService _revenueService = RevenueService();
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -77,7 +79,16 @@ class SellerOrdersVm extends GetxController {
       }
 
       final order = orders[index];
-      final updatedOrder = order.copyWith(status: newStatus);
+      DateTime? deliveredAt = order.deliveredAt;
+      if (newStatus == 'delivered' && deliveredAt == null) {
+        deliveredAt = DateTime.now();
+      }
+      // Cập nhật updatedAt khi thay đổi status
+      final updatedOrder = order.copyWith(
+        status: newStatus,
+        updatedAt: DateTime.now(), // Cập nhật thời gian
+        deliveredAt: deliveredAt,
+      );
 
       await _orderService.updateOrder(orderId, updatedOrder);
 
@@ -95,12 +106,50 @@ class SellerOrdersVm extends GetxController {
   List<OrderModel> getShippedOrders() => getOrdersByStatus('shipped');
   List<OrderModel> getDeliveredOrders() => getOrdersByStatus('delivered');
   List<OrderModel> getCancelledOrders() => getOrdersByStatus('cancelled');
+  List<OrderModel> getUnPaidOrders() => orders.where((order) => order.isPaid == false).toList();
+  List<OrderModel> getUnCommissionPaidOrders() =>
+      orders.where((order) => order.isCommissionPaid == false && order.status == 'delivered').toList();
 
   Future<void> refreshData() async {
     print('🔄 Refreshing data...');
     _clearData();
     _orderService.disposeListeners();
     _setupRealTimeListeners();
+  }
+
+  // ========== APP COMMISSION METHODS ==========
+
+  // Commission hôm nay
+  double getDailyCommission() => _revenueService.getDailyCommission(orders, DateTime.now());
+
+  // Commission hôm qua
+  double getYesterdayCommission() => _revenueService.getYesterdayCommission(orders, DateTime.now());
+
+  // Commission tháng này
+  double getMonthlyCommission() => _revenueService.getMonthlyCommission(orders, DateTime.now());
+
+  // Commission năm này
+  double getYearlyCommission() => _revenueService.getYearlyCommission(orders, DateTime.now());
+
+  // Doanh thu thực tế của seller (sau khi trừ commission)
+  double getSellerNetRevenue() => _revenueService.getSellerNetRevenue(orders, DateTime.now());
+
+  // Tổng commission từ tất cả đơn hàng
+  double getTotalCommission() => _revenueService.getTotalCommission(orders);
+
+  Future<void> updateOrdersCommissionPaidStatus(List<String> orderIds, bool isCommissionPaid) async {
+    try {
+      await _orderService.updateOrdersCommissionPaidStatus(orderIds, isCommissionPaid);
+
+      // Cập nhật local data
+      for (int i = 0; i < orders.length; i++) {
+        if (orderIds.contains(orders[i].orderId)) {
+          orders[i] = orders[i].copyWith(isCommissionPaid: isCommissionPaid, updatedAt: DateTime.now());
+        }
+      }
+    } catch (e) {
+      errorMessage.value = 'Lỗi cập nhật trạng thái commission: $e';
+    }
   }
 
   @override

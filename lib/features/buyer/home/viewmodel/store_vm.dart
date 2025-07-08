@@ -38,10 +38,14 @@ class StoreVm extends GetxController {
 
   Future<void> fetchStoresByCategory(String category) async {
     try {
+      print('🔍 ViewModel: Starting to fetch stores for category: $category');
       isLoading.value = true;
       final stores = await _storeService.getStoresByCategoryWithCache(category);
+      print('📦 ViewModel: Received ${stores.length} stores from service');
       storesByCategory.assignAll(stores);
+      print('✅ ViewModel: Successfully assigned ${storesByCategory.length} stores');
     } catch (e) {
+      print('❌ ViewModel error: $e');
       storesByCategory.clear();
       Get.snackbar('Lỗi', 'Không thể tải cửa hàng theo danh mục: $e');
     } finally {
@@ -81,5 +85,10 @@ class StoreVm extends GetxController {
   void onClose() {
     storesByCategory.clear();
     super.onClose();
+  }
+
+  // Debug method
+  Future<void> debugAllStores() async {
+    await _storeService.debugAllStores();
   }
 }

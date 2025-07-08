@@ -366,7 +366,7 @@ class SellerMenuScreen extends StatelessWidget {
               style: AppTextStyles.headline,
             ),
             content: Obx(() {
-              final availableProducts = menuVm.productVm.allProducts;
+              final availableProducts = menuVm.productVm!.allProducts;
               if (availableProducts.isEmpty) {
                 return const Text('Chưa có sản phẩm nào trong cửa hàng.');
               }

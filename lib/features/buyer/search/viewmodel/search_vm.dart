@@ -14,7 +14,7 @@ class SearchVm extends GetxController {
   final RxString searchText = ''.obs;
   final RxBool isSearching = false.obs;
   final RxBool hasSearched = false.obs;
-  late Box searchBox;
+  Box? searchBox;
 
   @override
   void onInit() {
@@ -22,8 +22,25 @@ class SearchVm extends GetxController {
     searchController.addListener(() {
       searchText.value = searchController.text;
     });
-    searchBox = Hive.box('searchCache');
-    loadHistory();
+    _initializeSearchBox();
+  }
+
+  void _initializeSearchBox() {
+    try {
+      searchBox = Hive.box('searchCache');
+      loadHistory();
+      print('✅ Search box initialized successfully');
+    } catch (e) {
+      print('❌ Error initializing search box: $e');
+      // Try to recreate the box
+      try {
+        Hive.deleteBoxFromDisk('searchCache');
+        searchBox = Hive.openBox('searchCache') as Box;
+        print('✅ Search box recreated successfully');
+      } catch (e2) {
+        print('❌ Error recreating search box: $e2');
+      }
+    }
   }
 
   Future<void> searchProducts(String query) async {
@@ -53,19 +70,42 @@ class SearchVm extends GetxController {
   }
 
   void saveHistory() {
-    searchBox.put('search_history', history.toList());
+    try {
+      if (searchBox != null) {
+        searchBox!.put('search_history', history.toList());
+        print('💾 Search history saved successfully');
+      }
+    } catch (e) {
+      print('❌ Error saving search history: $e');
+    }
   }
 
   void loadHistory() {
-    final List<dynamic>? stored = searchBox.get('search_history');
-    if (stored != null) {
-      history.assignAll(List<String>.from(stored));
+    try {
+      if (searchBox != null) {
+        final List<dynamic>? stored = searchBox!.get('search_history');
+        if (stored != null) {
+          history.assignAll(List<String>.from(stored));
+          print('📦 Search history loaded: ${history.length} items');
+        }
+      }
+    } catch (e) {
+      print('❌ Error loading search history: $e');
+      // Clear corrupted history
+      history.clear();
     }
   }
 
   void clearHistory() {
-    history.clear();
-    searchBox.delete('search_history');
+    try {
+      history.clear();
+      if (searchBox != null) {
+        searchBox!.delete('search_history');
+        print('🗑️ Search history cleared successfully');
+      }
+    } catch (e) {
+      print('❌ Error clearing search history: $e');
+    }
   }
 
   Future<List<ProductModelWithStore>> fetchFilteredProductsWithStore({String searchQuery = ''}) async {

@@ -26,85 +26,129 @@ class SellerProductScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-              Get.toNamed(AppRoutes.sellerCreateProduct);
+              try {
+                Get.toNamed(AppRoutes.sellerCreateProduct);
+              } catch (e) {
+                print('❌ Error navigating to create product: $e');
+                Get.snackbar('Lỗi', 'Không thể mở màn hình tạo sản phẩm');
+              }
             },
           ),
         ],
       ),
       body: Obx(() {
-        if (productVm.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        try {
+          if (productVm.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        if (productVm.storeModel == null) {
-          return const Center(child: Text("Không tìm thấy thông tin cửa hàng."));
-        }
+          if (productVm.storeModel == null) {
+            return const Center(child: Text("Không tìm thấy thông tin cửa hàng."));
+          }
 
-        return Column(
-          children: [
-            ProductFilterWidget(
-              searchController: productVm.searchController,
-              categories: productVm.categories,
-              selectedCategory: productVm.selectedCategory.value,
-              onSearchChanged: (query) {
-                productVm.searchQuery.value = query;
-              },
-              onCategoryChanged: (category) {
-                productVm.selectedCategory.value = category ?? '';
-              },
-            ),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: () async {
-                  if (productVm.storeModel != null) {
-                    await _sellerStoreService.getCurrentSellerStore();
-                    productVm.clearFilters();
-                  }
+          return Column(
+            children: [
+              ProductFilterWidget(
+                searchController: productVm.searchController,
+                categories: productVm.categories,
+                selectedCategory: productVm.selectedCategory.value,
+                onSearchChanged: (query) {
+                  productVm.searchQuery.value = query;
                 },
-                child: Obx(() {
-                  final products = productVm.getFilteredProducts();
+                onCategoryChanged: (category) {
+                  productVm.selectedCategory.value = category ?? '';
+                },
+              ),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    try {
+                      if (productVm.storeModel != null) {
+                        await _sellerStoreService.getCurrentSellerStore();
+                        productVm.clearFilters();
+                      }
+                    } catch (e) {
+                      print('❌ Error refreshing products: $e');
+                      Get.snackbar('Lỗi', 'Không thể làm mới dữ liệu');
+                    }
+                  },
+                  child: Obx(() {
+                    try {
+                      final products = productVm.getFilteredProducts();
 
-                  if (products.isEmpty) {
-                    return const Center(child: Text("Chưa có sản phẩm nào phù hợp"));
-                  }
-                  return ListView.separated(
-                    padding: const EdgeInsets.all(12),
-                    itemCount: products.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final product = products[index];
-                      return _buildProductItem(
-                        product: product,
-                        onTap: () {
-                          Get.toNamed(AppRoutes.sellerProductDetail, arguments: product);
-                        },
-                        onDelete: () {
-                          Get.defaultDialog(
-                            contentPadding: EdgeInsets.all(20),
-                            backgroundColor: AppColors.background,
-                            title: 'Xác nhận',
-                            titleStyle: AppTextStyles.headline.copyWith(color: AppColors.error, fontSize: 28),
-                            middleText: 'Bạn có chắc muốn xóa sản phẩm này không?',
-                            textConfirm: 'Xóa',
-                            textCancel: 'Hủy',
-                            confirmTextColor: Colors.white,
-                            cancelTextColor: AppColors.textPrimary,
-                            buttonColor: AppColors.error,
-                            onConfirm: () {
-                              productVm.deleteProduct(product.id);
-                              Get.back();
-                            },
-                            onCancel: () {},
-                          );
+                      if (products.isEmpty) {
+                        return const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.inventory_2_outlined, size: 64, color: Colors.grey),
+                              SizedBox(height: 16),
+                              Text('Chưa có sản phẩm nào', style: TextStyle(fontSize: 16, color: Colors.grey)),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return ListView.builder(
+                        itemCount: products.length,
+                        itemBuilder: (context, index) {
+                          try {
+                            final product = products[index];
+                            return _buildProductItem(
+                              product: product,
+                              onTap: () {
+                                try {
+                                  Get.toNamed(AppRoutes.sellerProductDetail, arguments: product);
+                                } catch (e) {
+                                  print('❌ Error navigating to product detail: $e');
+                                  Get.snackbar('Lỗi', 'Không thể mở chi tiết sản phẩm');
+                                }
+                              },
+                              onDelete: () {
+                                try {
+                                  productVm.deleteProduct(product.id);
+                                } catch (e) {
+                                  print('❌ Error deleting product: $e');
+                                  Get.snackbar('Lỗi', 'Không thể xóa sản phẩm');
+                                }
+                              },
+                            );
+                          } catch (e) {
+                            print('❌ Error building product item at index $index: $e');
+                            return const SizedBox.shrink();
+                          }
                         },
                       );
-                    },
-                  );
-                }),
+                    } catch (e) {
+                      print('❌ Error in product list: $e');
+                      return const Center(child: Text('Lỗi tải danh sách sản phẩm'));
+                    }
+                  }),
+                ),
               ),
+            ],
+          );
+        } catch (e) {
+          print('❌ Error in SellerProductScreen build: $e');
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                const Text('Đã xảy ra lỗi'),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    // Force refresh
+                    productVm.fetchProducts();
+                  },
+                  child: const Text('Thử lại'),
+                ),
+              ],
             ),
-          ],
-        );
+          );
+        }
       }),
     );
   }
@@ -113,8 +157,8 @@ class SellerProductScreen extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(0),
-        margin: EdgeInsets.all(0),
+        padding: const EdgeInsets.all(0),
+        margin: const EdgeInsets.all(0),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade300),
           borderRadius: BorderRadius.circular(12),
