@@ -2,6 +2,7 @@ import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/core/widgets/skeleton_loader.dart';
+import 'package:agrimarket/core/widgets/promotion_badge.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -57,10 +58,7 @@ class FavouriteScreen extends StatelessWidget {
               children: [
                 Icon(Icons.favorite_border, size: 80, color: Colors.grey.shade400),
                 const SizedBox(height: 16),
-                Text(
-                  'Chưa có cửa hàng yêu thích',
-                  style: AppTextStyles.headline.copyWith(color: Colors.grey.shade600),
-                ),
+                Text('Chưa có cửa hàng yêu thích', style: AppTextStyles.headline.copyWith(color: Colors.grey.shade600)),
                 const SizedBox(height: 8),
                 Text(
                   'Thêm cửa hàng yêu thích từ trang chi tiết!',
@@ -82,12 +80,9 @@ class FavouriteScreen extends StatelessWidget {
                 opacity: 1.0,
                 duration: const Duration(milliseconds: 300),
                 child: AnimatedSlide(
-                  offset: Offset(0, index * 0.05), 
+                  offset: Offset(0, index * 0.05),
                   duration: const Duration(milliseconds: 300),
-                  child: _StoreCard(
-                    store: store,
-                    onRemove: () => vm.toggleFavoriteStore(store.storeId),
-                  ),
+                  child: _StoreCard(store: store, onRemove: () => vm.toggleFavoriteStore(store.storeId)),
                 ),
               );
             },
@@ -122,21 +117,25 @@ class _StoreCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Hình ảnh cửa hàng
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: CachedNetworkImage(
-                  imageUrl: store.storeImageUrl ??
-                      'https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&w=800&q=80',
-                  width: 80,
-                  height: 80,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
-                    color: Colors.grey[300],
-                    child: const Center(child: CircularProgressIndicator()),
-                  ),
-                  errorWidget: (context, url, error) => Container(
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.image, size: 40, color: Colors.grey),
+              PromotionBadgeOverlay(
+                isPromotion: store.isPromotion,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: CachedNetworkImage(
+                    imageUrl:
+                        store.storeImageUrl ??
+                        'https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&w=800&q=80',
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
+                    placeholder:
+                        (context, url) =>
+                            Container(color: Colors.grey[300], child: const Center(child: CircularProgressIndicator())),
+                    errorWidget:
+                        (context, url, error) => Container(
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.image, size: 40, color: Colors.grey),
+                        ),
                   ),
                 ),
               ),
@@ -161,11 +160,7 @@ class _StoreCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(
-                          Icons.access_time,
-                          size: 14,
-                          color: store.isOpened ? Colors.green : Colors.red,
-                        ),
+                        Icon(Icons.access_time, size: 14, color: store.isOpened ? Colors.green : Colors.red),
                         const SizedBox(width: 4),
                         Text(
                           store.isOpened ? 'Mở cửa' : 'Đóng cửa',

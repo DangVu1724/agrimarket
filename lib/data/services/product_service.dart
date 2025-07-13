@@ -136,4 +136,10 @@ class ProductService {
   void dispose() {
     _productsSubscription?.cancel();
   }
+
+  // Stop listening to current store
+  void stopListening() {
+    _productsSubscription?.cancel();
+    _productsSubscription = null;
+  }
 }

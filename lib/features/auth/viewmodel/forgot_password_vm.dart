@@ -1,3 +1,4 @@
+import 'package:agrimarket/core/utils/security_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
@@ -7,8 +8,7 @@ class ForgotPasswordViewModel extends GetxController {
 
   String? validateEmail(String? value) {
     if (value == null || value.isEmpty) return 'Vui lòng nhập email';
-    if (!GetUtils.isEmail(value)) return 'Email không hợp lệ';
+    if (!SecurityUtils.isValidEmail(value)) return 'Email không hợp lệ';
     return null;
   }
-
 }

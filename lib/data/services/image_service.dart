@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'package:get/get.dart';
+import 'package:agrimarket/core/utils/security_utils.dart';
+import 'package:agrimarket/core/constants/env_config.dart';
 
 class ImageService {
   final ImagePicker _picker = ImagePicker();
@@ -25,16 +27,26 @@ class ImageService {
     XFile? file, String storeId, String type, String folder) async {
   if (file == null) return null;
   try {
+    // Validate file
+    if (!SecurityUtils.isValidImageFile(file.name)) {
+      throw Exception('Loại file không được hỗ trợ');
+    }
+    
     final bytes = await file.readAsBytes();
+    if (!SecurityUtils.isValidFileSize(bytes.length)) {
+      throw Exception('Kích thước file quá lớn (tối đa 5MB)');
+    }
+    
     final base64Image = base64Encode(bytes);
     final fileName = '$storeId-$type.jpg';
     final path = '$storeId/$folder/$fileName';
 
-    final token = dotenv.env['GITHUB_TOKEN'];
-    final owner = dotenv.env['GITHUB_OWNER'];
-    final repo = dotenv.env['GITHUB_REPO'];
+    // Use EnvConfig instead of direct dotenv access
+    final token = EnvConfig.githubToken;
+    final owner = EnvConfig.githubOwner;
+    final repo = EnvConfig.githubRepo;
 
-    if (token == null || owner == null || repo == null) {
+    if (token.isEmpty || owner.isEmpty || repo.isEmpty) {
       throw Exception('Thiếu cấu hình GitHub');
     }
 

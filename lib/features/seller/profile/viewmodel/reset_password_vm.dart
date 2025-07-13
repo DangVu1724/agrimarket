@@ -1,4 +1,5 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
+import 'package:agrimarket/core/utils/security_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,18 +12,14 @@ class ResetPasswordViewModel extends GetxController {
   final newPasswordController = TextEditingController();
   final GlobalKey<FormState> formKeyResetPass = GlobalKey<FormState>();
 
-
   String? validatePassword(String? value) {
-    if (value == null || value.isEmpty) return 'Vui lòng nhập mật khẩu';
-    if (value.length < 6) return 'Mật khẩu phải ít nhất 6 ký tự';
-    return null;
+    return SecurityUtils.validatePassword(value);
   }
 
   String? validateConfirmPassword(String? value) {
     if (value != newPasswordController.text) return 'Mật khẩu không khớp';
     return null;
   }
-
 
   Future<void> updatePassword() async {
     if (!formKeyResetPass.currentState!.validate()) return;
@@ -41,7 +38,6 @@ class ResetPasswordViewModel extends GetxController {
 
       Get.snackbar('Thành công', 'Đổi mật khẩu thành công, vui lòng đăng nhập lại');
       Get.toNamed(AppRoutes.login);
-
     } on FirebaseAuthException catch (e) {
       Get.snackbar('Lỗi', e.message ?? 'Có lỗi xảy ra');
     } finally {

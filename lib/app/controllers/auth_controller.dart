@@ -32,7 +32,10 @@ class AuthController extends GetxController {
       if (user != null) {
         final isEmailVerified = await _authService.checkEmailVerified();
         if (!isEmailVerified) {
-          return _promptEmailVerification();
+          throw FirebaseAuthException(
+            code: 'email-not-verified',
+            message: 'Vui lòng xác minh email trước khi tiếp tục.',
+          );
         }
 
         final userModel = await _userRepository.getUserById(user.uid);
@@ -49,18 +52,17 @@ class AuthController extends GetxController {
             // Delete and recreate SellerHomeVm to clear old data
             Get.delete<SellerHomeVm>();
             Get.put(SellerHomeVm());
-            print('🔄 Recreated SellerHomeVm for new user');
           } catch (e) {
-            print('⚠️ Could not recreate SellerHomeVm: $e');
+            print('Error refreshing SellerHomeVm: $e');
           }
         }
 
         await _navigateByRole(user.uid, userModel.role);
       }
     } on FirebaseAuthException catch (e) {
-      _handleFirebaseAuthError(e);
+      rethrow;
     } catch (e) {
-      Get.snackbar('Lỗi', 'Đã có lỗi không xác định: $e');
+      throw Exception('Đã có lỗi không xác định: $e');
     } finally {
       isLoading.value = false;
     }
@@ -84,8 +86,10 @@ class AuthController extends GetxController {
         _savePendingUser(email, name, phone, address, latitude, longitude);
         Get.offAllNamed(AppRoutes.emailVerify);
       }
+    } on FirebaseAuthException catch (e) {
+      rethrow;
     } catch (e) {
-      Get.snackbar("Lỗi", e.toString());
+      throw Exception(e.toString());
     } finally {
       isLoading.value = false;
     }
@@ -96,7 +100,8 @@ class AuthController extends GetxController {
     if (verified) {
       Get.offAllNamed(AppRoutes.roleSelection);
     } else {
-      Get.snackbar("Xác minh email", "Vui lòng xác minh email trước khi tiếp tục.");
+      // Không dùng snackbar nữa, trả lỗi về ViewModel nếu cần
+      throw FirebaseAuthException(code: 'email-not-verified', message: 'Vui lòng xác minh email trước khi tiếp tục.');
     }
   }
 
@@ -152,7 +157,7 @@ class AuthController extends GetxController {
 
       Get.offAllNamed(role == 'buyer' ? AppRoutes.buyerHome : AppRoutes.createStoreInfo);
     } catch (e) {
-      Get.snackbar("Lỗi", e.toString());
+      throw Exception(e.toString());
     } finally {
       isLoading.value = false;
     }
@@ -173,17 +178,17 @@ class AuthController extends GetxController {
           await _navigateByRole(user.uid, userModel.role);
         }
       }
+    } on FirebaseAuthException catch (e) {
+      rethrow;
     } catch (e) {
-      Get.snackbar('Lỗi', e.toString());
-      print('Error signing in with Google: $e');
+      throw Exception(e.toString());
     } finally {
       isLoading.value = false;
     }
   }
 
   void _promptEmailVerification() {
-    Get.offAllNamed(AppRoutes.emailVerify);
-    Get.snackbar('Xác minh email', 'Vui lòng xác minh email trước khi tiếp tục.', snackPosition: SnackPosition.BOTTOM);
+    throw FirebaseAuthException(code: 'email-not-verified', message: 'Vui lòng xác minh email trước khi tiếp tục.');
   }
 
   Future<void> _navigateByRole(String uid, String? role) async {
@@ -205,16 +210,6 @@ class AuthController extends GetxController {
     }
   }
 
-  void _handleFirebaseAuthError(FirebaseAuthException e) {
-    final errorMessage = switch (e.code) {
-      'user-not-found' => 'Không tìm thấy tài khoản với email này',
-      'wrong-password' => 'Mật khẩu không đúng',
-      'invalid-email' => 'Email không hợp lệ',
-      'user-disabled' => 'Tài khoản đã bị vô hiệu hóa',
-      _ => 'Đã có lỗi xảy ra: ${e.message ?? e.toString()}',
-    };
-    Get.snackbar('Lỗi', errorMessage);
-  }
 
   void _savePendingUser(
     String email,

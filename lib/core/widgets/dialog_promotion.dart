@@ -242,7 +242,6 @@ class _DialogPromotionState extends State<DialogPromotion> {
       expiredDate: _endDate ?? DateTime.now().add(const Duration(days: 30)),
       limit: 100,
       used: 0,
-      isActive: true,
       promotionId: null,
     );
 

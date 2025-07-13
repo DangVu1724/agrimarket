@@ -69,6 +69,7 @@ dependencies:
   lucide_icons: ^0.257.0
   flutter_launcher_icons: ^0.14.4
   fl_chart: ^1.0.0
+  crypto: ^3.0.3
 
 
 

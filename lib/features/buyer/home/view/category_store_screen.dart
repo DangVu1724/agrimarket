@@ -2,6 +2,7 @@ import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/core/utils/cache_utils.dart';
+import 'package:agrimarket/core/widgets/promotion_badge.dart';
 import 'package:agrimarket/features/buyer/home/viewmodel/store_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -25,24 +26,24 @@ class CategoryStoreScreen extends StatelessWidget {
         title: Text(category, style: AppTextStyles.headline),
         centerTitle: true,
         backgroundColor: AppColors.background,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.bug_report),
-            onPressed: () {
-              storeVm.debugAllStores();
-            },
-            tooltip: 'Debug - Check all stores',
-          ),
-          IconButton(
-            icon: const Icon(Icons.storage),
-            onPressed: () async {
-              await CacheUtils.checkAndRepairCache();
-              final stats = CacheUtils.getCacheStats();
-              print('📊 Cache stats: $stats');
-            },
-            tooltip: 'Debug - Check cache',
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.bug_report),
+        //     onPressed: () {
+        //       storeVm.debugAllStores();
+        //     },
+        //     tooltip: 'Debug - Check all stores',
+        //   ),
+        //   IconButton(
+        //     icon: const Icon(Icons.storage),
+        //     onPressed: () async {
+        //       await CacheUtils.checkAndRepairCache();
+        //       final stats = CacheUtils.getCacheStats();
+        //       print('📊 Cache stats: $stats');
+        //     },
+        //     tooltip: 'Debug - Check cache',
+        //   ),
+        // ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -69,7 +70,7 @@ class CategoryStoreScreen extends StatelessWidget {
                       items: const [
                         DropdownMenuItem(value: 'all', child: Text('Tất cả')),
                         DropdownMenuItem(value: 'opened', child: Text('Đang mở cửa')),
-                        DropdownMenuItem(value: 'certified', child: Text('Đã chứng nhận')),
+                        DropdownMenuItem(value: 'promotion', child: Text('Khuyến mãi')),
                       ],
                       onChanged: (value) {
                         if (value != null) {
@@ -145,14 +146,17 @@ class CategoryStoreScreen extends StatelessWidget {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.network(
-                                store.storeImageUrl ?? '',
-                                width: 80,
-                                height: 80,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.store, size: 50),
+                            PromotionBadgeOverlay(
+                              isPromotion: store.isPromotion,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  store.storeImageUrl ?? '',
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.store, size: 50),
+                                ),
                               ),
                             ),
                             const SizedBox(width: 12),

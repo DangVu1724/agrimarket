@@ -80,11 +80,30 @@ class PaymentMethodScreen extends StatelessWidget {
         child: SizedBox(
           width: double.infinity,
           height: 48,
-          child: CustomButton(
-            text: 'Áp dụng',
-            onPressed: () {
-              Get.back();
-            },
+          child: Obx(
+            () => CustomButton(
+              text: 'Áp dụng',
+              onPressed: () {
+                if (paymentVm.hasPaymentMethod) {
+                  Get.snackbar(
+                    'Thành công',
+                    'Đã chọn phương thức thanh toán: ${paymentVm.paymentMethod.value}',
+                    backgroundColor: Colors.green,
+                    colorText: Colors.white,
+                    duration: const Duration(seconds: 2),
+                  );
+                  Get.back();
+                } else {
+                  Get.snackbar(
+                    'Thông báo',
+                    'Vui lòng chọn phương thức thanh toán',
+                    backgroundColor: Colors.orange,
+                    colorText: Colors.white,
+                    duration: const Duration(seconds: 2),
+                  );
+                }
+              },
+            ),
           ),
         ),
       ),

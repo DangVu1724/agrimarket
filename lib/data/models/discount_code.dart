@@ -12,7 +12,6 @@ class DiscountCodeModel {
   final DateTime expiredDate;
   final int limit;
   final int used;
-  final bool isActive;
   final String? promotionId; // gắn vào chương trình nào đó (nếu có)
 
   DiscountCodeModel({
@@ -27,7 +26,6 @@ class DiscountCodeModel {
     required this.expiredDate,
     required this.limit,
     required this.used,
-    required this.isActive,
     this.promotionId,
   });
 
@@ -48,7 +46,6 @@ class DiscountCodeModel {
       expiredDate: (json['expiredDate'] as Timestamp).toDate(),
       limit: json['limit'] ?? 0,
       used: json['used'] ?? 0,
-      isActive: json['isActive'] ?? false,
       promotionId: json['promotionId'],
     );
   }
@@ -66,7 +63,6 @@ class DiscountCodeModel {
       'expiredDate': expiredDate,
       'limit': limit,
       'used': used,
-      'isActive': isActive,
       'promotionId': promotionId,
     };
   }
@@ -83,7 +79,6 @@ class DiscountCodeModel {
     DateTime? expiredDate,
     int? limit,
     int? used,
-    bool? isActive,
     String? promotionId,
   }) {
     return DiscountCodeModel(
@@ -98,7 +93,6 @@ class DiscountCodeModel {
       expiredDate: expiredDate ?? this.expiredDate,
       limit: limit ?? this.limit,
       used: used ?? this.used,
-      isActive: isActive ?? this.isActive,
       promotionId: promotionId ?? this.promotionId,
     );
   }

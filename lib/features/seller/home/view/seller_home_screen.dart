@@ -233,7 +233,7 @@ class SellerHomeScreen extends StatelessWidget {
           enlargeCenterPage: true,
           viewportFraction: 0.8,
           enableInfiniteScroll: true,
-          autoPlay: true,
+          autoPlay: false, // Tắt autoPlay để tránh lỗi
         ),
         items:
             bannerImages.map((imageBanner) {

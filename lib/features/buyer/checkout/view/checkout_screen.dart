@@ -352,9 +352,38 @@ class CheckoutScreen extends StatelessWidget {
             () => CustomButton(
               text: checkoutVm.isCreatingOrder.value ? 'Đang tạo đơn hàng...' : 'Xác nhận thanh toán',
               onPressed: () async {
+                // Kiểm tra validation trước khi hiển thị loading
+                final CartVm cartVm = Get.find<CartVm>();
+                final PaymentVm paymentVm = Get.find<PaymentVm>();
+                final BuyerVm buyerVm = Get.find<BuyerVm>();
+                final CheckoutVm checkoutVm = Get.find<CheckoutVm>();
+
+                // Validate trước khi hiển thị loading
+                if (!paymentVm.hasPaymentMethod) {
+                  Get.snackbar('Lỗi', 'Vui lòng chọn phương thức thanh toán');
+                  return;
+                }
+
+                if (buyerVm.defaultAddress == null) {
+                  Get.snackbar('Lỗi', 'Vui lòng chọn địa chỉ giao hàng');
+                  return;
+                }
+
+                if (checkoutVm.auth.currentUser?.uid == null) {
+                  Get.snackbar('Lỗi', 'Vui lòng đăng nhập lại');
+                  return;
+                }
+
+                final items = cartVm.cart.value?.items.where((item) => item.storeId == storeId).toList() ?? [];
+                if (items.isEmpty) {
+                  Get.snackbar('Lỗi', 'Không có sản phẩm nào trong giỏ hàng');
+                  return;
+                }
+
+                // Chỉ hiển thị loading khi validation pass
                 Get.dialog(const Center(child: CircularProgressIndicator()), barrierDismissible: false);
                 await _handleOrderCreation();
-                Get.back();
+                Get.back(); // Đóng loading dialog
               },
             ),
           ),
@@ -423,29 +452,8 @@ class CheckoutScreen extends StatelessWidget {
     final BuyerVm buyerVm = Get.find<BuyerVm>();
 
     try {
-      // Validate required fields
-      if (!paymentVm.hasPaymentMethod) {
-        Get.snackbar('Lỗi', 'Vui lòng chọn phương thức thanh toán');
-        return;
-      }
-
-      if (buyerVm.defaultAddress == null) {
-        Get.snackbar('Lỗi', 'Vui lòng chọn địa chỉ giao hàng');
-        return;
-      }
-
-      // Validate user authentication
-      if (checkoutVm.auth.currentUser?.uid == null) {
-        Get.snackbar('Lỗi', 'Vui lòng đăng nhập lại');
-        return;
-      }
-
-      // Get cart items for this store
+      // Validation đã được thực hiện ở trên, chỉ cần lấy data
       final items = cartVm.cart.value?.items.where((item) => item.storeId == storeId).toList() ?? [];
-      if (items.isEmpty) {
-        Get.snackbar('Lỗi', 'Không có sản phẩm nào trong giỏ hàng');
-        return;
-      }
 
       // Calculate discount
       double discountPrice = 0;
@@ -484,8 +492,10 @@ class CheckoutScreen extends StatelessWidget {
           paymentVm.clearPaymentMethod();
         } catch (clearError) {}
         Get.offAllNamed(AppRoutes.buyerHome);
-      } else {}
-    } catch (e) {}
+      }
+    } catch (e) {
+      // Handle error silently or show snackbar if needed
+    }
   }
 
   Widget _buildDivider() => Container(width: double.infinity, height: 1, color: Colors.grey.shade300);

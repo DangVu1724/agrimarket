@@ -3,12 +3,14 @@ import 'package:agrimarket/data/models/product.dart';
 import 'package:agrimarket/data/models/product_promotion.dart';
 import 'package:agrimarket/data/repo/product_repo.dart';
 import 'package:agrimarket/data/services/promotion_service.dart';
+import 'package:agrimarket/data/services/store_promotion_service.dart';
 import 'package:agrimarket/features/seller/product/viewmodel/seller_product_screen_vm.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
 class PromotionVm extends GetxController {
   final PromotionService _promotionService = PromotionService();
+  final StorePromotionService _storePromotionService = StorePromotionService();
   final ProductRepository _productRepository = ProductRepository();
   final SellerProductVm productVm = Get.find<SellerProductVm>();
 
@@ -47,6 +49,9 @@ class PromotionVm extends GetxController {
       await _promotionService.createDiscountCode(code);
 
       await loadAllPromotions(code.storeId!);
+
+      // Cập nhật trạng thái khuyến mãi của store
+      await _storePromotionService.updateStorePromotionStatus(code.storeId!);
     } catch (e) {
       Get.snackbar('Lỗi', 'Tạo khuyến mãi thất bại: ${e.toString()}');
       rethrow;
@@ -58,6 +63,9 @@ class PromotionVm extends GetxController {
       await _promotionService.createProductDiscount(discount);
 
       await loadAllPromotions(discount.storeId);
+
+      // Cập nhật trạng thái khuyến mãi của store
+      await _storePromotionService.updateStorePromotionStatus(discount.storeId);
     } catch (e) {
       Get.snackbar('Lỗi', 'Tạo khuyến mãi thất bại: ${e.toString()}');
       rethrow;
@@ -74,10 +82,15 @@ class PromotionVm extends GetxController {
         throw Exception('Không tìm thấy khuyến mãi với ID: $id');
       }
 
+      final storeId = discount.storeId;
+
       await _removeDiscountFromProducts(discount.productIds);
       await _promotionService.removeProductDiscount(id);
 
       productDiscounts.value = productDiscounts.value.where((e) => e.id != id).toList();
+
+      // Cập nhật trạng thái khuyến mãi của store
+      await _storePromotionService.updateStorePromotionStatus(storeId);
     } catch (e) {
       Get.snackbar('Lỗi', 'Xóa khuyến mãi thất bại: ${e.toString()}', snackPosition: SnackPosition.BOTTOM);
       rethrow;
@@ -133,8 +146,16 @@ class PromotionVm extends GetxController {
 
   Future<void> deleteDiscountCode(String id) async {
     try {
+      final code = discountCodes.value.firstWhereOrNull((e) => e.id == id);
+      final storeId = code?.storeId;
+
       await _promotionService.removeDiscountCode(id);
       discountCodes.value = discountCodes.value.where((e) => e.id != id).toList();
+
+      // Cập nhật trạng thái khuyến mãi của store
+      if (storeId != null) {
+        await _storePromotionService.updateStorePromotionStatus(storeId);
+      }
     } catch (e) {
       Get.snackbar('Lỗi', 'Xóa mã giảm giá thất bại: ${e.toString()}');
       rethrow;
@@ -150,19 +171,28 @@ class PromotionVm extends GetxController {
         discountCodes.value[index] = code;
         discountCodes.refresh();
       }
+
+      // Cập nhật trạng thái khuyến mãi của store
+      if (code.storeId != null) {
+        await _storePromotionService.updateStorePromotionStatus(code.storeId!);
+      }
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<void> updateProductDiscount(ProductPromotionModel product) async {
+  Future<void> updateProductDiscount(ProductPromotionModel discount) async {
     try {
-      await _promotionService.updateProductDiscount(product);
-      int index = productDiscounts.value.indexWhere((c) => c.id == product.id);
+      await _promotionService.updateProductDiscount(discount);
+
+      int index = productDiscounts.value.indexWhere((d) => d.id == discount.id);
       if (index != -1) {
-        productDiscounts.value[index] = product;
+        productDiscounts.value[index] = discount;
         productDiscounts.refresh();
       }
+
+      // Cập nhật trạng thái khuyến mãi của store
+      await _storePromotionService.updateStorePromotionStatus(discount.storeId);
     } catch (e) {
       rethrow;
     }

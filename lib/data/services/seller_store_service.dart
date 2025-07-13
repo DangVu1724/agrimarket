@@ -16,8 +16,7 @@ class SellerStoreService {
       // Get stores directly from Firestore without cache
       final stores = await _storeRepository.getStoresByOwner(user.uid);
 
-      for (int i = 0; i < stores.length; i++) {
-      }
+      for (int i = 0; i < stores.length; i++) {}
 
       if (stores.isEmpty) {
         return null;

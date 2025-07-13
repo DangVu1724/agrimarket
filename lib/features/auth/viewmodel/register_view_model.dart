@@ -1,7 +1,9 @@
 import 'package:agrimarket/app/controllers/auth_controller.dart';
+import 'package:agrimarket/core/utils/security_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterViewModel extends GetxController {
   final AuthController _authController = Get.find<AuthController>();
@@ -15,6 +17,22 @@ class RegisterViewModel extends GetxController {
   final obscurePassword = true.obs;
   final agreeTerms = false.obs;
   final isLoading = false.obs;
+  final RxString errorMessage = ''.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    ever<String>(errorMessage, (msg) {
+      if (msg.isNotEmpty) {
+        Future.delayed(const Duration(seconds: 3), () {
+          if (errorMessage.value == msg) {
+            errorMessage.value = '';
+          }
+        });
+      }
+    });
+  }
 
   @override
   void onClose() {
@@ -36,7 +54,7 @@ class RegisterViewModel extends GetxController {
     if (value == null || value.isEmpty) {
       return 'Vui lòng nhập email';
     }
-    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+    if (!SecurityUtils.isValidEmail(value)) {
       return 'Email không hợp lệ';
     }
     return null;
@@ -46,39 +64,29 @@ class RegisterViewModel extends GetxController {
     if (value == null || value.isEmpty) {
       return 'Vui lòng nhập số điện thoại';
     }
-    if (!RegExp(r'^0[0-9]{9}$').hasMatch(value)) {
-      return 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số';
+    if (!SecurityUtils.isValidPhoneNumber(value)) {
+      return 'Số điện thoại không hợp lệ';
     }
-
     return null;
   }
 
   String? validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Vui lòng nhập mật khẩu';
-    }
-    if (value.length < 6) {
-      return 'Mật khẩu phải có ít nhất 6 ký tự';
-    }
-    return null;
+    return SecurityUtils.validatePassword(value);
   }
 
   Future<void> signUp() async {
     if (formKey.currentState != null && formKey.currentState!.validate()) {
       if (!agreeTerms.value) {
-        Get.snackbar(
-          'Lỗi',
-          'Vui lòng đồng ý với Điều khoản dịch vụ và Chính sách bảo mật',
-        );
+        errorMessage.value = 'Vui lòng đồng ý với Điều khoản dịch vụ và Chính sách bảo mật';
         return;
       }
-
+      errorMessage.value = '';
       try {
         isLoading.value = true;
 
         final isTaken = await isPhoneNumberTaken(phoneController.text.trim());
         if (isTaken) {
-          Get.snackbar('Lỗi', 'Số điện thoại đã được sử dụng');
+          errorMessage.value = 'Số điện thoại đã được sử dụng';
           return;
         }
 
@@ -88,8 +96,25 @@ class RegisterViewModel extends GetxController {
           name: fullNameController.text.trim(),
           phone: phoneController.text.trim(),
         );
+      } on FirebaseAuthException catch (e) {
+        switch (e.code) {
+          case 'email-already-in-use':
+            errorMessage.value = 'Email đã được sử dụng.';
+            break;
+          case 'invalid-email':
+            errorMessage.value = 'Email không hợp lệ.';
+            break;
+          case 'weak-password':
+            errorMessage.value = 'Mật khẩu quá yếu.';
+            break;
+          case 'operation-not-allowed':
+            errorMessage.value = 'Tài khoản email/password chưa được bật.';
+            break;
+          default:
+            errorMessage.value = 'Đăng ký thất bại: ${e.message ?? e.code}';
+        }
       } catch (e) {
-        Get.snackbar('Lỗi', 'Đăng ký thất bại: $e');
+        errorMessage.value = 'Đăng ký thất bại: $e';
       } finally {
         isLoading.value = false;
       }
@@ -97,12 +122,18 @@ class RegisterViewModel extends GetxController {
   }
 
   Future<bool> isPhoneNumberTaken(String phone) async {
-    final querySnapshot =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .where('phone', isEqualTo: phone)
-            .get();
+    final querySnapshot = await FirebaseFirestore.instance.collection('users').where('phone', isEqualTo: phone).get();
 
     return querySnapshot.docs.isNotEmpty;
+  }
+
+  void showErrorDialog(String message) {
+    errorMessage.value = message;
+
+    Future.delayed(const Duration(seconds: 3), () {
+      if (errorMessage.value == message) {
+        errorMessage.value = '';
+      }
+    });
   }
 }

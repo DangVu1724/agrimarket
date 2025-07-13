@@ -14,6 +14,14 @@
 **/.env
 migrate_working_dir/
 
+# Security - Sensitive files
+serviceAccountKey.json
+google-services.json
+GoogleService-Info.plist
+*.keystore
+*.jks
+key.properties
+
 # IntelliJ related
 *.iml
 *.ipr

@@ -133,6 +133,24 @@ class StoreService {
     return store;
   }
 
+  Future<List<StoreModel>> getStoresWithPromotion() async {
+    final key = 'stores_promotion';
+    final timestampKey = '${key}_timestamp';
+    final cached = _box.get(key);
+    final timestamp = _box.get(timestampKey);
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    if (cached != null && timestamp != null && now - timestamp < _cacheDuration) {
+      return (cached as List).map((s) => StoreModel.fromJson(Map<String, dynamic>.from(s))).toList();
+    }
+
+    final stores = await fetchStores();
+    final filtered = stores.where((s) => s.isPromotion == true).toList();
+    _box.put(key, filtered.map((s) => s.toJson()).toList());
+    _box.put(timestampKey, now);
+    return filtered;
+  }
+
   Future<List<StoreModel>> fetchStores() {
     return _storeRepository.fetchStores();
   }

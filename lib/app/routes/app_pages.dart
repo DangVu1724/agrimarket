@@ -1,4 +1,7 @@
 import 'package:agrimarket/app/bindings/auth_binding.dart';
+import 'package:agrimarket/app/bindings/buyer_binding.dart';
+import 'package:agrimarket/app/bindings/seller_binding.dart';
+import 'package:agrimarket/app/routes/middleware.dart';
 import 'package:agrimarket/data/models/cart.dart';
 import 'package:agrimarket/data/models/product.dart';
 import 'package:agrimarket/data/models/product_promotion.dart';
@@ -10,6 +13,7 @@ import 'package:agrimarket/features/buyer/checkout/view/discount_code_screen.dar
 import 'package:agrimarket/features/buyer/checkout/view/payment_method_screen.dart';
 import 'package:agrimarket/features/buyer/checkout/viewmodel/checkout_vm.dart';
 import 'package:agrimarket/features/buyer/home/view/category_store_screen.dart';
+import 'package:agrimarket/features/buyer/home/view/promotion_store_list_screen.dart';
 import 'package:agrimarket/features/buyer/other/view/add_address.dart';
 import 'package:agrimarket/features/buyer/cart/view/cart_screen.dart';
 import 'package:agrimarket/features/buyer/other/view/favourite_screen.dart';
@@ -53,20 +57,112 @@ import 'app_routes.dart';
 
 class AppPages {
   static final pages = [
+    // ===== PUBLIC ROUTES (Không cần middleware) =====
     GetPage(name: AppRoutes.splash, page: () => const SplashScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.dashboard, page: () => const Dashboard(), binding: AuthBinding()),
     GetPage(name: AppRoutes.login, page: () => const LoginScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.resetPassword, page: () => ResetPasswordScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.register, page: () => RegisterScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.roleSelection, page: () => RoleSelectionScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.addAddress, page: () => AddressScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.createStoreInfo, page: () => CreateStoreInfoScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.createStoreAddress, page: () => StoreAddressScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.emailVerify, page: () => EmailVerificationScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.buyerHome, page: () => BuyerHome(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.buyerHomeScreen, page: () => HomeBuyerScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.categoryStoreScreen, page: () => CategoryStoreScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.paymentMethod, page: () => PaymentMethodScreen(), binding: AuthBinding()),
+    GetPage(name: AppRoutes.roleSelection, page: () => RoleSelectionScreen(), binding: AuthBinding()),
+    GetPage(name: AppRoutes.resetPassword, page: () => ResetPasswordScreen(), binding: AuthBinding()),
+
+    // ===== AUTHENTICATION ROUTES (Cần AuthMiddleware) =====
+    GetPage(
+      name: AppRoutes.addAddress,
+      page: () => AddressScreen(),
+      binding: AuthBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.createStoreInfo,
+      page: () => CreateStoreInfoScreen(),
+      binding: AuthBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.createStoreAddress,
+      page: () => StoreAddressScreen(),
+      binding: AuthBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+
+    // ===== BUYER ROUTES (Cần AuthMiddleware + BuyerBinding) =====
+    GetPage(
+      name: AppRoutes.buyerHome,
+      page: () => BuyerHome(),
+      binding: BuyerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.buyerHomeScreen,
+      page: () => HomeBuyerScreen(),
+      binding: BuyerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(name: AppRoutes.cart, page: () => CartScreen(), binding: BuyerBinding(), middlewares: [AuthMiddleware()]),
+    GetPage(
+      name: AppRoutes.buyerSearch,
+      page: () => const SearchScreen(),
+      binding: BuyerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.buyerOrders,
+      page: () => const OrdersScreen(),
+      binding: BuyerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.buyerProfile,
+      page: () => ProfileScreen(),
+      binding: BuyerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.buyerAccount,
+      page: () => AccountScreen(),
+      binding: BuyerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.buyerAddress,
+      page: () => AddressListScreen(),
+      binding: BuyerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.favourite,
+      page: () => FavouriteScreen(),
+      binding: BuyerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.categoryStoreScreen,
+      page: () => CategoryStoreScreen(),
+      binding: BuyerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.storePromotionList,
+      page: () => PromotionStoreListScreen(),
+      binding: BuyerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.paymentMethod,
+      page: () => PaymentMethodScreen(),
+      binding: BuyerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.checkOut,
+      page: () {
+        final String storeId = Get.arguments as String;
+        return CheckoutScreen(storeId: storeId);
+      },
+      binding: BuyerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
     GetPage(
       name: AppRoutes.discountCode,
       page: () {
@@ -75,7 +171,8 @@ class AppPages {
         final double total = args['total'] as double;
         return DiscountCodeScreen(storeId: storeId, total: total);
       },
-      binding: AuthBinding(),
+      binding: BuyerBinding(),
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: AppRoutes.store,
@@ -87,80 +184,139 @@ class AppPages {
           throw ArgumentError('Expected StoreModel as argument for StoreScreen');
         }
       },
-      binding: AuthBinding(),
+      binding: BuyerBinding(),
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: AppRoutes.buyerProductDetail,
       page: () {
         final args = Get.arguments as Map<String, dynamic>;
-
         return ProductDetailScreen(
           product: ProductModel.fromJson(args['product']),
           store: StoreModel.fromJson(args['store']),
         );
       },
-      binding: AuthBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.checkOut,
-      page: () {
-        final String storeId = Get.arguments as String;
-        return CheckoutScreen(storeId: storeId);
-      },
-      binding: AuthBinding(),
+      binding: BuyerBinding(),
+      middlewares: [AuthMiddleware()],
     ),
 
-    GetPage(name: AppRoutes.buyerOrders, page: () => const OrdersScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.buyerSearch, page: () => const SearchScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.buyerProfile, page: () => ProfileScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.buyerAccount, page: () => AccountScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.buyerAddress, page: () => AddressListScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.favourite, page: () => FavouriteScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.cart, page: () => CartScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.aboutApp, page: () => AboutAppScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.help, page: () => HelpScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.security, page: () => SecurityScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.privacyPolicy, page: () => PrivacyScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.settings, page: () => SettingScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.sellerHome, page: () => SellerHome(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.sellerHomeScreen, page: () => const SellerHomeScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.sellerOrderList, page: () => const OrderlistScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.sellerMenu, page: () => SellerMenuScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.sellerMenu, page: () => SellerMenuScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.sellerProfile, page: () => SellerProfileScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.storeInfo, page: () => StoreInfoScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.sellerProduct, page: () => SellerProductScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.sellerCreateProduct, page: () => SellerCreateProductScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.sellerChat, page: () => SellerChatScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.sellerOrderList, page: () => OrderlistScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.sellerFinancial, page: () => const CommissionScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.revenue, page: () => RevenueScreen(), binding: AuthBinding()),
-    GetPage(name: AppRoutes.buyerChat, page: () => SellerCreateProductScreen(), binding: AuthBinding()),
+    // ===== SELLER ROUTES (Cần AuthMiddleware + SellerBinding) =====
+    GetPage(
+      name: AppRoutes.sellerHome,
+      page: () => SellerHome(),
+      binding: SellerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.sellerHomeScreen,
+      page: () => const SellerHomeScreen(),
+      binding: SellerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.sellerOrderList,
+      page: () => const OrderlistScreen(),
+      binding: SellerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.sellerMenu,
+      page: () => SellerMenuScreen(),
+      binding: SellerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.sellerProfile,
+      page: () => SellerProfileScreen(),
+      binding: SellerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.storeInfo,
+      page: () => StoreInfoScreen(),
+      binding: SellerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.sellerProduct,
+      page: () => SellerProductScreen(),
+      binding: SellerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.sellerCreateProduct,
+      page: () => SellerCreateProductScreen(),
+      binding: SellerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.sellerChat,
+      page: () => SellerChatScreen(),
+      binding: SellerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.sellerFinancial,
+      page: () => const CommissionScreen(),
+      binding: SellerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.revenue,
+      page: () => RevenueScreen(),
+      binding: SellerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
     GetPage(
       name: AppRoutes.sellerProductDetail,
       page: () {
         final product = Get.arguments as ProductModel;
         return SellerProductDetailScreen(product: product);
       },
-      binding: AuthBinding(),
+      binding: SellerBinding(),
+      middlewares: [AuthMiddleware()],
     ),
-
     GetPage(
       name: AppRoutes.sellerUpdateProduct,
       page: () {
         final product = Get.arguments as ProductModel;
         return SellerUpdateProductScreen(product: product);
       },
-      binding: AuthBinding(),
+      binding: SellerBinding(),
+      middlewares: [AuthMiddleware()],
     ),
-    GetPage(name: AppRoutes.sellerPromotions, page: () => SellerPromotionScreen(), binding: AuthBinding()),
+    GetPage(
+      name: AppRoutes.sellerPromotions,
+      page: () => SellerPromotionScreen(),
+      binding: SellerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
 
-    // GetPage(
-    //   name: AppRoutes.adminPromotion,
-    //   page: () => MyPromotionsScreen(),
-    //   binding: AuthBinding(),
-    // ),
+    // ===== COMMON ROUTES (Có thể dùng cho cả buyer và seller) =====
+    GetPage(
+      name: AppRoutes.aboutApp,
+      page: () => AboutAppScreen(),
+      binding: AuthBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(name: AppRoutes.help, page: () => HelpScreen(), binding: AuthBinding(), middlewares: [AuthMiddleware()]),
+    GetPage(
+      name: AppRoutes.security,
+      page: () => SecurityScreen(),
+      binding: AuthBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.privacyPolicy,
+      page: () => PrivacyScreen(),
+      binding: AuthBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.settings,
+      page: () => SettingScreen(),
+      binding: AuthBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
   ];
 }
-
-

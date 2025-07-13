@@ -3,7 +3,7 @@ import 'package:agrimarket/data/models/store.dart';
 
 class StoreModelAdapter extends TypeAdapter<StoreModel> {
   @override
-  final int typeId = 0; 
+  final int typeId = 0;
 
   @override
   StoreModel read(BinaryReader reader) {
@@ -17,7 +17,7 @@ class StoreModelAdapter extends TypeAdapter<StoreModel> {
       description: reader.readString(),
       categories: (reader.readList()).cast<String>(),
       storeLocation: reader.read() as StoreAddress,
-
+      isPromotion: reader.readBool(),
     );
   }
 
@@ -32,6 +32,6 @@ class StoreModelAdapter extends TypeAdapter<StoreModel> {
     writer.writeString(obj.description);
     writer.writeList(obj.categories);
     writer.write(obj.storeLocation);
-
+    writer.writeBool(obj.isPromotion);
   }
 }

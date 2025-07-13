@@ -7,6 +7,7 @@ class StoreVm extends GetxController {
 
   final RxList<StoreModel> storesByCategory = <StoreModel>[].obs;
   final RxList<StoreModel> storesList = <StoreModel>[].obs;
+  final RxList<StoreModel> storesListPromotion = <StoreModel>[].obs;
   final Rxn<StoreModel> storeData = Rxn<StoreModel>();
   final RxBool isLoading = false.obs;
   final filterType = 'all'.obs;
@@ -16,6 +17,7 @@ class StoreVm extends GetxController {
   void onInit() {
     super.onInit();
     fetchStoresList();
+    fetchStoresWithPromotion();
   }
 
   Future<void> fetchStoresList() async {
@@ -66,6 +68,20 @@ class StoreVm extends GetxController {
     }
   }
 
+  Future<void> fetchStoresWithPromotion() async {
+    try {
+      isLoading.value = true;
+      final stores = await _storeService.getStoresWithPromotion();
+      print('📦 ViewModel: Received ${stores.length} stores from service');
+      storesListPromotion.assignAll(stores);
+    } catch (e) {
+      storesListPromotion.clear();
+      Get.snackbar('Lỗi', 'Không thể tải danh sách cửa hàng khuyến mãi: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   void setFilter(String value) => filterType.value = value;
 
   void toggleSortOrder() => isAscending.value = !isAscending.value;
@@ -74,8 +90,8 @@ class StoreVm extends GetxController {
     var list = storesByCategory.toList();
     if (filterType.value == 'opened') {
       list = list.where((s) => s.isOpened).toList();
-    } else if (filterType.value == 'certified') {
-      list = list.where((s) => s.foodSafetyCertificateUrl != null).toList();
+    } else if (filterType.value == 'promotion') {
+      list = list.where((s) => s.isPromotion).toList();
     }
     list.sort((a, b) => isAscending.value ? a.name.compareTo(b.name) : b.name.compareTo(a.name));
     return list;

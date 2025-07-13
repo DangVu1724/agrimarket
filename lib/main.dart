@@ -7,6 +7,7 @@ import 'package:agrimarket/data/models/adapter/store_model_adapter.dart';
 import 'package:agrimarket/data/models/adapter/user_model_adapter.dart';
 import 'package:agrimarket/data/models/adapter/product_model_adapter.dart';
 import 'package:agrimarket/data/models/adapter/timestamp_adapter.dart';
+import 'package:agrimarket/data/services/background_promotion_service.dart';
 import 'package:agrimarket/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -36,13 +37,39 @@ void main() async {
   // Open boxes with error handling
   await CacheUtils.openAllBoxes();
 
+  // Check cache health
+  final isHealthy = await CacheUtils.isCacheHealthy();
+  if (!isHealthy) {
+    print('⚠️ Cache health check failed, performing cleanup...');
+    await CacheUtils.cleanExpiredCache();
+  }
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   try {
     await dotenv.load(fileName: ".env");
   } catch (e) {
     print('Error loading dotenv: $e');
   }
+
+  // Khởi động background promotion service
+  final backgroundService = BackgroundPromotionService();
+  backgroundService.startBackgroundService();
+
+  // Lưu service instance để có thể truy cập từ nơi khác
+  Get.put(backgroundService, permanent: true);
+
+  // Schedule periodic cache cleanup (every 6 hours)
+  _scheduleCacheCleanup();
+
   runApp(const MyApp());
+}
+
+void _scheduleCacheCleanup() {
+  // Clean expired cache every 6 hours
+  Future.delayed(const Duration(hours: 6), () async {
+    await CacheUtils.cleanExpiredCache();
+    _scheduleCacheCleanup(); // Schedule next cleanup
+  });
 }
 
 class MyApp extends StatelessWidget {

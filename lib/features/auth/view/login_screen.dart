@@ -117,6 +117,15 @@ class LoginScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
+                  Obx(() => viewModel.errorMessage.value.isNotEmpty
+                      ? Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            viewModel.errorMessage.value,
+                            style: const TextStyle(color: Colors.red, fontSize: 14, fontWeight: FontWeight.w500),
+                          ),
+                        )
+                      : const SizedBox.shrink()),
                   CustomButton(
                     text: "Đăng nhập",
                     onPressed: viewModel.login,

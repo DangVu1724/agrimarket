@@ -1,10 +1,12 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/core/widgets/store_product_list.dart';
+import 'package:agrimarket/core/widgets/promotion_badge.dart';
 import 'package:agrimarket/data/models/buyer.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/data/services/address_service.dart';
 import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
+import 'package:agrimarket/features/buyer/home/view/promotion_store_horizontal_list.dart';
 import 'package:agrimarket/features/buyer/home/viewmodel/store_vm.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +18,7 @@ class HomeBuyerScreen extends StatelessWidget {
   final StoreVm storeVm = Get.find<StoreVm>();
 
   HomeBuyerScreen({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,8 +37,12 @@ class HomeBuyerScreen extends StatelessWidget {
                 _buildBanner(),
                 SizedBox(height: 15),
                 _buildCategoryIcons(),
-                _buildSectionHeader("Ưu đãi nhập trời", actionText: "Xem tất cả"),
-                _buildPromotionGrid(),
+                _buildSectionHeader(
+                  "Ưu đãi nhập trời",
+                  actionText: "Xem tất cả",
+                  actionRoute: AppRoutes.storePromotionList,
+                ),
+                PromotionStoreHorizontalList(),
                 _buildSectionHeader("Bỗng dưng thèm trái ngọt", actionText: "Xem tất cả"),
                 StoreProductList(storeId: 'store_Fs06RKoGxPfrFuxY8E78FtyRByD2_8165'),
                 _buildStoreList(),
@@ -57,7 +63,7 @@ class HomeBuyerScreen extends StatelessWidget {
         onTap: () {
           Get.toNamed(AppRoutes.buyerAddress);
         },
-        child: Text(vm.defaultAddress?.address?? '... Loading', style: TextStyle(color: Colors.black, fontSize: 16)),
+        child: Text(vm.defaultAddress?.address ?? '... Loading', style: TextStyle(color: Colors.black, fontSize: 16)),
       ),
       actions: [
         GestureDetector(
@@ -91,7 +97,7 @@ class HomeBuyerScreen extends StatelessWidget {
         enlargeCenterPage: true,
         viewportFraction: 0.8,
         enableInfiniteScroll: true,
-        autoPlay: true,
+        autoPlay: false, // Tắt autoPlay để tránh lỗi
         aspectRatio: 16 / 9,
       ),
       items:
@@ -170,7 +176,7 @@ class HomeBuyerScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title, {String? actionText}) {
+  Widget _buildSectionHeader(String title, {String? actionText, String? actionRoute, dynamic arguments}) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -180,30 +186,11 @@ class HomeBuyerScreen extends StatelessWidget {
           if (actionText != null)
             GestureDetector(
               onTap: () {
-                Get.toNamed(actionText);
+                Get.toNamed(actionRoute ?? '', arguments: arguments);
               },
               child: Text(actionText, style: TextStyle(color: Colors.green)),
             ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildPromotionGrid() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: List.generate(
-          3,
-          (_) => Expanded(
-            child: Container(
-              margin: EdgeInsets.all(4),
-              height: 100,
-              decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(12)),
-              child: Center(child: Text("Khuyến mãi", style: TextStyle(color: Colors.red))),
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -251,18 +238,21 @@ class HomeBuyerScreen extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child:
-                  store.storeImageUrl?.isNotEmpty == true
-                      ? Image.network(
-                        store.storeImageUrl!,
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.store, size: 50),
-                      )
-                      : const Icon(Icons.store, size: 50),
+            PromotionBadgeOverlay(
+              isPromotion: store.isPromotion,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child:
+                    store.storeImageUrl?.isNotEmpty == true
+                        ? Image.network(
+                          store.storeImageUrl!,
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.store, size: 50),
+                        )
+                        : const Icon(Icons.store, size: 50),
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -272,6 +262,10 @@ class HomeBuyerScreen extends StatelessWidget {
                   Text(store.name, style: AppTextStyles.headline.copyWith(fontSize: 16)),
                   const SizedBox(height: 6),
                   Text(timeInfo, style: AppTextStyles.body.copyWith(fontSize: 13)),
+                  const SizedBox(height: 12),
+                  store.isPromotion
+                      ? PromotionBadgeWithText(isPromotion: store.isPromotion, text: 'Khuyến mãi')
+                      : SizedBox.shrink(),
                 ],
               ),
             ),

@@ -1,21 +1,29 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:agrimarket/core/utils/security_utils.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   // Đăng ký
-  Future<User?> registerWithEmailAndPassword(
-    String email,
-    String password,
-  ) async {
+  Future<User?> registerWithEmailAndPassword(String email, String password) async {
     try {
-      final credential = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      // Validate input
+      if (!SecurityUtils.isValidEmail(email)) {
+        throw Exception('Email không hợp lệ');
+      }
+
+      final passwordError = SecurityUtils.validatePassword(password);
+      if (passwordError != null) {
+        throw Exception(passwordError);
+      }
+
+      // Sanitize input
+      final sanitizedEmail = SecurityUtils.sanitizeInput(email);
+
+      final credential = await _auth.createUserWithEmailAndPassword(email: sanitizedEmail, password: password);
       return credential.user;
     } catch (e) {
       rethrow;
@@ -23,15 +31,17 @@ class AuthService {
   }
 
   // Đăng nhập
-  Future<User?> signInWithEmailAndPassword(
-    String email,
-    String password,
-  ) async {
+  Future<User?> signInWithEmailAndPassword(String email, String password) async {
     try {
-      final credential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      // Validate input
+      if (!SecurityUtils.isValidEmail(email)) {
+        throw Exception('Email không hợp lệ');
+      }
+
+      // Sanitize input
+      final sanitizedEmail = SecurityUtils.sanitizeInput(email);
+
+      final credential = await _auth.signInWithEmailAndPassword(email: sanitizedEmail, password: password);
       return credential.user;
     } catch (e) {
       rethrow;

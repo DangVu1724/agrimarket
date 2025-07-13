@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/data/services/seller_store_service.dart';
+import 'package:agrimarket/data/services/store_promotion_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:get/get.dart';
 
 class SellerHomeVm extends GetxController {
   final SellerStoreService _sellerStoreService = SellerStoreService();
+  final StorePromotionService _storePromotionService = StorePromotionService();
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -24,6 +26,12 @@ class SellerHomeVm extends GetxController {
     super.onInit();
     clearStoreData();
     fetchStoreInfo();
+  }
+
+  @override
+  void onClose() {
+    _storePromotionService.dispose();
+    super.onClose();
   }
 
   void clearStoreData() {
@@ -91,6 +99,12 @@ class SellerHomeVm extends GetxController {
         store.value = sellerStore;
         isOpened.value = sellerStore.isOpened;
         storeStateColor.value = getStateColor(sellerStore.state);
+
+        // Bắt đầu lắng nghe thay đổi khuyến mãi cho store này
+        _storePromotionService.listenToPromotionChanges(sellerStore.storeId);
+
+        // Cập nhật trạng thái khuyến mãi ban đầu
+        await _storePromotionService.updateStorePromotionStatus(sellerStore.storeId);
       } else {
         print('❌ No stores found for user: ${user.uid}');
         hasError.value = true;

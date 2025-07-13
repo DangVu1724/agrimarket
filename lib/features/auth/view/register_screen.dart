@@ -29,22 +29,10 @@ class RegisterScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 30),
-                  Center(
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      width: 120,
-                      height: 120,
-                    ),
-                  ),
+                  Center(child: Image.asset('assets/images/logo.png', width: 120, height: 120)),
                   const SizedBox(height: 32),
                   const Center(
-                    child: Text(
-                      "ĐĂNG KÝ TÀI KHOẢN",
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: Text("ĐĂNG KÝ TÀI KHOẢN", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
                   ),
                   const SizedBox(height: 8),
                   const Column(
@@ -54,10 +42,7 @@ class RegisterScreen extends StatelessWidget {
                       Text(
                         "Vui lòng đăng ký tài khoản của bạn để bắt đầu khám phá AgriMarket",
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFF878787),
-                        ),
+                        style: TextStyle(fontSize: 16, color: Color(0xFF878787)),
                       ),
                     ],
                   ),
@@ -67,8 +52,7 @@ class RegisterScreen extends StatelessWidget {
                     label: "Họ và tên",
                     hintText: "Nhập họ và tên",
                     controller: _viewModel.fullNameController,
-                    validator:
-                        (value) => _viewModel.validateFullName(value ?? ""),
+                    validator: (value) => _viewModel.validateFullName(value ?? ""),
                     maxLine: 1,
                   ),
                   const SizedBox(height: 16),
@@ -86,8 +70,7 @@ class RegisterScreen extends StatelessWidget {
                     hintText: "Nhập số điện thoại",
                     controller: _viewModel.phoneController,
                     keyboard: TextInputType.phone,
-                    validator:
-                        (value) => _viewModel.validatePhoneNumber(value ?? ""),
+                    validator: (value) => _viewModel.validatePhoneNumber(value ?? ""),
                     maxLine: 1,
                   ),
                   const SizedBox(height: 16),
@@ -101,14 +84,9 @@ class RegisterScreen extends StatelessWidget {
                       validator: _viewModel.validatePassword,
                       keyboard: TextInputType.visiblePassword,
                       suffixIcon: IconButton(
-                        icon: Icon(
-                          _viewModel.obscurePassword.value
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                        ),
+                        icon: Icon(_viewModel.obscurePassword.value ? Icons.visibility_off : Icons.visibility),
                         onPressed: () {
-                          _viewModel.obscurePassword.value =
-                              !_viewModel.obscurePassword.value;
+                          _viewModel.obscurePassword.value = !_viewModel.obscurePassword.value;
                         },
                       ),
                     ),
@@ -136,32 +114,31 @@ class RegisterScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Obx(
+                    () =>
+                        _viewModel.errorMessage.value.isNotEmpty
+                            ? Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Text(
+                                _viewModel.errorMessage.value,
+                                style: const TextStyle(color: Colors.red, fontSize: 14, fontWeight: FontWeight.w500),
+                              ),
+                            )
+                            : const SizedBox.shrink(),
+                  ),
+                  Obx(
                     () => SizedBox(
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromRGBO(0, 153, 68, 1),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                         ),
-                        onPressed:
-                            _viewModel.isLoading.value
-                                ? null
-                                : () => _viewModel.signUp(),
+                        onPressed: _viewModel.isLoading.value ? null : () => _viewModel.signUp(),
                         child:
                             _viewModel.isLoading.value
-                                ? const CircularProgressIndicator(
-                                  color: Colors.white,
-                                )
-                                : const Text(
-                                  "Đăng ký",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                                ? const CircularProgressIndicator(color: Colors.white)
+                                : const Text("Đăng ký", style: TextStyle(fontSize: 16, color: Colors.white)),
                       ),
                     ),
                   ),
@@ -171,10 +148,7 @@ class RegisterScreen extends StatelessWidget {
                       Expanded(child: Divider(thickness: 1)),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 8),
-                        child: Text(
-                          "Hoặc đăng ký bằng",
-                          style: TextStyle(color: Color(0xFF878787)),
-                        ),
+                        child: Text("Hoặc đăng ký bằng", style: TextStyle(color: Color(0xFF878787))),
                       ),
                       Expanded(child: Divider(thickness: 1)),
                     ],
@@ -208,10 +182,7 @@ class RegisterScreen extends StatelessWidget {
                             children: [
                               TextSpan(
                                 text: "Đăng nhập",
-                                style: TextStyle(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
                               ),
                             ],
                           ),
