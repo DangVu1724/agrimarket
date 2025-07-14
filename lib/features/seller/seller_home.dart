@@ -1,5 +1,4 @@
 import 'package:agrimarket/app/theme/app_colors.dart';
-import 'package:agrimarket/core/widgets/safe_widget.dart';
 import 'package:agrimarket/features/buyer/user_vm.dart';
 import 'package:agrimarket/features/seller/chat/view/seller_chat_screen.dart';
 import 'package:agrimarket/features/seller/home/view/seller_home_screen.dart';
@@ -55,32 +54,30 @@ class SellerHome extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeWidget(
-        child: Obx(() {
-          try {
-            return _getScreen(_currentIndex.value);
-          } catch (e) {
-            print('❌ Error in SellerHome build: $e');
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  const SizedBox(height: 16),
-                  const Text('Đã xảy ra lỗi'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      _currentIndex.value = 0;
-                    },
-                    child: const Text('Thử lại'),
-                  ),
-                ],
-              ),
-            );
-          }
-        }),
-      ),
+      body: Obx(() {
+        try {
+          return _getScreen(_currentIndex.value);
+        } catch (e) {
+          print('❌ Error in SellerHome build: $e');
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                const Text('Đã xảy ra lỗi'),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    _currentIndex.value = 0;
+                  },
+                  child: const Text('Thử lại'),
+                ),
+              ],
+            ),
+          );
+        }
+      }),
       bottomNavigationBar: Obx(
         () => BottomNavigationBar(
           backgroundColor: Colors.white,

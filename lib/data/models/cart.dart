@@ -1,5 +1,6 @@
 // lib/data/models/cart.dart
 import 'package:get/get.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Cart {
   final String userId;
@@ -7,27 +8,28 @@ class Cart {
   final DateTime createdAt;
   final DateTime? updatedAt;
 
-  Cart({
-    required this.userId,
-    required this.items,
-    required this.createdAt,
-    this.updatedAt,
-  });
+  Cart({required this.userId, required this.items, required this.createdAt, this.updatedAt});
 
   Map<String, dynamic> toJson() => {
     'userId': userId,
     'items': items.map((item) => item.toJson()).toList(),
-    'createdAt': createdAt.toIso8601String(),
-    'updatedAt': updatedAt?.toIso8601String(),
+    'createdAt': Timestamp.fromDate(createdAt),
+    'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
   };
 
   factory Cart.fromJson(Map<String, dynamic> json) => Cart(
     userId: json['userId'],
-    items:
-        (json['items'] as List).map((item) => CartItem.fromJson(item)).toList(),
-    createdAt: DateTime.parse(json['createdAt']),
+    items: (json['items'] as List).map((item) => CartItem.fromJson(item)).toList(),
+    createdAt:
+        json['createdAt'] is Timestamp
+            ? (json['createdAt'] as Timestamp).toDate()
+            : DateTime.parse(json['createdAt'] as String),
     updatedAt:
-        json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+        json['updatedAt'] != null
+            ? (json['updatedAt'] is Timestamp
+                ? (json['updatedAt'] as Timestamp).toDate()
+                : DateTime.parse(json['updatedAt'] as String))
+            : null,
   );
 }
 
@@ -54,8 +56,7 @@ class CartItem {
     this.promotionPrice,
     this.isOnSaleAtAddition,
     required this.unit,
-
-  }): quantity = quantity.obs;
+  }) : quantity = quantity.obs;
 
   Map<String, dynamic> toJson() => {
     'productId': productId,

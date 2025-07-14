@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class OrderModel {
   final String orderId;
   final String buyerUid;
@@ -45,14 +47,27 @@ class OrderModel {
       status: json['status'],
       paymentMethod: json['paymentMethod'],
       totalPrice: (json['totalPrice'] as num).toDouble(),
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+      createdAt:
+          json['createdAt'] is Timestamp
+              ? (json['createdAt'] as Timestamp).toDate()
+              : DateTime.parse(json['createdAt'] as String),
+      updatedAt:
+          json['updatedAt'] != null
+              ? (json['updatedAt'] is Timestamp
+                  ? (json['updatedAt'] as Timestamp).toDate()
+                  : DateTime.parse(json['updatedAt'] as String))
+              : null,
       deliveryAddress: json['deliveryAddress'],
       discountCodeId: json['discountCodeId'],
       discountPrice: json['discountPrice'] != null ? (json['discountPrice'] as num).toDouble() : null,
       isPaid: json['isPaid'] ?? false,
       isCommissionPaid: json['isCommissionPaid'] ?? false,
-      deliveredAt: json['deliveredAt'] != null ? DateTime.parse(json['deliveredAt']) : null,
+      deliveredAt:
+          json['deliveredAt'] != null
+              ? (json['deliveredAt'] is Timestamp
+                  ? (json['deliveredAt'] as Timestamp).toDate()
+                  : DateTime.parse(json['deliveredAt'] as String))
+              : null,
     );
   }
 
@@ -66,13 +81,13 @@ class OrderModel {
     'totalPrice': totalPrice,
     'paymentMethod': paymentMethod,
     'discountPrice': discountPrice,
-    'createdAt': createdAt.toIso8601String(),
-    'updatedAt': updatedAt?.toIso8601String(),
+    'createdAt': Timestamp.fromDate(createdAt),
+    'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
     'deliveryAddress': deliveryAddress,
     'discountCodeId': discountCodeId,
     'isPaid': isPaid,
     'isCommissionPaid': isCommissionPaid,
-    'deliveredAt': deliveredAt?.toIso8601String(),
+    'deliveredAt': deliveredAt != null ? Timestamp.fromDate(deliveredAt!) : null,
   };
   OrderModel copyWith({
     String? orderId,

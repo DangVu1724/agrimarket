@@ -105,14 +105,11 @@ class OrderRepository {
 
   Future<void> updateOrdersCommissionPaidStatus(List<String> orderIds, bool isCommissionPaid) async {
     try {
-      print('Updating commission paid status for ${orderIds.length} orders');
-
-      // Use batch write for better performance
       final batch = FirebaseFirestore.instance.batch();
 
       for (String orderId in orderIds) {
         final orderRef = _ordersCollection.doc(orderId);
-        batch.update(orderRef, {'isCommissionPaid': isCommissionPaid, 'updatedAt': DateTime.now().toIso8601String()});
+        batch.update(orderRef, {'isCommissionPaid': isCommissionPaid, 'updatedAt': Timestamp.fromDate(DateTime.now())});
       }
 
       await batch.commit();

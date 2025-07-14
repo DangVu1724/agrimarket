@@ -136,30 +136,11 @@ class DiscountCodeScreen extends StatelessWidget {
         child: SizedBox(
           width: double.infinity,
           height: 48,
-          child: Obx(
-            () => CustomButton(
-              text: 'Áp dụng',
-              onPressed: () {
-                if (vm.selectedDiscountCode.value != null) {
-                  Get.snackbar(
-                    'Thành công',
-                    'Đã áp dụng mã giảm giá: ${vm.selectedDiscountCode.value!.code}',
-                    backgroundColor: Colors.green,
-                    colorText: Colors.white,
-                    duration: const Duration(seconds: 2),
-                  );
-                  Get.back();
-                } else {
-                  Get.snackbar(
-                    'Thông báo',
-                    'Vui lòng chọn một mã giảm giá',
-                    backgroundColor: Colors.orange,
-                    colorText: Colors.white,
-                    duration: const Duration(seconds: 2),
-                  );
-                }
-              },
-            ),
+          child: CustomButton(
+            text: 'Áp dụng',
+            onPressed: () {
+              Get.back();
+            },
           ),
         ),
       ),

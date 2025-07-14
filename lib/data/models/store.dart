@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class StoreModel {
   final String storeId;
   final String ownerUid;
@@ -42,7 +44,7 @@ class StoreModel {
     'storeImageUrl': storeImageUrl,
     'isOpened': isOpened,
     'isPromotion': isPromotion,
-    'createdAt': createdAt?.toIso8601String(),
+    'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
   };
 
   factory StoreModel.fromJson(Map<String, dynamic> json) => StoreModel(
@@ -62,7 +64,9 @@ class StoreModel {
     isPromotion: json['isPromotion'] ?? false,
     createdAt:
         json['createdAt'] != null
-            ? (json['createdAt'] is DateTime ? json['createdAt'] : DateTime.tryParse(json['createdAt'].toString()))
+            ? (json['createdAt'] is Timestamp
+                ? (json['createdAt'] as Timestamp).toDate()
+                : DateTime.tryParse(json['createdAt'].toString()))
             : null,
   );
 

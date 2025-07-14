@@ -30,38 +30,39 @@ class ProductModel {
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) => ProductModel(
-        category: json['category'] ?? '',
-        id: json['id'] ?? '',
-        storeId: json['storeId'] ?? '',
-        name: json['name'] ?? '',
-        description: json['description'] ?? '',
-        price: (json['price'] as num?)?.toDouble() ?? 0.0,
-        unit: json['unit'] ?? '',
-        imageUrl: json['imageUrl'] ?? '',
-        quantity: (json['quantity'] as num?)?.toInt() ?? 0,
-        promotion: json['promotion'] as String?,
-        promotionPrice: (json['promotionPrice'] as num?)?.toDouble(),
-        promotionEndDate: json['promotionEndDate'] != null
+    category: json['category'] ?? '',
+    id: json['id'] ?? '',
+    storeId: json['storeId'] ?? '',
+    name: json['name'] ?? '',
+    description: json['description'] ?? '',
+    price: (json['price'] as num?)?.toDouble() ?? 0.0,
+    unit: json['unit'] ?? '',
+    imageUrl: json['imageUrl'] ?? '',
+    quantity: (json['quantity'] as num?)?.toInt() ?? 0,
+    promotion: json['promotion'] as String?,
+    promotionPrice: (json['promotionPrice'] as num?)?.toDouble(),
+    promotionEndDate:
+        json['promotionEndDate'] != null
             ? (json['promotionEndDate'] is Timestamp
                 ? (json['promotionEndDate'] as Timestamp).toDate()
                 : DateTime.tryParse(json['promotionEndDate'] as String))
             : null,
-      );
+  );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'storeId': storeId,
-        'name': name,
-        'description': description,
-        'price': price,
-        'unit': unit,
-        'imageUrl': imageUrl,
-        'category': category,
-        'quantity': quantity,
-        'promotion': promotion,
-        'promotionPrice': promotionPrice,
-        'promotionEndDate': promotionEndDate?.toIso8601String(),
-      };
+    'id': id,
+    'storeId': storeId,
+    'name': name,
+    'description': description,
+    'price': price,
+    'unit': unit,
+    'imageUrl': imageUrl,
+    'category': category,
+    'quantity': quantity,
+    'promotion': promotion,
+    'promotionPrice': promotionPrice,
+    'promotionEndDate': promotionEndDate != null ? Timestamp.fromDate(promotionEndDate!) : null,
+  };
 
   ProductModel copyWith({
     String? id,

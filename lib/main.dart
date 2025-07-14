@@ -1,7 +1,6 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/app/theme/app_theme.dart';
 import 'package:agrimarket/core/utils/cache_utils.dart';
-import 'package:agrimarket/core/widgets/error_boundary.dart';
 import 'package:agrimarket/data/models/adapter/store_address.dart';
 import 'package:agrimarket/data/models/adapter/store_model_adapter.dart';
 import 'package:agrimarket/data/models/adapter/user_model_adapter.dart';
@@ -77,15 +76,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ErrorBoundary(
-      child: GetMaterialApp(
-        title: 'Chợ Nông Sản Sạch',
-        initialRoute: AppRoutes.splash,
-        getPages: AppPages.pages,
-        theme: AppTheme.lightTheme,
-        debugShowCheckedModeBanner: false,
-        themeMode: ThemeMode.light,
-      ),
+    return GetMaterialApp(
+      title: 'Chợ Nông Sản Sạch',
+      initialRoute: AppRoutes.splash,
+      getPages: AppPages.pages,
+      theme: AppTheme.lightTheme,
+      debugShowCheckedModeBanner: false,
+      themeMode: ThemeMode.light,
     );
   }
 }

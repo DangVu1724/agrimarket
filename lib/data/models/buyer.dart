@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class BuyerModel {
   final String uid;
   final List<String> favoriteStoreIds;
@@ -17,14 +19,8 @@ class BuyerModel {
     return BuyerModel(
       uid: json['uid'],
       favoriteStoreIds: List<String>.from(json['favoriteStoreIds'] ?? []),
-      addresses:
-          (json['addresses'] as List? ?? [])
-              .map((e) => Address.fromJson(e))
-              .toList(),
-      reviews:
-          (json['reviews'] as List? ?? [])
-              .map((e) => Review.fromJson(e))
-              .toList(),
+      addresses: (json['addresses'] as List? ?? []).map((e) => Address.fromJson(e)).toList(),
+      reviews: (json['reviews'] as List? ?? []).map((e) => Review.fromJson(e)).toList(),
       orderIds: List<String>.from(json['orderIds'] ?? []),
     );
   }
@@ -56,10 +52,7 @@ class BuyerModel {
   List<double>? getDefaultLatLng() {
     if (addresses.isEmpty) return null;
 
-    final defaultAddress = addresses.firstWhere(
-      (addr) => addr.isDefault,
-      orElse: () => addresses.first,
-    );
+    final defaultAddress = addresses.firstWhere((addr) => addr.isDefault, orElse: () => addresses.first);
 
     return [defaultAddress.latitude, defaultAddress.longitude];
   }
@@ -96,13 +89,7 @@ class Address {
     'isDefault': isDefault,
   };
 
-  Address copyWith({
-    String? label,
-    String? address,
-    double? latitude,
-    double? longitude,
-    bool? isDefault,
-  }) {
+  Address copyWith({String? label, String? address, double? latitude, double? longitude, bool? isDefault}) {
     return Address(
       label: label ?? this.label,
       address: address ?? this.address,
@@ -111,11 +98,7 @@ class Address {
       isDefault: isDefault ?? this.isDefault,
     );
   }
-
-  
 }
-
-
 
 class Review {
   final String userId;
@@ -123,24 +106,22 @@ class Review {
   final String comment;
   final DateTime createdAt;
 
-  Review({
-    required this.userId,
-    required this.rating,
-    required this.comment,
-    required this.createdAt,
-  });
+  Review({required this.userId, required this.rating, required this.comment, required this.createdAt});
 
   factory Review.fromJson(Map<String, dynamic> json) => Review(
     userId: json['userId'],
     rating: (json['rating'] as num).toDouble(),
     comment: json['comment'],
-    createdAt: DateTime.parse(json['createdAt']),
+    createdAt:
+        json['createdAt'] is Timestamp
+            ? (json['createdAt'] as Timestamp).toDate()
+            : DateTime.parse(json['createdAt'] as String),
   );
 
   Map<String, dynamic> toJson() => {
     'userId': userId,
     'rating': rating,
     'comment': comment,
-    'createdAt': createdAt.toIso8601String(),
+    'createdAt': Timestamp.fromDate(createdAt),
   };
 }
