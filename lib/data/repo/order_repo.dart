@@ -1,8 +1,10 @@
 import 'package:agrimarket/data/models/order.dart';
+import 'package:agrimarket/data/models/store.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class OrderRepository {
   final CollectionReference _ordersCollection = FirebaseFirestore.instance.collection('orders');
+  final CollectionReference _storesCollection = FirebaseFirestore.instance.collection('stores');
 
   Future<void> createOrder(OrderModel order) async {
     try {
@@ -115,6 +117,53 @@ class OrderRepository {
       await batch.commit();
     } catch (e) {
       throw Exception('Failed to update commission paid status: $e');
+    }
+  }
+
+  Future<void> submitReview({required String orderId, required double rating, required String comment, required String storeId, required String buyerUid}) async {
+    try {
+      await _ordersCollection.doc(orderId).update({'rating': rating, 'comment': comment, 'updatedAt': Timestamp.fromDate(DateTime.now()), 'isReviewed': true});
+
+      final reviewId = _storesCollection.doc(storeId).collection('reviews').doc().id;
+      await _storesCollection.doc(storeId).collection('reviews').add({
+        'buyerUid': buyerUid,
+        'orderId': orderId,
+        'storeId': storeId,
+        'rating': rating,
+        'comment': comment,
+        'createdAt': Timestamp.fromDate(DateTime.now()),
+        'reviewId': reviewId,
+      });
+
+    } catch (e) {
+      throw Exception('Failed to submit review: $e');
+    }
+  }
+
+  Future<void> updateStoreAverageRating(String storeId) async {
+  try {
+    final reviewSnapshot = await _storesCollection.doc(storeId).collection('reviews').get();
+
+    final reviews = reviewSnapshot.docs.map((doc) => Review.fromJson(doc.data())).toList();
+
+    if (reviews.isEmpty) {
+      await _storesCollection.doc(storeId).update({
+        'rating': 0.0,
+        'updatedAt': Timestamp.fromDate(DateTime.now()),
+      });
+      return;
+    }
+
+    final averageRating = reviews.map((e) => e.rating).reduce((a, b) => a + b) / reviews.length;
+
+    await _storesCollection.doc(storeId).update({
+      'rating': averageRating,
+      'updatedAt': Timestamp.fromDate(DateTime.now()),
+    });
+
+      print('✅ Đã cập nhật điểm trung bình: $averageRating');
+    } catch (e) {
+      throw Exception('❌ Lỗi khi cập nhật rating cửa hàng: $e');
     }
   }
 }

@@ -145,7 +145,7 @@ class StoreService {
     }
 
     final stores = await fetchStores();
-    final filtered = stores.where((s) => s.isPromotion == true).toList();
+    final filtered = stores.where((s) => s.isPromotion == true && s.state.toLowerCase() == 'verify').toList();
     _box.put(key, filtered.map((s) => s.toJson()).toList());
     _box.put(timestampKey, now);
     return filtered;

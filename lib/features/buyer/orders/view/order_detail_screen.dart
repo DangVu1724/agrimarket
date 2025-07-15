@@ -1,7 +1,9 @@
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/data/models/order.dart';
+import 'package:agrimarket/features/buyer/orders/v%E1%BB%89ewmodel/buyer_order_vm.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -22,7 +24,6 @@ class OrderDetailScreen extends StatelessWidget {
           style: AppTextStyles.headline.copyWith(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black87), onPressed: () => Get.back()),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -67,6 +68,11 @@ class OrderDetailScreen extends StatelessWidget {
             ],
             _priceRow('Tổng thanh toán', _formatPrice(order.totalPrice), isTotal: true),
             const Divider(height: 32),
+            if (order.status == 'delivered') ...[
+              _sectionTitle('Đánh giá'),
+              const SizedBox(height: 8),
+              _buildReviewSection(context, order),
+            ],
           ],
         ),
       ),
@@ -194,6 +200,86 @@ class OrderDetailScreen extends StatelessWidget {
           Icon(icon, color: textColor, size: 18),
           const SizedBox(width: 6),
           Text(status, style: AppTextStyles.body.copyWith(color: textColor, fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReviewSection(BuildContext context, OrderModel order) {
+    final buyerOrderVm = Get.find<BuyerOrderVm>();
+    buyerOrderVm.setOrderComment(order.comment, order.isReviewed ?? false);
+
+    return Obx(
+      () => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          RatingBar.builder(
+            itemSize: 26,
+            initialRating: order.rating ?? 0,
+            minRating: 1,
+            direction: Axis.horizontal,
+            allowHalfRating: true,
+            itemBuilder: (context, index) => const Icon(Icons.star, color: Colors.amber),
+            onRatingUpdate: (rating) {
+              if (!buyerOrderVm.isReviewed.value) {
+                buyerOrderVm.rating.value = rating;
+              }
+            },
+            ignoreGestures: buyerOrderVm.isReviewed.value,
+          ),
+          const SizedBox(height: 8),
+          if (buyerOrderVm.isReviewed.value) ...[
+            Text(
+              'Bạn đã đánh giá đơn hàng này.',
+              style: AppTextStyles.body.copyWith(color: Colors.green[700], fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              buyerOrderVm.commentController.text.isEmpty ? 'Không có bình luận' : buyerOrderVm.commentController.text,
+              style: AppTextStyles.body.copyWith(color: Colors.black87),
+            ),
+          ] else ...[
+            TextFormField(
+              controller: buyerOrderVm.commentController,
+              maxLines: 3,
+              enabled: !buyerOrderVm.isReviewed.value,
+              onChanged: (value) {
+                buyerOrderVm.comment.value = value;
+              },
+              decoration: InputDecoration(
+                hintText: 'Nhập đánh giá',
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed:
+                  buyerOrderVm.isReviewed.value
+                      ? null
+                      : () {
+                        if (buyerOrderVm.rating.value == 0) {
+                          Get.snackbar(
+                            'Lỗi',
+                            'Vui lòng chọn số sao để đánh giá',
+                            backgroundColor: Colors.red,
+                            colorText: Colors.white,
+                          );
+                          return;
+                        }
+                        buyerOrderVm.submitReview(
+                          orderId: order.orderId,
+                          rating: buyerOrderVm.rating.value,
+                          comment: buyerOrderVm.comment.value,
+                          storeId: order.storeId,
+                          buyerUid: order.buyerUid,
+                        );
+                      },
+              child: const Text('Gửi đánh giá'),
+            ),
+          ],
         ],
       ),
     );

@@ -121,4 +121,20 @@ class OrderService {
       throw Exception('Failed to update commission paid status: $e');
     }
   }
+
+  Future<void> submitReview({required String orderId, required double rating, required String comment, required String storeId, required String buyerUid}) async {
+    try {
+      await _orderRepository.submitReview(orderId: orderId, rating: rating, comment: comment, storeId: storeId, buyerUid: buyerUid);
+    } catch (e) {
+      throw Exception('Failed to submit review: $e');
+    }
+  }
+
+  Future<void> updateStoreAverageRating(String storeId) async {
+    try {
+      await _orderRepository.updateStoreAverageRating(storeId);
+    } catch (e) {
+      throw Exception('Failed to update store average rating: $e');
+    }
+  }
 }

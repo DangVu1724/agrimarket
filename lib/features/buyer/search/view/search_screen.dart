@@ -179,14 +179,24 @@ class SearchScreen extends StatelessWidget {
                     },
                   );
                 } else if (keyword.isNotEmpty && results.isEmpty && !isSearching && searchVm.hasSearched.value) {
-                  return Center(
-                    child: Text('Không có sản phẩm bạn muốn tìm', style: AppTextStyles.headline.copyWith(fontSize: 16)),
+                  return Column(
+                    children: [
+                      _buildCategoryList(),
+                      const SizedBox(height: 10),
+                      Center(
+                        child: Text(
+                          'Không có sản phẩm bạn muốn tìm',
+                          style: AppTextStyles.headline.copyWith(fontSize: 16),
+                        ),
+                      ),
+                    ],
                   );
                 } else if (history.isNotEmpty && keyword.isEmpty) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 10),
+                      _buildCategoryList(),
+                      const SizedBox(height: 20),
                       const Text('Tìm kiếm gần đây', style: TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
                       Expanded(
@@ -208,13 +218,85 @@ class SearchScreen extends StatelessWidget {
                     ],
                   );
                 } else {
-                  return const Center(child: Text('Hãy nhập từ khoá để tìm kiếm'));
+                  return Column(
+                    children: [
+                      _buildCategoryList(),
+                      const SizedBox(height: 20),
+                      const Center(child: Text('Hãy nhập từ khoá để tìm kiếm')),
+                    ],
+                  );
                 }
               }),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildCategoryList() {
+    final items = [
+      'Trái cây',
+      'Rau củ',
+      'Thực phẩm chế biến',
+      'Ngũ cốc - Hạt',
+      'Sữa & Trứng',
+      'Thịt',
+      'Thuỷ hải sản',
+      'Gạo',
+    ];
+    final List<String> imageCategory = [
+      "assets/images/fruit.png",
+      "assets/images/vegetable.png",
+      "assets/images/cooked_food.png",
+      "assets/images/grain.png",
+      "assets/images/milkAegg.png",
+      "assets/images/meat.png",
+      "assets/images/sea_food.png",
+      "assets/images/rice.png",
+    ];
+
+    return Wrap(
+      runSpacing: 16,
+      spacing: 16,
+      alignment: WrapAlignment.center,
+      children: List.generate(items.length, (index) {
+        return GestureDetector(
+          onTap: () {
+            Get.toNamed(AppRoutes.categoryStoreScreen, arguments: items[index]);
+          },
+          child: Column(
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(color: Colors.grey.withOpacity(0.3), blurRadius: 6, offset: const Offset(0, 3)),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Image.asset(imageCategory[index], fit: BoxFit.contain),
+                ),
+              ),
+              const SizedBox(height: 6),
+              SizedBox(
+                width: 70,
+                child: Text(
+                  items[index],
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 }

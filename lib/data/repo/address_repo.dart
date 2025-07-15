@@ -19,7 +19,6 @@ class AddressRepository {
         uid: uid,
         favoriteStoreIds: [],
         addresses: [],
-        reviews: [],
         orderIds: [],
       );
     }

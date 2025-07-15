@@ -72,7 +72,6 @@ class StoreVm extends GetxController {
     try {
       isLoading.value = true;
       final stores = await _storeService.getStoresWithPromotion();
-      print('📦 ViewModel: Received ${stores.length} stores from service');
       storesListPromotion.assignAll(stores);
     } catch (e) {
       storesListPromotion.clear();

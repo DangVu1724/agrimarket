@@ -7,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-
 class CommissionVm extends GetxController {
   final SellerOrdersVm sellerOrdersVm = Get.put(SellerOrdersVm());
   final SellerHomeVm sellerHomeVm = Get.put(SellerHomeVm());
@@ -81,6 +80,7 @@ class CommissionVm extends GetxController {
     DateTime dueDate,
     DateTime createdAt,
     DateTime updatedAt,
+    DateTime? paidDate,
   ) async {
     try {
       // Tạo commission
@@ -97,8 +97,11 @@ class CommissionVm extends GetxController {
           dueDate: dueDate,
           createdAt: createdAt,
           updatedAt: updatedAt,
+          paidDate: paidDate,
         ),
       );
+
+      // Cập nhật trạng thái isCommissionPaid cho các order liên quan
       await sellerOrdersVm.updateOrdersCommissionPaidStatus(orderIds, true);
 
       await getCommission();
@@ -116,6 +119,4 @@ class CommissionVm extends GetxController {
       commissionHistoryList.value = commissionList.where((e) => e.status == 'paid').toList();
     }
   }
-
-
 }

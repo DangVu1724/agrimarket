@@ -119,6 +119,7 @@ class CommissionScreen extends StatelessWidget {
                                                       commission.dueDate,
                                                       commission.createdAt,
                                                       commission.updatedAt,
+                                                      DateTime.now(),
                                                     );
                                                   },
                                                   child: const Text('Thanh toán'),

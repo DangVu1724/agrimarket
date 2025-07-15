@@ -115,19 +115,13 @@ class OrdersScreen extends StatelessWidget {
             ],
           ),
         )
-        : RefreshIndicator(
-          onRefresh: () async {
-            final buyerOrderVm = Get.find<BuyerOrderVm>();
-            await buyerOrderVm.refreshOrders();
+        : ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: orders.length,
+          itemBuilder: (context, index) {
+            final order = orders[index];
+            return _OrderCard(order: order);
           },
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: orders.length,
-            itemBuilder: (context, index) {
-              final order = orders[index];
-              return _OrderCard(order: order);
-            },
-          ),
         );
   }
 }

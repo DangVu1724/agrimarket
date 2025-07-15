@@ -17,6 +17,9 @@ class OrderModel {
   final bool? isPaid;
   final bool? isCommissionPaid;
   final DateTime? deliveredAt;
+  final bool? isReviewed;
+  final double? rating;
+  final String? comment;
 
   OrderModel({
     required this.orderId,
@@ -35,6 +38,9 @@ class OrderModel {
     this.isPaid,
     this.isCommissionPaid,
     this.deliveredAt,
+    this.isReviewed,
+    this.rating,
+    this.comment,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -68,6 +74,9 @@ class OrderModel {
                   ? (json['deliveredAt'] as Timestamp).toDate()
                   : DateTime.parse(json['deliveredAt'] as String))
               : null,
+      isReviewed: json['isReviewed'] ?? false,
+      rating: json['rating'] != null ? (json['rating'] as num).toDouble() : null,
+      comment: json['comment'],
     );
   }
 
@@ -88,6 +97,9 @@ class OrderModel {
     'isPaid': isPaid,
     'isCommissionPaid': isCommissionPaid,
     'deliveredAt': deliveredAt != null ? Timestamp.fromDate(deliveredAt!) : null,
+    'isReviewed': isReviewed,
+    'rating': rating,
+    'comment': comment,
   };
   OrderModel copyWith({
     String? orderId,
@@ -106,6 +118,8 @@ class OrderModel {
     bool? isPaid,
     bool? isCommissionPaid,
     DateTime? deliveredAt,
+    double? rating,
+    String? comment,
   }) => OrderModel(
     orderId: orderId ?? this.orderId,
     buyerUid: buyerUid ?? this.buyerUid,
@@ -123,6 +137,9 @@ class OrderModel {
     isPaid: isPaid ?? this.isPaid,
     isCommissionPaid: isCommissionPaid ?? this.isCommissionPaid,
     deliveredAt: deliveredAt ?? this.deliveredAt,
+    isReviewed: isReviewed ?? this.isReviewed,
+    rating: rating ?? this.rating,
+    comment: comment ?? this.comment,
   );
 }
 

@@ -14,6 +14,10 @@ class StoreModel {
   final bool isOpened;
   final bool isPromotion;
   final DateTime? createdAt;
+  final double? rating;
+  final int? totalReviews;
+  final List<Review> reviews;
+  final DateTime? updatedAt;
 
   StoreModel({
     required this.storeId,
@@ -29,6 +33,10 @@ class StoreModel {
     this.isOpened = false,
     this.isPromotion = false,
     this.createdAt,
+    this.rating,
+    this.totalReviews,
+    this.reviews = const [],
+    this.updatedAt,
   });
 
   Map<String, dynamic> toJson() => {
@@ -45,6 +53,10 @@ class StoreModel {
     'isOpened': isOpened,
     'isPromotion': isPromotion,
     'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
+    'rating': rating,
+    'totalReviews': totalReviews,
+    'reviews': reviews.map((e) => e.toJson()).toList(),
+    'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
   };
 
   factory StoreModel.fromJson(Map<String, dynamic> json) => StoreModel(
@@ -68,6 +80,15 @@ class StoreModel {
                 ? (json['createdAt'] as Timestamp).toDate()
                 : DateTime.tryParse(json['createdAt'].toString()))
             : null,
+    rating: json['rating'],
+    totalReviews: json['totalReviews'],
+    reviews: (json['reviews'] as List? ?? []).map((e) => Review.fromJson(e)).toList(),
+    updatedAt:
+        json['updatedAt'] != null
+            ? (json['updatedAt'] is Timestamp
+                ? (json['updatedAt'] as Timestamp).toDate()
+                : DateTime.tryParse(json['updatedAt'].toString()))
+            : null,
   );
 
   StoreModel copyWith({
@@ -84,6 +105,10 @@ class StoreModel {
     bool? isOpened,
     bool? isPromotion,
     DateTime? createdAt,
+    double? rating,
+    int? totalReviews,
+    List<Review>? reviews,
+    DateTime? updatedAt,
   }) {
     return StoreModel(
       storeId: storeId ?? this.storeId,
@@ -99,11 +124,20 @@ class StoreModel {
       isOpened: isOpened ?? this.isOpened,
       isPromotion: isPromotion ?? this.isPromotion,
       createdAt: createdAt ?? this.createdAt,
+      rating: rating ?? this.rating,
+      totalReviews: totalReviews ?? this.totalReviews,
+      reviews: reviews ?? this.reviews,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
   List<double>? getDefaultLatLng() {
     return [storeLocation.latitude, storeLocation.longitude];
+  }
+
+  double? getAverageRating() {
+    if (reviews.isEmpty) return null;
+    return reviews.map((e) => e.rating).reduce((a, b) => a + b) / reviews.length;
   }
 }
 
@@ -132,4 +166,47 @@ class StoreAddress {
       longitude: longitude ?? this.longitude,
     );
   }
+}
+
+class Review {
+  final String reviewId;
+  final String buyerUid;
+  final String storeId;
+  final String orderId;
+  final double rating;
+  final String comment;
+  final DateTime createdAt;
+
+  Review({
+    required this.reviewId,
+    required this.buyerUid,
+    required this.storeId,
+    required this.orderId,
+    required this.rating,
+    required this.comment,
+    required this.createdAt,
+  });
+
+  factory Review.fromJson(Map<String, dynamic> json) => Review(
+    reviewId: json['reviewId'],
+    buyerUid: json['buyerUid'],
+    storeId: json['storeId'],
+    orderId: json['orderId'],
+    rating: (json['rating'] as num).toDouble(),
+    comment: json['comment'] ?? '',
+    createdAt:
+        json['createdAt'] is Timestamp
+            ? (json['createdAt'] as Timestamp).toDate()
+            : DateTime.parse(json['createdAt'] as String),
+  );
+
+  Map<String, dynamic> toJson() => {
+    'reviewId': reviewId,
+    'buyerUid': buyerUid,
+    'storeId': storeId,
+    'orderId': orderId,
+    'rating': rating,
+    'comment': comment,
+    'createdAt': Timestamp.fromDate(createdAt),
+  };
 }

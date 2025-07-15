@@ -4,14 +4,12 @@ class BuyerModel {
   final String uid;
   final List<String> favoriteStoreIds;
   final List<Address> addresses;
-  final List<Review> reviews;
   final List<String> orderIds;
 
   BuyerModel({
     required this.uid,
     this.favoriteStoreIds = const [],
     this.addresses = const [],
-    this.reviews = const [],
     this.orderIds = const [],
   });
 
@@ -20,7 +18,6 @@ class BuyerModel {
       uid: json['uid'],
       favoriteStoreIds: List<String>.from(json['favoriteStoreIds'] ?? []),
       addresses: (json['addresses'] as List? ?? []).map((e) => Address.fromJson(e)).toList(),
-      reviews: (json['reviews'] as List? ?? []).map((e) => Review.fromJson(e)).toList(),
       orderIds: List<String>.from(json['orderIds'] ?? []),
     );
   }
@@ -29,7 +26,6 @@ class BuyerModel {
     'uid': uid,
     'favoriteStoreIds': favoriteStoreIds,
     'addresses': addresses.map((e) => e.toJson()).toList(),
-    'reviews': reviews.map((e) => e.toJson()).toList(),
     'orderIds': orderIds,
   };
 
@@ -37,14 +33,12 @@ class BuyerModel {
     String? uid,
     List<String>? favoriteStoreIds,
     List<Address>? addresses,
-    List<Review>? reviews,
     List<String>? orderIds,
   }) {
     return BuyerModel(
       uid: uid ?? this.uid,
       favoriteStoreIds: favoriteStoreIds ?? this.favoriteStoreIds,
       addresses: addresses ?? this.addresses,
-      reviews: reviews ?? this.reviews,
       orderIds: orderIds ?? this.orderIds,
     );
   }
@@ -100,28 +94,4 @@ class Address {
   }
 }
 
-class Review {
-  final String userId;
-  final double rating;
-  final String comment;
-  final DateTime createdAt;
 
-  Review({required this.userId, required this.rating, required this.comment, required this.createdAt});
-
-  factory Review.fromJson(Map<String, dynamic> json) => Review(
-    userId: json['userId'],
-    rating: (json['rating'] as num).toDouble(),
-    comment: json['comment'],
-    createdAt:
-        json['createdAt'] is Timestamp
-            ? (json['createdAt'] as Timestamp).toDate()
-            : DateTime.parse(json['createdAt'] as String),
-  );
-
-  Map<String, dynamic> toJson() => {
-    'userId': userId,
-    'rating': rating,
-    'comment': comment,
-    'createdAt': Timestamp.fromDate(createdAt),
-  };
-}
