@@ -67,6 +67,8 @@ class CheckoutVm extends GetxController {
   Future<String?> createOrder({
     required String storeId,
     required String storeName,
+    required String buyerName,
+    required String buyerPhone,
     required List<CartItem> items,
     required String paymentMethod,
     required String deliveryAddress,
@@ -85,6 +87,14 @@ class CheckoutVm extends GetxController {
 
     if (deliveryAddress.isEmpty) {
       throw Exception('Vui lòng nhập địa chỉ giao hàng');
+    }
+
+    if (buyerName.isEmpty) {
+      throw Exception('Vui lòng nhập tên người mua');
+    }
+
+    if (buyerPhone.isEmpty) {
+      throw Exception('Vui lòng nhập số điện thoại người mua');
     }
 
     isCreatingOrder.value = true;
@@ -128,6 +138,8 @@ class CheckoutVm extends GetxController {
         buyerUid: auth.currentUser?.uid ?? '',
         storeId: storeId,
         storeName: storeName,
+        buyerName: buyerName,
+        buyerPhone: buyerPhone,
         items: orderItems,
         status: 'pending', // Initial status
         paymentMethod: paymentMethod,

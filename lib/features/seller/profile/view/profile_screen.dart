@@ -63,13 +63,18 @@ class SellerProfileScreen extends StatelessWidget {
                             ),
                           ),
                           Obx(
-                            () => Text(
-                              vm.userEmail.value.isNotEmpty
-                                  ? vm.userEmail.value
-                                  : 'Chưa cập nhật email',
-                              style: AppTextStyles.body.copyWith(
-                                color: Colors.white,
-                                fontSize: 14,
+                            () => SizedBox(
+                              width: 200,
+                              child: Text(
+                                vm.userEmail.value.isNotEmpty
+                                    ? vm.userEmail.value
+                                    : 'Chưa cập nhật email',
+                                style: AppTextStyles.body.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                              
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ),

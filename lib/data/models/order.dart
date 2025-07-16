@@ -20,6 +20,8 @@ class OrderModel {
   final bool? isReviewed;
   final double? rating;
   final String? comment;
+  final String? buyerName;
+  final String? buyerPhone;
 
   OrderModel({
     required this.orderId,
@@ -41,6 +43,8 @@ class OrderModel {
     this.isReviewed,
     this.rating,
     this.comment,
+    this.buyerName,
+    this.buyerPhone,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -77,6 +81,8 @@ class OrderModel {
       isReviewed: json['isReviewed'] ?? false,
       rating: json['rating'] != null ? (json['rating'] as num).toDouble() : null,
       comment: json['comment'],
+      buyerName: json['buyerName'],
+      buyerPhone: json['buyerPhone'],
     );
   }
 
@@ -100,10 +106,14 @@ class OrderModel {
     'isReviewed': isReviewed,
     'rating': rating,
     'comment': comment,
+    'buyerName': buyerName,
+    'buyerPhone': buyerPhone,
   };
   OrderModel copyWith({
     String? orderId,
     String? buyerUid,
+    String? buyerName,
+    String? buyerPhone,
     String? storeId,
     String? storeName,
     List<OrderItem>? items,
@@ -118,11 +128,14 @@ class OrderModel {
     bool? isPaid,
     bool? isCommissionPaid,
     DateTime? deliveredAt,
+    bool? isReviewed,
     double? rating,
     String? comment,
   }) => OrderModel(
     orderId: orderId ?? this.orderId,
     buyerUid: buyerUid ?? this.buyerUid,
+    buyerName: buyerName ?? this.buyerName,
+    buyerPhone: buyerPhone ?? this.buyerPhone,
     storeId: storeId ?? this.storeId,
     storeName: storeName ?? this.storeName,
     items: items ?? this.items,

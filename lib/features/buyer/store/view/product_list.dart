@@ -46,7 +46,7 @@ class ProductListWidget extends StatelessWidget {
 
           return GestureDetector(
             onTap: () {
-              if (store.isOpened) {
+              if (store.isOpened && product.quantity > 0) {
                 Get.toNamed(
                   AppRoutes.buyerProductDetail,
                   arguments: {
@@ -71,9 +71,9 @@ class ProductListWidget extends StatelessWidget {
                 ],
               ),
               child: Opacity(
-                opacity: store.isOpened ? 1.0 : 0.5,
+                opacity: store.isOpened && product.quantity > 0 ? 1.0 : 0.5,
                 child: ListTile(
-                  enabled: store.isOpened,
+                  enabled: store.isOpened && product.quantity > 0,
                   contentPadding: const EdgeInsets.all(12),
                   leading: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
@@ -171,7 +171,7 @@ class ProductListWidget extends StatelessWidget {
                       iconSize: 20,
                       icon: const Icon(Icons.add, color: AppColors.primary),
                       onPressed:
-                          store.isOpened
+                          store.isOpened && product.quantity > 0
                               ? () {
                                 cartVm.addItem(
                                   product: product,

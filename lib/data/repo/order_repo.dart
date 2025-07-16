@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class OrderRepository {
   final CollectionReference _ordersCollection = FirebaseFirestore.instance.collection('orders');
   final CollectionReference _storesCollection = FirebaseFirestore.instance.collection('stores');
+  final CollectionReference _productCollection = FirebaseFirestore.instance.collection('products');
 
   Future<void> createOrder(OrderModel order) async {
     try {
@@ -15,6 +16,11 @@ class OrderRepository {
 
       // Use the orderId as the document ID for easier querying
       await _ordersCollection.doc(order.orderId).set(order.toJson());
+      for (var item in order.items) {
+        await _productCollection.doc(item.productId).update({
+          'quantity': FieldValue.increment(-item.quantity),
+        });
+      }
       print('Order created successfully in Firestore');
     } catch (e) {
       print('Error creating order in repository: $e');

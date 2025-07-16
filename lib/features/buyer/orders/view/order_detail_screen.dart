@@ -36,6 +36,9 @@ class OrderDetailScreen extends StatelessWidget {
             _infoRow('Ngày đặt', _formatDate(order.createdAt)),
             _infoRow('Phương thức thanh toán', order.paymentMethod),
             _infoRow('Cửa hàng', order.storeName?.isNotEmpty == true ? order.storeName! : order.storeId),
+            _infoRow('Người mua', order.buyerName ?? order.buyerUid),
+            _infoRow('Số điện thoại', order.buyerPhone ?? ''),
+
             const Divider(height: 32),
 
             _sectionTitle('Trạng thái đơn hàng'),
@@ -103,6 +106,7 @@ class OrderDetailScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             flex: 3,
@@ -119,11 +123,28 @@ class OrderDetailScreen extends StatelessWidget {
             ),
           ),
           Expanded(
-            flex: 1,
-            child: Text(
-              _formatPrice(item.price * item.quantity),
-              style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold, color: AppColors.primary),
-              textAlign: TextAlign.right,
+            flex: 2,
+            child: Column(
+              children: [
+                if (item.promotionPrice != null && item.promotionPrice! > 0) ...[
+                  Text(
+                  _formatPrice(item.price * item.quantity),
+                  style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold, color: Colors.grey[600], fontSize: 13, decoration: TextDecoration.lineThrough),
+                  textAlign: TextAlign.right,
+                ),
+                Text(
+                  _formatPrice((item.promotionPrice ?? 0) * item.quantity),
+                  style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold, color: AppColors.error, fontSize: 15),
+                    textAlign: TextAlign.right,
+                  ),
+                ] else ...[
+                  Text(
+                    _formatPrice(item.price * item.quantity),
+                    style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 14),
+                    textAlign: TextAlign.right,
+                  ),
+                ],
+              ],
             ),
           ),
         ],

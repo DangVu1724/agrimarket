@@ -1,5 +1,6 @@
 import 'package:agrimarket/data/services/revenue_service.dart';
 import 'package:agrimarket/features/seller/orders/viewmodel/seller_orders_vm.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
@@ -65,7 +66,7 @@ class RevenueVm extends GetxController {
       for (var order in orders) {
         if (order.status == 'delivered' && order.deliveredAt != null) {
           String dateKey = DateFormat('dd/MM/yyyy').format(order.deliveredAt!);
-
+          print('dateKey: $dateKey');
           revenueMap[dateKey] = (revenueMap[dateKey] ?? 0) + order.totalPrice * RevenueService.APP_COMMISSION_RATE;
         }
       }
@@ -77,7 +78,8 @@ class RevenueVm extends GetxController {
           }).toList();
 
       // Sắp xếp theo ngày tăng dần
-      list.sort((a, b) => DateTime.parse(a['date'] as String).compareTo(DateTime.parse(b['date'] as String)));
+      list.sort((a, b) => DateFormat('dd/MM/yyyy').parse(a['date'] as String).compareTo(DateFormat('dd/MM/yyyy').parse(b['date'] as String)));
+      print('list: $list');
 
       final recent30days = list.length > 30 ? list.sublist(list.length - 30) : list;
 

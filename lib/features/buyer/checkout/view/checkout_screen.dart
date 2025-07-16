@@ -369,6 +369,11 @@ class CheckoutScreen extends StatelessWidget {
                   return;
                 }
 
+                if (userVm.userPhone.value.isEmpty) {
+                  Get.snackbar('Lỗi', 'Vui lòng cập nhật số điện thoại');
+                  return;
+                }
+
                 if (checkoutVm.auth.currentUser?.uid == null) {
                   Get.snackbar('Lỗi', 'Vui lòng đăng nhập lại');
                   return;
@@ -450,7 +455,7 @@ class CheckoutScreen extends StatelessWidget {
     final PaymentVm paymentVm = Get.find<PaymentVm>();
     final DiscountVm discountVm = Get.find<DiscountVm>();
     final BuyerVm buyerVm = Get.find<BuyerVm>();
-
+    final UserVm userVm = Get.find<UserVm>();
     try {
       // Validation đã được thực hiện ở trên, chỉ cần lấy data
       final items = cartVm.cart.value?.items.where((item) => item.storeId == storeId).toList() ?? [];
@@ -474,6 +479,8 @@ class CheckoutScreen extends StatelessWidget {
       final orderId = await checkoutVm.createOrder(
         storeId: storeId,
         storeName: checkoutVm.store.value?.name ?? '',
+        buyerName: userVm.userName.value,
+        buyerPhone: userVm.userPhone.value,
         items: items,
         paymentMethod: paymentVm.paymentMethod.value,
         deliveryAddress: buyerVm.defaultAddress!.address,

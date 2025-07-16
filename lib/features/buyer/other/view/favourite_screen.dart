@@ -24,7 +24,7 @@ class FavouriteScreen extends StatelessWidget {
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        title: Text('Cửa Hàng Yêu Thích', style: AppTextStyles.headline.copyWith(color: Colors.white)),
+        title: Text('Yêu Thích', style: AppTextStyles.headline.copyWith(color: Colors.white)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -37,18 +37,10 @@ class FavouriteScreen extends StatelessWidget {
             ),
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.white),
-            onPressed: () {
-              Get.snackbar('Thông báo', 'Chức năng tìm kiếm đang phát triển!');
-            },
-          ),
-        ],
       ),
       body: Obx(() {
         if (vm.isLoading.value && vm.favoriteStores.isEmpty) {
-          return const SkeletonLoader();
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (vm.favoriteStores.isEmpty) {

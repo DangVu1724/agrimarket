@@ -265,14 +265,19 @@ class HomeBuyerScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      Row(
-                        children: [
-                          Icon(Icons.star, color: Colors.amber, size: 16),
-                          const SizedBox(width: 4),
-                          Text(store.rating.toString(), style: AppTextStyles.body.copyWith(fontSize: 13, color: Colors.black)),
-                        ],
-                      ),
-                      const SizedBox(width: 10),
+                      if (store.rating != null) ...[
+                        Row(
+                          children: [
+                            Icon(Icons.star, color: Colors.amber, size: 16),
+                            const SizedBox(width: 4),
+                            Text(
+                              store.rating.toString(),
+                              style: AppTextStyles.body.copyWith(fontSize: 13, color: Colors.black),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 10),
+                      ],
                       store.isPromotion
                           ? PromotionBadgeWithText(isPromotion: store.isPromotion, text: 'Khuyến mãi')
                           : SizedBox.shrink(),

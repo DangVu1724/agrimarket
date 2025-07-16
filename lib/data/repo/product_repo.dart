@@ -64,6 +64,10 @@ class ProductRepository {
 
   Future<List<ProductModel>> fetchProductListByStore(String storeID) async {
     try {
+      final storeDoc = await FirebaseFirestore.instance.collection('stores').doc(storeID).get();
+      if (!storeDoc.exists || storeDoc.data()?['state'] != 'verify') {
+      return [];
+    }
       final querySnapshot =
           await FirebaseFirestore.instance.collection('products').where('storeId', isEqualTo: storeID).get();
 

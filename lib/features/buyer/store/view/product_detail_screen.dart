@@ -223,7 +223,6 @@ class ProductDetailScreen extends StatelessWidget {
             store: store,
             itemCount: cartVm.itemCount.value,
           );
-          Get.snackbar("Success", "Đã thêm ${product.name} vào giỏ!");
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,

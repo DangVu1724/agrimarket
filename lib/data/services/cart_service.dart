@@ -80,22 +80,40 @@ class CartService {
     if (userId == null) return;
 
     try {
-      await _cartRepository.addToCart(
-        userId!,
-        CartItem(
-          productId: product.id,
-          storeId: store.storeId,
-          quantity: itemCount,
-          priceAtAddition: product.price,
-          promotionPrice: product.promotionPrice,
-          productName: product.name,
-          productImage: product.imageUrl,
-          storeName: store.name,
-          isOnSaleAtAddition: product.isOnSale,
-          unit: product.unit,
-        ),
+      final currentCart = await loadCart();
+      final existingItem = currentCart?.items.firstWhereOrNull(
+        (item) => item.productId == product.id && item.storeId == store.storeId,
       );
 
+      final currentQtyInCart = existingItem?.quantity.value ?? 0;
+    final totalRequestedQty = currentQtyInCart + itemCount;
+
+    if (product.quantity < totalRequestedQty) {
+      Get.snackbar('Lỗi', 'Sản phẩm chỉ còn ${product.quantity} cái trong kho');
+      return;
+    }
+
+
+      if (existingItem != null) {
+        await updateQuantity(product.id, store.storeId, existingItem.quantity.value + itemCount);
+        return;
+      } else {
+        await _cartRepository.addToCart(
+          userId!,
+          CartItem(
+            productId: product.id,
+            storeId: store.storeId,
+            quantity: itemCount,
+            priceAtAddition: product.price,
+            promotionPrice: product.promotionPrice,
+            productName: product.name,
+            productImage: product.imageUrl,
+            storeName: store.name,
+            isOnSaleAtAddition: product.isOnSale,
+            unit: product.unit,
+          ),
+        );
+      }
     } catch (e) {
       Get.snackbar('Lỗi', 'Không thể thêm vào giỏ hàng');
     }
@@ -198,14 +216,10 @@ class CartService {
     return discount;
   }
 
-
-
   // Clear all RAM cache
   void clearAllCache() {
     _cartCache.clear();
     _productCache.clear();
     _storeCache.clear();
   }
-
-
 }

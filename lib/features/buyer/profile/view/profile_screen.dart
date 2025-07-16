@@ -120,6 +120,9 @@ class ProfileScreen extends StatelessWidget {
             case 'Yêu thích':
               Get.toNamed(AppRoutes.favourite);
               break;
+            case 'Đơn hàng đã mua':
+              Get.toNamed(AppRoutes.buyerOrders);
+              break;
             case 'Cài đặt':
               Get.toNamed(AppRoutes.settings);
               break;
