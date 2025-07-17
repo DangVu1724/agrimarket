@@ -84,6 +84,16 @@ class StoreRepository {
     }
   }
 
+  Future<List<Review>> fetchReviewsForStore(String storeId) async {
+       final snapshot = await FirebaseFirestore.instance
+           .collection('stores')
+           .doc(storeId)
+           .collection('reviews')
+           .orderBy('createdAt', descending: true)
+           .get();
+       return snapshot.docs.map((doc) => Review.fromJson(doc.data())).toList();
+     }
+
   // Debug method to check all stores
   Future<void> debugAllStores() async {
     try {

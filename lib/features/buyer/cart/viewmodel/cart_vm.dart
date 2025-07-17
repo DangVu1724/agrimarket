@@ -3,6 +3,7 @@ import 'package:agrimarket/data/models/product.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/data/repo/cart_repo.dart';
 import 'package:agrimarket/data/services/cart_service.dart';
+import 'package:agrimarket/data/services/store_service.dart';
 import 'package:get/get.dart';
 
 class CartVm extends GetxController {
@@ -75,42 +76,43 @@ class CartVm extends GetxController {
   }
 
   Future<void> increaseQuantity(String productId, String storeId, int newQuantity) async {
-  final key = '$productId|$storeId';
-  if (_processingKeys.contains(key)) return;
-  _processingKeys.add(key);
-  try {
-    final currentItem = cart.value?.items.firstWhereOrNull(
-      (item) => item.productId == productId && item.storeId == storeId,
-    );
-    if (currentItem == null) return;
+    final key = '$productId|$storeId';
+    if (_processingKeys.contains(key)) return;
+    _processingKeys.add(key);
+    try {
+      final currentItem = cart.value?.items.firstWhereOrNull(
+        (item) => item.productId == productId && item.storeId == storeId,
+      );
+      if (currentItem == null) return;
 
-    final product = await _cartService.loadProductById(productId);
-    if (product == null) {
-      Get.snackbar('Lỗi', 'Không tìm thấy sản phẩm');
-      return;
+      final product = await _cartService.loadProductById(productId);
+      if (product == null) {
+        Get.snackbar('Lỗi', 'Không tìm thấy sản phẩm');
+        return;
+      }
+
+      final tempQuantity = currentItem.quantity.value + 1;
+
+      if (tempQuantity > product.quantity) {
+        Get.snackbar('Lỗi', 'Sản phẩm chỉ còn ${product.quantity} cái trong kho');
+        return;
+      }
+
+      // Chỉ update khi hợp lệ
+      await updateQuantity(productId, storeId, tempQuantity);
+    } catch (e) {
+      Get.snackbar('Lỗi', 'Không thể tăng số lượng');
+    } finally {
+      _processingKeys.remove(key);
     }
-
-    final tempQuantity = currentItem.quantity.value + 1;
-
-    if (tempQuantity > product.quantity) {
-      Get.snackbar('Lỗi', 'Sản phẩm chỉ còn ${product.quantity} cái trong kho');
-      return;
-    }
-
-    // Chỉ update khi hợp lệ
-    await updateQuantity(productId, storeId, tempQuantity);
-  } catch (e) {
-    Get.snackbar('Lỗi', 'Không thể tăng số lượng');
-  } finally {
-    _processingKeys.remove(key);
   }
-}
-
 
   Future<void> loadStorebyId(String storeId) async {
     final loadedStore = await _cartService.loadStoreById(storeId);
     if (loadedStore != null) {
-      store.value[storeId] = loadedStore;
+      final newMap = Map<String, StoreModel>.from(store.value);
+      newMap[storeId] = loadedStore;
+      store.value = newMap; 
     }
   }
 

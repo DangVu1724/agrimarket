@@ -129,6 +129,25 @@ class StoreScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 4),
+                      GestureDetector(
+                        onTap: () {
+                          Get.toNamed(AppRoutes.storeDetail, arguments: store);
+                        },
+                        child: Row(
+                          children: [
+                            Icon(Icons.restaurant, size: 16, color: AppColors.primary),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Xem chi tiết',
+                              style: TextStyle(fontSize: 14, color: AppColors.primary),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.end,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
                       Row(
                         children: [
                           Icon(Icons.access_time, size: 16, color: Colors.grey.shade600),

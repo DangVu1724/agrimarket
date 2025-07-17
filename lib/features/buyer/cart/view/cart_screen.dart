@@ -2,22 +2,41 @@ import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/data/models/cart.dart';
+import 'package:agrimarket/data/services/store_service.dart';
 import 'package:agrimarket/features/buyer/cart/viewmodel/cart_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
 
   @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  final CartVm cartVm = Get.find<CartVm>();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCartAndStores();
+  }
+
+  Future<void> _loadCartAndStores() async {
+    await cartVm.loadCart();
+    final cartData = cartVm.cart.value;
+    if (cartData != null) {
+      final storeIds = cartData.items.map((e) => e.storeId).toSet();
+      for (final id in storeIds) {
+        await cartVm.loadStorebyId(id);
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final CartVm cartVm = Get.find<CartVm>();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      cartVm.loadCart();
-    });
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Giỏ hàng', style: AppTextStyles.headline),
@@ -47,6 +66,7 @@ class CartScreen extends StatelessWidget {
                   final storeId = entry.key;
                   final items = entry.value;
                   final storeName = items.first.storeName;
+                  final store = cartVm.store.value[storeId];
 
                   return Container(
                     margin: const EdgeInsets.all(6),
@@ -66,14 +86,32 @@ class CartScreen extends StatelessWidget {
                             children: [
                               Text(storeName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
 
-                              ElevatedButton.icon(
-                                style: ButtonStyle(backgroundColor: MaterialStateProperty.all(AppColors.background)),
-                                icon: const Icon(Icons.payment, color: AppColors.primary),
-                                label: const Text('Thanh toán', style: TextStyle(color: AppColors.primary)),
-                                onPressed: () {
-                                  Get.toNamed(AppRoutes.checkOut, arguments: storeId);
-                                },
-                              ),
+                              Obx(() {
+                                final store = cartVm.store.value[storeId];
+                                if (store == null) {
+                                  return ElevatedButton.icon(
+                                    onPressed: null,
+                                    icon: const Icon(Icons.payment, color: AppColors.primary),
+                                    label: const Text('Đang tải...', style: TextStyle(color: AppColors.primary)),
+                                    style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.grey)),
+                                  );
+                                }
+                                return ElevatedButton.icon(
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(
+                                      !store.isOpened ? Colors.grey : AppColors.background,
+                                    ),
+                                  ),
+                                  icon: const Icon(Icons.payment, color: AppColors.primary),
+                                  label: const Text('Thanh toán', style: TextStyle(color: AppColors.primary)),
+                                  onPressed:
+                                      !store.isOpened
+                                          ? null
+                                          : () {
+                                            Get.toNamed(AppRoutes.checkOut, arguments: storeId);
+                                          },
+                                );
+                              }),
                             ],
                           ),
                         ),

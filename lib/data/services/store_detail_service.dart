@@ -1,6 +1,8 @@
 import 'package:agrimarket/data/models/menu.dart';
 import 'package:agrimarket/data/models/product.dart';
 import 'package:agrimarket/data/models/product_promotion.dart';
+import 'package:agrimarket/data/models/store.dart';
+import 'package:agrimarket/data/repo/store_repo.dart';
 import 'package:agrimarket/data/services/menu_service.dart';
 import 'package:agrimarket/data/services/product_service.dart';
 import 'package:agrimarket/data/services/promotion_service.dart';
@@ -10,7 +12,7 @@ class StoreDetailService {
   final MenuService _menuService = MenuService();
   final ProductService _productService = ProductService();
   final PromotionService _promotionService = PromotionService();
-
+  final StoreRepository _storeRepository = StoreRepository();
   final RxMap<String, MenuModel> _menuCache = <String, MenuModel>{}.obs;
   final RxMap<String, List<ProductModel>> _productsCache = <String, List<ProductModel>>{}.obs;
   final RxMap<String, ProductPromotionModel> _promotionsCache = <String, ProductPromotionModel>{}.obs;
@@ -95,6 +97,10 @@ class StoreDetailService {
 
   Future<ProductPromotionModel?> getDiscountInfo(String discountId) async {
     return await _promotionService.getDiscountInfo(discountId);
+  }
+
+  Future<List<Review>> fetchReviewsForStore(String storeId) async {
+    return await _storeRepository.fetchReviewsForStore(storeId);
   }
 
   // Dispose

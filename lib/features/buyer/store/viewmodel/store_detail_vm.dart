@@ -1,12 +1,14 @@
 import 'package:agrimarket/data/models/menu.dart';
 import 'package:agrimarket/data/models/product.dart';
 import 'package:agrimarket/data/models/product_promotion.dart';
+import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/data/services/store_detail_service.dart';
 import 'package:get/get.dart';
 
 class StoreDetailVm extends GetxController {
   final RxBool isLoading = false.obs;
   final StoreDetailService _storeDetailService = StoreDetailService();
+  final RxList<Review> reviews = <Review>[].obs;
 
   final RxString _currentStoreId = ''.obs;
 
@@ -20,6 +22,7 @@ class StoreDetailVm extends GetxController {
     isLoading.value = true;
     try {
       await _storeDetailService.loadStoreData(storeId);
+      reviews.value = await _storeDetailService.fetchReviewsForStore(storeId);
     } finally {
       isLoading.value = false;
     }
@@ -39,6 +42,10 @@ class StoreDetailVm extends GetxController {
 
   Future<ProductPromotionModel?> getDiscountInfo(String discountId) async {
     return await _storeDetailService.getDiscountInfo(discountId);
+  }
+
+  Future<List<Review>> fetchReviewsForStore(String storeId) async {
+    return await _storeDetailService.fetchReviewsForStore(storeId);
   }
 
   @override

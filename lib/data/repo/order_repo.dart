@@ -8,20 +8,30 @@ class OrderRepository {
   final CollectionReference _productCollection = FirebaseFirestore.instance.collection('products');
 
   Future<void> createOrder(OrderModel order) async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
     try {
-      print('Creating order in repository with ID: ${order.orderId}');
-      print('Order store ID: ${order.storeId}');
-      print('Order buyer ID: ${order.buyerUid}');
-      print('Order items count: ${order.items.length}');
-
-      // Use the orderId as the document ID for easier querying
-      await _ordersCollection.doc(order.orderId).set(order.toJson());
-      for (var item in order.items) {
-        await _productCollection.doc(item.productId).update({
-          'quantity': FieldValue.increment(-item.quantity),
-        });
-      }
-      print('Order created successfully in Firestore');
+      await firestore.runTransaction((transaction) async {
+        // Kiểm tra tồn kho từng sản phẩm
+        for (var item in order.items) {
+          final productRef = _productCollection.doc(item.productId);
+          final productSnap = await transaction.get(productRef);
+          if (!productSnap.exists) {
+            throw Exception('Sản phẩm không tồn tại');
+          }
+          final data = productSnap.data() as Map<String, dynamic>;
+          final currentQty = (data['quantity'] as num?)?.toInt() ?? 0;
+          if (currentQty < item.quantity) {
+            throw Exception('Sản phẩm "${data['name']}" chỉ còn $currentQty cái trong kho');
+          }
+        }
+        // Nếu đủ hàng, trừ tồn kho và tạo đơn hàng
+        transaction.set(_ordersCollection.doc(order.orderId), order.toJson());
+        for (var item in order.items) {
+          final productRef = _productCollection.doc(item.productId);
+          transaction.update(productRef, {'quantity': FieldValue.increment(-item.quantity)});
+        }
+      });
+      print('Order created successfully in Firestore (with transaction)');
     } catch (e) {
       print('Error creating order in repository: $e');
       throw Exception('Failed to create order in repository: $e');
@@ -126,9 +136,20 @@ class OrderRepository {
     }
   }
 
-  Future<void> submitReview({required String orderId, required double rating, required String comment, required String storeId, required String buyerUid}) async {
+  Future<void> submitReview({
+    required String orderId,
+    required double rating,
+    required String comment,
+    required String storeId,
+    required String buyerUid,
+  }) async {
     try {
-      await _ordersCollection.doc(orderId).update({'rating': rating, 'comment': comment, 'updatedAt': Timestamp.fromDate(DateTime.now()), 'isReviewed': true});
+      await _ordersCollection.doc(orderId).update({
+        'rating': rating,
+        'comment': comment,
+        'updatedAt': Timestamp.fromDate(DateTime.now()),
+        'isReviewed': true,
+      });
 
       final reviewId = _storesCollection.doc(storeId).collection('reviews').doc().id;
       await _storesCollection.doc(storeId).collection('reviews').add({
@@ -140,32 +161,29 @@ class OrderRepository {
         'createdAt': Timestamp.fromDate(DateTime.now()),
         'reviewId': reviewId,
       });
-
     } catch (e) {
       throw Exception('Failed to submit review: $e');
     }
   }
 
   Future<void> updateStoreAverageRating(String storeId) async {
-  try {
-    final reviewSnapshot = await _storesCollection.doc(storeId).collection('reviews').get();
+    try {
+      final reviewSnapshot = await _storesCollection.doc(storeId).collection('reviews').get();
 
-    final reviews = reviewSnapshot.docs.map((doc) => Review.fromJson(doc.data())).toList();
+      final reviews = reviewSnapshot.docs.map((doc) => Review.fromJson(doc.data())).toList();
 
-    if (reviews.isEmpty) {
+      if (reviews.isEmpty) {
+        await _storesCollection.doc(storeId).update({'rating': 0.0, 'updatedAt': Timestamp.fromDate(DateTime.now())});
+        return;
+      }
+
+      final averageRating = reviews.map((e) => e.rating).reduce((a, b) => a + b) / reviews.length;
+
       await _storesCollection.doc(storeId).update({
-        'rating': 0.0,
+        'rating': averageRating,
+        'totalReviews': reviews.length,
         'updatedAt': Timestamp.fromDate(DateTime.now()),
       });
-      return;
-    }
-
-    final averageRating = reviews.map((e) => e.rating).reduce((a, b) => a + b) / reviews.length;
-
-    await _storesCollection.doc(storeId).update({
-      'rating': averageRating,
-      'updatedAt': Timestamp.fromDate(DateTime.now()),
-    });
 
       print('✅ Đã cập nhật điểm trung bình: $averageRating');
     } catch (e) {

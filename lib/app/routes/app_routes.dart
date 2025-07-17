@@ -20,6 +20,7 @@ class AppRoutes {
 
   // Shopping
   static const String store = '/buyer/store';
+  static const String storeDetail = '/buyer/store-detail';
   static const String buyerProductDetail = '/buyer/product-detail';
   static const String buyerSearch = '/buyer/search';
   static const String categoryStoreScreen = '/buyer/category-store';

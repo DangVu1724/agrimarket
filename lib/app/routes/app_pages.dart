@@ -34,6 +34,7 @@ import 'package:agrimarket/features/buyer/profile/view/security_screen.dart';
 import 'package:agrimarket/features/buyer/search/view/search_screen.dart';
 import 'package:agrimarket/features/buyer/profile/view/setting_screen.dart';
 import 'package:agrimarket/features/buyer/store/view/product_detail_screen.dart';
+import 'package:agrimarket/features/buyer/store/view/store_detail_screen.dart';
 import 'package:agrimarket/features/buyer/store/view/store_screen.dart';
 import 'package:agrimarket/features/seller/chat/view/seller_chat_screen.dart';
 import 'package:agrimarket/features/seller/financial/view/financial_screen.dart';
@@ -182,6 +183,19 @@ class AppPages {
           return StoreScreen(store: store);
         } else {
           throw ArgumentError('Expected StoreModel as argument for StoreScreen');
+        }
+      },
+      binding: BuyerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.storeDetail,
+      page: () {
+        final store = Get.arguments;
+        if (store is StoreModel) {
+          return StoreDetailScreen(store: store);
+        } else {
+          throw ArgumentError('Expected StoreModel as argument for StoreDetailScreen');
         }
       },
       binding: BuyerBinding(),
