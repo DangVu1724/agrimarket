@@ -15,6 +15,7 @@ class ProfileScreen extends StatelessWidget {
       {'icon': Iconsax.tag_user, 'title': 'Thông tin cá nhân'},
       {'icon': Iconsax.location, 'title': 'Địa chỉ giao hàng'},
       {'icon': Iconsax.shopping_bag, 'title': 'Đơn hàng đã mua'},
+      {'icon': Icons.chat, 'title': 'Chat'},
       {'icon': Iconsax.heart, 'title': 'Yêu thích'},
       {'icon': Iconsax.setting_2, 'title': 'Cài đặt'},
       {'icon': Icons.logout, 'title': 'Đăng xuất'},
@@ -120,6 +121,8 @@ class ProfileScreen extends StatelessWidget {
             case 'Yêu thích':
               Get.toNamed(AppRoutes.favourite);
               break;
+            case 'Chat':
+              Get.toNamed(AppRoutes.buyerChatList);
             case 'Đơn hàng đã mua':
               Get.toNamed(AppRoutes.buyerOrders);
               break;

@@ -26,7 +26,7 @@ class SkeletonLoader extends StatelessWidget {
             ),
             IconButton(
               onPressed: () {},
-              icon: const Icon(Icons.store_mall_directory, color: Colors.white),
+              icon: const Icon(Icons.chat, color: Colors.white),
             ),
           ],
           flexibleSpace: FlexibleSpaceBar(

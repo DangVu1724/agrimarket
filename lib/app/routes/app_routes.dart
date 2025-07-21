@@ -41,7 +41,8 @@ class AppRoutes {
   static const String buyerProfile = '/buyer/profile';
   static const String buyerAccount = '/buyer/account';
   static const String buyerAddress = '/buyer/address';
-  static const String buyerChat = '/buyer/chat';
+  static const String buyerChatList = '/buyer/chatList';
+
 
   // Common (có thể dùng cho cả buyer và seller)
   static const String aboutApp = '/common/about-app';
@@ -108,7 +109,6 @@ class AppRoutes {
         route == buyerProfile ||
         route == buyerAccount ||
         route == buyerAddress ||
-        route == buyerChat ||
         route == store ||
         route == buyerProductDetail ||
         route == buyerSearch ||

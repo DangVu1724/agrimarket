@@ -1,5 +1,6 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/app/theme/app_colors.dart';
+import 'package:agrimarket/core/widgets/chat_screen.dart';
 import 'package:agrimarket/core/widgets/skeleton_loader.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
@@ -71,7 +72,20 @@ class StoreScreen extends StatelessWidget {
                     },
                   ),
 
-                  IconButton(onPressed: () {}, icon: const Icon(LucideIcons.messageCircle, color: Colors.white)),
+                  IconButton(
+                    onPressed: () {
+                      Get.to(
+                        () => ChatScreen(),
+                        arguments: {
+                          'currentUserId': buyerVm.buyerData.value?.uid,
+                          'peerId': store.storeId,
+                          'peerName': store.name,
+                          'peerImage': store.storeImageUrl
+                        },
+                      );
+                    },
+                    icon: const Icon(LucideIcons.messageCircle, color: Colors.white),
+                  ),
                 ],
                 flexibleSpace: FlexibleSpaceBar(
                   background: Stack(
@@ -252,5 +266,3 @@ class StoreScreen extends StatelessWidget {
     );
   }
 }
-
-      

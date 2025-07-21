@@ -8,6 +8,7 @@ import 'package:agrimarket/data/models/product_promotion.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/features/auth/view/dashboard.dart';
 import 'package:agrimarket/features/auth/view/email_verify_screen.dart';
+import 'package:agrimarket/features/buyer/chat/view/chat_list.dart';
 import 'package:agrimarket/features/buyer/checkout/view/checkout_screen.dart';
 import 'package:agrimarket/features/buyer/checkout/view/discount_code_screen.dart';
 import 'package:agrimarket/features/buyer/checkout/view/payment_method_screen.dart';
@@ -36,7 +37,6 @@ import 'package:agrimarket/features/buyer/profile/view/setting_screen.dart';
 import 'package:agrimarket/features/buyer/store/view/product_detail_screen.dart';
 import 'package:agrimarket/features/buyer/store/view/store_detail_screen.dart';
 import 'package:agrimarket/features/buyer/store/view/store_screen.dart';
-import 'package:agrimarket/features/seller/chat/view/seller_chat_screen.dart';
 import 'package:agrimarket/features/seller/financial/view/financial_screen.dart';
 import 'package:agrimarket/features/seller/menu/view/menu_screen.dart';
 import 'package:agrimarket/features/seller/orders/view/orderList_screen.dart';
@@ -213,6 +213,23 @@ class AppPages {
       binding: BuyerBinding(),
       middlewares: [AuthMiddleware()],
     ),
+    GetPage(
+      name: AppRoutes.buyerChatList,
+      page: () => BuyerChatListScreen(),
+      binding: BuyerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+
+    // GetPage(
+    //   name: AppRoutes.buyerChat,
+    //   page: () => BuyerChatScreen(
+
+    //   ),
+    //   binding: BuyerBinding(),
+    //   middlewares: [AuthMiddleware()],
+    // ),
+
+
 
     // ===== SELLER ROUTES (Cần AuthMiddleware + SellerBinding) =====
     GetPage(
@@ -260,12 +277,6 @@ class AppPages {
     GetPage(
       name: AppRoutes.sellerCreateProduct,
       page: () => SellerCreateProductScreen(),
-      binding: SellerBinding(),
-      middlewares: [AuthMiddleware()],
-    ),
-    GetPage(
-      name: AppRoutes.sellerChat,
-      page: () => SellerChatScreen(),
       binding: SellerBinding(),
       middlewares: [AuthMiddleware()],
     ),

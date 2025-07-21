@@ -1,6 +1,6 @@
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/features/buyer/user_vm.dart';
-import 'package:agrimarket/features/seller/chat/view/seller_chat_screen.dart';
+import 'package:agrimarket/features/seller/chat/view/seller_chat_list.dart';
 import 'package:agrimarket/features/seller/home/view/seller_home_screen.dart';
 import 'package:agrimarket/features/seller/orders/view/orderList_screen.dart';
 import 'package:agrimarket/features/seller/profile/view/profile_screen.dart';
@@ -22,7 +22,7 @@ class SellerHome extends StatelessWidget {
         case 1:
           return const OrderlistScreen();
         case 2:
-          return const SellerChatScreen();
+          return SellerChatListScreen();
         case 3:
           return SellerProfileScreen();
         default:

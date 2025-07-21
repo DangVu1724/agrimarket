@@ -16,9 +16,13 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'app/routes/app_pages.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await initializeDateFormatting('vi_VN', null);
+
   await Hive.initFlutter();
   await CacheUtils.clearAllCache();
 
