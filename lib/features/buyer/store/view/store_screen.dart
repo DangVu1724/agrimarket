@@ -169,14 +169,14 @@ class StoreScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              if (menu == null)
+              if (menu == null && !isLoading)
                 const SliverToBoxAdapter(
                   child: Padding(padding: EdgeInsets.all(16.0), child: Center(child: Text('Chưa có thực đơn'))),
                 )
               else
                 MultiSliver(
                   children:
-                      menu.groups
+                      menu!.groups
                           .map(
                             (group) => SliverStickyHeader(
                               header: Container(

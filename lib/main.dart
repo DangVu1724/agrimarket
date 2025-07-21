@@ -7,6 +7,7 @@ import 'package:agrimarket/data/models/adapter/user_model_adapter.dart';
 import 'package:agrimarket/data/models/adapter/product_model_adapter.dart';
 import 'package:agrimarket/data/models/adapter/timestamp_adapter.dart';
 import 'package:agrimarket/data/services/background_promotion_service.dart';
+import 'package:agrimarket/data/services/network_service.dart';
 import 'package:agrimarket/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -14,12 +15,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'app/routes/app_pages.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-
-  // Clear cache on app start to prevent corruption issues
   await CacheUtils.clearAllCache();
 
   // Register adapters
@@ -60,11 +60,13 @@ void main() async {
   // Schedule periodic cache cleanup (every 6 hours)
   _scheduleCacheCleanup();
 
+  // Khởi động network service
+  Get.put(NetworkService(), permanent: true);
+
   runApp(const MyApp());
 }
 
 void _scheduleCacheCleanup() {
-  // Clean expired cache every 6 hours
   Future.delayed(const Duration(hours: 6), () async {
     await CacheUtils.cleanExpiredCache();
     _scheduleCacheCleanup(); // Schedule next cleanup

@@ -101,7 +101,7 @@ class _StoreCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
-          Get.toNamed(AppRoutes.store, arguments: store.storeId);
+          Get.toNamed(AppRoutes.store, arguments: store);
         },
         child: Container(
           padding: const EdgeInsets.all(12),
