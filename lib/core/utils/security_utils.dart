@@ -65,7 +65,7 @@ class SecurityUtils {
 
   // Validate file type
   static bool isValidImageFile(String fileName) {
-    final validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+    final validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.heif'];
     final extension = fileName.toLowerCase().substring(fileName.lastIndexOf('.'));
     return validExtensions.contains(extension);
   }

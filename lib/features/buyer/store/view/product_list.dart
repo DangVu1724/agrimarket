@@ -178,7 +178,7 @@ class ProductListWidget extends StatelessWidget {
                                   store: store,
                                   itemCount: 1,
                                 );
-                              }
+                              }  
                               : null,
                     ),
                   ),

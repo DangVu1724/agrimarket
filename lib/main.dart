@@ -37,13 +37,10 @@ void main() async {
     print('Error registering adapters: $e');
   }
 
-  // Open boxes with error handling
   await CacheUtils.openAllBoxes();
 
-  // Check cache health
   final isHealthy = await CacheUtils.isCacheHealthy();
   if (!isHealthy) {
-    print('⚠️ Cache health check failed, performing cleanup...');
     await CacheUtils.cleanExpiredCache();
   }
 
@@ -58,13 +55,8 @@ void main() async {
   final backgroundService = BackgroundPromotionService();
   backgroundService.startBackgroundService();
 
-  // Lưu service instance để có thể truy cập từ nơi khác
   Get.put(backgroundService, permanent: true);
-
-  // Schedule periodic cache cleanup (every 6 hours)
   _scheduleCacheCleanup();
-
-  // Khởi động network service
   Get.put(NetworkService(), permanent: true);
 
   runApp(const MyApp());
@@ -73,7 +65,7 @@ void main() async {
 void _scheduleCacheCleanup() {
   Future.delayed(const Duration(hours: 6), () async {
     await CacheUtils.cleanExpiredCache();
-    _scheduleCacheCleanup(); // Schedule next cleanup
+    _scheduleCacheCleanup();
   });
 }
 
@@ -82,13 +74,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'Chợ Nông Sản Sạch',
-      initialRoute: AppRoutes.splash,
-      getPages: AppPages.pages,
-      theme: AppTheme.lightTheme,
-      debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.light,
+    return Builder(
+      builder: (context) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0)),
+          child: GetMaterialApp(
+            title: 'Chợ Nông Sản Sạch',
+            initialRoute: AppRoutes.splash,
+            getPages: AppPages.pages,
+            theme: AppTheme.lightTheme,
+            debugShowCheckedModeBanner: false,
+            themeMode: ThemeMode.light,
+          ),
+        );
+      },
     );
   }
 }

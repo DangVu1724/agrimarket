@@ -20,6 +20,11 @@ class AuthMiddleware extends GetMiddleware {
       AppRoutes.emailVerify,
       AppRoutes.roleSelection,
       AppRoutes.resetPassword,
+      AppRoutes.aboutApp,
+      AppRoutes.help,
+      AppRoutes.security,
+      AppRoutes.privacyPolicy,
+      AppRoutes.settings,
     ];
 
     // Nếu route hiện tại là public, cho phép truy cập
@@ -60,6 +65,8 @@ class AuthMiddleware extends GetMiddleware {
         AppRoutes.paymentMethod,
         AppRoutes.storePromotionList,
         AppRoutes.addAddress,
+        AppRoutes.buyerChatList,
+        AppRoutes.settings
       ];
 
       // Routes chỉ dành cho seller

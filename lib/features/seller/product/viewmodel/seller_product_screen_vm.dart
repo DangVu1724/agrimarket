@@ -167,6 +167,17 @@ class SellerProductVm extends GetxController {
       Get.snackbar('Lỗi', 'Vui lòng điền đầy đủ thông tin.');
       return false;
     }
+    // Kiểm tra giá và số lượng không được âm
+    final price = double.tryParse(priceController.text.trim()) ?? 0.0;
+    final quantity = int.tryParse(quantityController.text.trim()) ?? 0;
+    if (price < 0) {
+      Get.snackbar('Lỗi', 'Giá sản phẩm không được nhỏ hơn 0.');
+      return false;
+    }
+    if (quantity < 0) {
+      Get.snackbar('Lỗi', 'Số lượng sản phẩm không được nhỏ hơn 0.');
+      return false;
+    }
     return true;
   }
 

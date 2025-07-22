@@ -67,7 +67,9 @@ class RevenueVm extends GetxController {
         if (order.status == 'delivered' && order.deliveredAt != null) {
           String dateKey = DateFormat('dd/MM/yyyy').format(order.deliveredAt!);
           print('dateKey: $dateKey');
-          revenueMap[dateKey] = (revenueMap[dateKey] ?? 0) + order.totalPrice * RevenueService.APP_COMMISSION_RATE;
+          // Doanh thu thực nhận của seller = tổng tiền - commission
+          revenueMap[dateKey] =
+              (revenueMap[dateKey] ?? 0) + order.totalPrice;
         }
       }
 
@@ -78,7 +80,11 @@ class RevenueVm extends GetxController {
           }).toList();
 
       // Sắp xếp theo ngày tăng dần
-      list.sort((a, b) => DateFormat('dd/MM/yyyy').parse(a['date'] as String).compareTo(DateFormat('dd/MM/yyyy').parse(b['date'] as String)));
+      list.sort(
+        (a, b) => DateFormat(
+          'dd/MM/yyyy',
+        ).parse(a['date'] as String).compareTo(DateFormat('dd/MM/yyyy').parse(b['date'] as String)),
+      );
       print('list: $list');
 
       final recent30days = list.length > 30 ? list.sublist(list.length - 30) : list;

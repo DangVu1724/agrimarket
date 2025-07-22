@@ -27,13 +27,21 @@ class ResetPasswordViewModel extends GetxController {
       isLoading.value = true;
 
       User? user = FirebaseAuth.instance.currentUser;
+      bool isGoogleUser = false;
 
-      if (user == null) {
-        Get.snackbar('Lỗi', 'Bạn cần đăng nhập lại để đổi mật khẩu');
+      if (user != null) {
+        await user.reload();
+        user = FirebaseAuth.instance.currentUser;
+        print(user?.providerData.map((e) => e.providerId).toList());
+        isGoogleUser = user!.providerData.any((provider) => provider.providerId == 'google.com');
+      }
+
+      if (isGoogleUser) {
+        Get.snackbar('Lỗi', 'Bạn không thể đổi mật khẩu với tài khoản Google');
         return;
       }
 
-      await user.updatePassword(newPassword.value);
+      await user?.updatePassword(newPassword.value);
       await FirebaseAuth.instance.signOut();
 
       Get.snackbar('Thành công', 'Đổi mật khẩu thành công, vui lòng đăng nhập lại');
