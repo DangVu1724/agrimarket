@@ -166,6 +166,9 @@ class AuthController extends GetxController {
   Future<void> signInWithGoogle() async {
     try {
       isLoading.value = true;
+      // Clear cache trước khi sign in Google
+      _box.clear();
+      await _clearAllHiveCache();
 
       final user = await _authService.signInWithGoogle();
       if (user != null) {

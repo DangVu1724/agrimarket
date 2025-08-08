@@ -13,6 +13,8 @@ class ProductModel {
   final String? promotion;
   final double? promotionPrice;
   final DateTime? promotionEndDate;
+  final int totalSold;
+  final List<String> tags;
 
   ProductModel({
     required this.id,
@@ -27,6 +29,8 @@ class ProductModel {
     this.promotion,
     this.promotionPrice,
     this.promotionEndDate,
+    this.totalSold = 0,
+    required this.tags,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) => ProductModel(
@@ -47,6 +51,8 @@ class ProductModel {
                 ? (json['promotionEndDate'] as Timestamp).toDate()
                 : DateTime.tryParse(json['promotionEndDate'] as String))
             : null,
+    totalSold: json['totalSold'] ?? 0,
+    tags: List<String>.from(json['tags'] ?? []),
   );
 
   Map<String, dynamic> toJson() => {
@@ -62,6 +68,8 @@ class ProductModel {
     'promotion': promotion,
     'promotionPrice': promotionPrice,
     'promotionEndDate': promotionEndDate != null ? Timestamp.fromDate(promotionEndDate!) : null,
+    'totalSold': totalSold,
+    'tags': tags,
   };
 
   ProductModel copyWith({
@@ -77,6 +85,8 @@ class ProductModel {
     String? promotion,
     double? promotionPrice,
     DateTime? promotionEndDate,
+    int? totalSold,
+    List<String>? tags,
   }) {
     return ProductModel(
       id: id ?? this.id,
@@ -91,6 +101,8 @@ class ProductModel {
       promotion: promotion,
       promotionPrice: promotionPrice,
       promotionEndDate: promotionEndDate,
+      totalSold: totalSold ?? this.totalSold,
+      tags: tags ?? this.tags,
     );
   }
 

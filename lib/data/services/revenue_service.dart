@@ -8,10 +8,10 @@ class RevenueService {
         .where(
           (order) =>
               order.status == 'delivered' &&
-              order.updatedAt != null &&
-              order.updatedAt!.day == date.day &&
-              order.updatedAt!.month == date.month &&
-              order.updatedAt!.year == date.year,
+              order.deliveredAt != null &&
+              order.deliveredAt!.day == date.day &&
+              order.deliveredAt!.month == date.month &&
+              order.deliveredAt!.year == date.year,
         )
         .fold(0, (sum, order) => sum + order.totalPrice);
   }
@@ -22,10 +22,10 @@ class RevenueService {
         .where(
           (order) =>
               order.status == 'delivered' &&
-              order.updatedAt != null &&
-              order.updatedAt!.day == yesterday.day &&
-              order.updatedAt!.month == yesterday.month &&
-              order.updatedAt!.year == yesterday.year,
+              order.deliveredAt != null &&
+              order.deliveredAt!.day == yesterday.day &&
+              order.deliveredAt!.month == yesterday.month &&
+              order.deliveredAt!.year == yesterday.year,
         )
         .fold(0, (sum, order) => sum + order.totalPrice);
   }
@@ -35,9 +35,9 @@ class RevenueService {
         .where(
           (order) =>
               order.status == 'delivered' &&
-              order.updatedAt != null &&
-              order.updatedAt!.month == date.month &&
-              order.updatedAt!.year == date.year,
+              order.deliveredAt != null &&
+              order.deliveredAt!.month == date.month &&
+              order.deliveredAt!.year == date.year,
         )
         .fold(0, (sum, order) => sum + order.totalPrice);
   }

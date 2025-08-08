@@ -74,101 +74,146 @@ class SearchScreen extends StatelessWidget {
                   return ListView.builder(
                     itemCount: results.length,
                     itemBuilder: (context, index) {
-                      final result = results[index];
-                      final product = result.product;
-                      final store = result.store;
+                      final store = results.keys.elementAt(index);
+                      final products = results[store]!;
+
                       return Container(
                         margin: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 6, offset: const Offset(0, 3)),
+                          ],
+                        ),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(12),
                           onTap: () {
                             Get.toNamed(
-                              AppRoutes.buyerProductDetail,
-                              arguments: {'store': store!.toJson(), 'product': product.toJson()},
+                              AppRoutes.store,
+                              arguments: store, 
                             );
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(12),
-                            child: Row(
+                            child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Hình ảnh sản phẩm
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(
-                                    product.imageUrl,
-                                    width: 80,
-                                    height: 80,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.image, size: 60),
-                                    loadingBuilder: (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return Container(
-                                        width: 80,
-                                        height: 80,
-                                        color: Colors.grey[300],
-                                        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                // ====== Thông tin shop ======
+                                Row(
+                                  
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.network(
+                                        store.storeImageUrl ?? '',
+                                        width: 60,
+                                        height: 60,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.store, size: 40),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            store.name,
+                                            style: AppTextStyles.headline.copyWith(fontSize: 16),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              if (store.rating != null) ...[
+                                                const Icon(Icons.star, color: Colors.amber, size: 14),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  store.rating.toString(),
+                                                  style: AppTextStyles.body.copyWith(fontSize: 12),
+                                                ),
+                                                const SizedBox(width: 8),
+                                              ],
+                                              Flexible(
+                                                child: Text(
+                                                  store.storeLocation.address,
+                                                  style: AppTextStyles.body.copyWith(fontSize: 12, color: Colors.grey),
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                const SizedBox(height: 12),
+
+                                // ====== Danh sách sản phẩm phù hợp ======
+                                SizedBox(
+                                  height: 140,
+                                  child: ListView.separated(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: products.length.clamp(0, 5), // Giới hạn 5 sản phẩm
+                                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                                    itemBuilder: (context, productIndex) {
+                                      final product = products[productIndex];
+                                      return InkWell(
+                                        onTap: () {
+                                          Get.toNamed(
+                                            AppRoutes.buyerProductDetail,
+                                            arguments: {'store': store.toJson(), 'product': product.toJson()},
+                                          );
+                                        },
+                                        child: Container(
+                                          width: 100,
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[50],
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: Colors.grey[300]!),
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius: BorderRadius.circular(6),
+                                                child: Image.network(
+                                                  product.imageUrl,
+                                                  width: 100,
+                                                  height: 60,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder:
+                                                      (context, error, stackTrace) => const Icon(Icons.image, size: 40),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Expanded(
+                                                child: Text(
+                                                  product.name,
+                                                  maxLines: 2,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                                                ),
+                                              ),
+                                              Text(
+                                                '${currencyFormatter.format(product.displayPrice)} /${product.unit}',
+                                                style: const TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       );
                                     },
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-
-                                // Thông tin sản phẩm
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        product.name,
-                                        style: AppTextStyles.headline.copyWith(fontSize: 16),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        store?.name ?? '',
-                                        style: AppTextStyles.body.copyWith(color: Colors.grey[600]),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      if (product.isOnSale) ...[
-                                        Row(
-                                          children: [
-                                            Text(
-                                              '${currencyFormatter.format(product.price)} /${product.unit}',
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.grey,
-                                                decoration: TextDecoration.lineThrough,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 5),
-                                            Text(
-                                              '${currencyFormatter.format(product.displayPrice)} /${product.unit}',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.red.shade700,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        if (product.promotionTimeLeft.isNotEmpty)
-                                          Text(
-                                            product.promotionTimeLeft,
-                                            style: TextStyle(fontSize: 12, color: Colors.blue.shade600),
-                                          ),
-                                      ] else ...[
-                                        Text(
-                                          '${currencyFormatter.format(product.price)} /${product.unit}',
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ],
                                   ),
                                 ),
                               ],

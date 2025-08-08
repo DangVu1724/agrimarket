@@ -1,14 +1,16 @@
-import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
-import 'package:agrimarket/core/utils/cache_utils.dart';
-import 'package:agrimarket/core/widgets/promotion_badge.dart';
+import 'package:agrimarket/core/widgets/storetile.dart';
+import 'package:agrimarket/data/services/address_service.dart';
+import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
 import 'package:agrimarket/features/buyer/home/viewmodel/store_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class CategoryStoreScreen extends StatelessWidget {
   final StoreVm storeVm = Get.find<StoreVm>();
+  final BuyerVm vm = Get.find<BuyerVm>();
   final String category;
 
   CategoryStoreScreen({super.key}) : category = (Get.arguments is String) ? Get.arguments : '' {
@@ -56,36 +58,92 @@ class CategoryStoreScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
+                  // Dropdown lọc
                   Expanded(
-                    child: DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 6, offset: const Offset(0, 3)),
+                        ],
                       ),
-                      dropdownColor: AppColors.background,
-                      borderRadius: BorderRadius.circular(12),
-                      value: storeVm.filterType.value,
-                      items: const [
-                        DropdownMenuItem(value: 'all', child: Text('Tất cả')),
-                        DropdownMenuItem(value: 'opened', child: Text('Đang mở cửa')),
-                        DropdownMenuItem(value: 'promotion', child: Text('Khuyến mãi')),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          storeVm.setFilter(value);
-                        }
-                      },
+                      child: DropdownButtonFormField<String>(
+                        decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          border: InputBorder.none, // bỏ viền mặc định
+                        ),
+                        dropdownColor: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        value: storeVm.filterType.value,
+                        items: const [
+                          DropdownMenuItem(value: 'all', child: Text('Tất cả')),
+                          DropdownMenuItem(value: 'opened', child: Text('Đang mở cửa')),
+                          DropdownMenuItem(value: 'promotion', child: Text('Khuyến mãi')),
+                        ],
+                        onChanged: (value) {
+                          if (value != null) {
+                            storeVm.setFilter(value);
+                          }
+                        },
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  IconButton(
-                    onPressed: storeVm.toggleSortOrder,
-                    icon: Obx(
-                      () => Icon(
-                        storeVm.isAscending.value ? Icons.arrow_upward : Icons.arrow_downward,
-                        color: AppColors.primary,
+                  const SizedBox(width: 8),
+
+                  // Nút sắp xếp theo đánh giá
+                  Obx(
+                    () => IconButton(
+                      tooltip:
+                          storeVm.isAscending.value
+                              ? 'Sắp xếp theo đánh giá (Tăng dần)'
+                              : 'Sắp xếp theo đánh giá (Giảm dần)',
+                      onPressed: () {
+                        storeVm.setSortBy('rating');
+                        storeVm.toggleSortOrder();
+                      },
+                      icon: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.star,
+                            color: storeVm.sortBy.value == 'rating' ? AppColors.primary : Colors.grey[500],
+                          ),
+                          Icon(
+                            storeVm.isAscending.value ? Icons.arrow_upward : Icons.arrow_downward,
+                            size: 14,
+                            color: storeVm.sortBy.value == 'rating' ? AppColors.primary : Colors.grey[500],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+
+                  // Nút sắp xếp theo khoảng cách
+                  Obx(
+                    () => IconButton(
+                      tooltip:
+                          storeVm.isDistanceAscending.value
+                              ? 'Sắp xếp theo khoảng cách (Tăng dần)'
+                              : 'Sắp xếp theo khoảng cách (Giảm dần)',
+                      onPressed: () {
+                        storeVm.setSortBy('distance');
+                        storeVm.toggleDistanceSortOrder();
+                      },
+                      icon: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.near_me,
+                            color: storeVm.sortBy.value == 'distance' ? AppColors.primary : Colors.grey[500],
+                          ),
+                          Icon(
+                            storeVm.isDistanceAscending.value ? Icons.arrow_upward : Icons.arrow_downward,
+                            size: 14,
+                            color: storeVm.sortBy.value == 'distance' ? AppColors.primary : Colors.grey[500],
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -96,7 +154,12 @@ class CategoryStoreScreen extends StatelessWidget {
             // Danh sách cửa hàng
             Expanded(
               child: Obx(() {
-                final filteredStores = storeVm.getFilteredStores();
+                final buyer = vm.buyerData.value;
+                final buyerLatLng = buyer?.getDefaultLatLng();
+                final filteredStores = storeVm.getFilteredStores(
+                  buyerLat: buyerLatLng != null ? buyerLatLng[0] : null,
+                  buyerLng: buyerLatLng != null ? buyerLatLng[1] : null,
+                );
 
                 if (storeVm.isLoading.value) {
                   return const Center(child: CircularProgressIndicator());
@@ -122,62 +185,41 @@ class CategoryStoreScreen extends StatelessWidget {
                   itemCount: filteredStores.length,
                   itemBuilder: (context, index) {
                     final store = filteredStores[index];
+                    final buyer = vm.buyerData.value;
+                    if (buyer == null) {
+                      return SizedBox.shrink();
+                    }
 
-                    return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.15),
-                            spreadRadius: 2,
-                            blurRadius: 6,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
+                    final addressService = AddressService();
+                    final storeLatLng = store.getDefaultLatLng();
+                    final buyerLatLng = buyer.getDefaultLatLng();
+
+                    if (storeLatLng == null || buyerLatLng == null) {
+                      return StoreTile(store: store, distanceText: null, estimatedTime: null);
+                    }
+
+                    final distance = addressService.calculateDistance(
+                      buyerLatLng[0],
+                      buyerLatLng[1],
+                      storeLatLng[0],
+                      storeLatLng[1],
+                    );
+                    final formattedDistance = NumberFormat('#,##0.00', 'vi_VN').format(distance);
+
+                    return FutureBuilder<int>(
+                      future: addressService.getEstimatedTravelTime(
+                        storeLatLng[0],
+                        storeLatLng[1],
+                        buyerLatLng[0],
+                        buyerLatLng[1],
                       ),
-                      child: InkWell(
-                        onTap: () {
-                          Get.toNamed(AppRoutes.store, arguments: store);
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            PromotionBadgeOverlay(
-                              isPromotion: store.isPromotion,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.network(
-                                  store.storeImageUrl ?? '',
-                                  width: 80,
-                                  height: 80,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.store, size: 50),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(store.name, style: AppTextStyles.headline.copyWith(fontSize: 16)),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    store.storeLocation.address,
-                                    style: AppTextStyles.body.copyWith(fontSize: 13),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      builder: (context, snapshot) {
+                        final estimatedTime = snapshot.hasData ? snapshot.data! : 0;
+                        final int prepareTime = 15;
+                        final int totalTime = prepareTime + estimatedTime;
+
+                        return StoreTile(store: store, distanceText: '$formattedDistance km', estimatedTime: totalTime);
+                      },
                     );
                   },
                 );

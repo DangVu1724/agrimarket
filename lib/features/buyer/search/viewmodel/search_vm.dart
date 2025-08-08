@@ -1,6 +1,5 @@
 import 'package:agrimarket/data/models/product.dart';
 import 'package:agrimarket/data/models/store.dart';
-import 'package:agrimarket/data/models/store_product.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -10,7 +9,7 @@ class SearchVm extends GetxController {
   final TextEditingController searchController = TextEditingController();
 
   final RxList<String> history = <String>[].obs;
-  final RxList<ProductModelWithStore> searchResults = <ProductModelWithStore>[].obs;
+  final RxMap<StoreModel, List<ProductModel>> searchResults = <StoreModel, List<ProductModel>>{}.obs;
   final RxString searchText = ''.obs;
   final RxBool isSearching = false.obs;
   final RxBool hasSearched = false.obs;
@@ -108,7 +107,7 @@ class SearchVm extends GetxController {
     }
   }
 
-  Future<List<ProductModelWithStore>> fetchFilteredProductsWithStore({String searchQuery = ''}) async {
+  Future<Map<StoreModel, List<ProductModel>>> fetchFilteredProductsWithStore({String searchQuery = ''}) async {
     try {
       final productSnapshot = await FirebaseFirestore.instance.collection('products').get();
       final storeSnapshot = await FirebaseFirestore.instance.collection('stores').get();
@@ -117,23 +116,28 @@ class SearchVm extends GetxController {
         for (var doc in storeSnapshot.docs)
           if ((doc.data()['state'] ?? '') == 'verify') doc.id: StoreModel.fromJson({...doc.data(), 'id': doc.id}),
       };
-      List<ProductModelWithStore> productsWithStore = [];
+      final Map<StoreModel, List<ProductModel>> groupedResult = {};
+
       for (var doc in productSnapshot.docs) {
         final productData = {...doc.data(), 'id': doc.id};
 
         final product = ProductModel.fromJson(productData);
 
-        if (searchQuery.isNotEmpty && !product.name.toLowerCase().contains(searchQuery.toLowerCase())) {
-          continue;
-        }
+        final match =
+            searchQuery.isEmpty ||
+            product.tags.any((tag) => tag.toLowerCase().contains(searchQuery.toLowerCase())) ||
+            product.name.toLowerCase().contains(searchQuery.toLowerCase());
+
+        if (!match) continue;
         final store = storeMap[product.storeId];
         if (store == null) continue;
 
-        productsWithStore.add(ProductModelWithStore(product: product, store: store));
+        groupedResult.putIfAbsent(store, () => []).add(product);
       }
-      return productsWithStore;
+
+      return groupedResult;
     } catch (e) {
-      return [];
+      return {};
     }
   }
 }

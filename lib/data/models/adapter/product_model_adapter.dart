@@ -20,6 +20,7 @@ class ProductModelAdapter extends TypeAdapter<ProductModel> {
       promotion: reader.readString(),
       promotionPrice: reader.readDouble(),
       promotionEndDate: reader.readString().isNotEmpty ? DateTime.parse(reader.readString()) : null,
+      tags: reader.readStringList(),
     );
   }
 
@@ -37,5 +38,6 @@ class ProductModelAdapter extends TypeAdapter<ProductModel> {
     writer.writeString(obj.promotion ?? '');
     writer.writeDouble(obj.promotionPrice ?? 0.0);
     writer.writeString(obj.promotionEndDate?.toIso8601String() ?? '');
+    writer.writeList(obj.tags);
   }
 }

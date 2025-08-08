@@ -75,6 +75,8 @@ class ProductDetailScreen extends StatelessWidget {
             const SizedBox(height: 8),
             _buildPriceInfo(currencyFormatter),
             const SizedBox(height: 8),
+            _buildTotalSold(),
+            const SizedBox(height: 8),
             _buildProductDescription(),
             const SizedBox(height: 16),
             _buildStoreInfo(),
@@ -152,6 +154,12 @@ class ProductDetailScreen extends StatelessWidget {
     }
   }
 
+  Widget _buildTotalSold() {
+    return Text(
+      'Đã bán: ${product.totalSold}',
+      style: AppTextStyles.body.copyWith(fontSize: 16),
+    );
+  }
 
   Widget _buildProductDescription() {
     return Text(

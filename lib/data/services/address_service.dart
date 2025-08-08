@@ -41,7 +41,7 @@ class AddressService {
   double _deg2rad(double deg) => deg * pi / 180;
 
   Future<int> getEstimatedTravelTime(double originLat, double originLng, double destLat, double destLng) async {
-    final apiKey = '5b3ce3597851110001cf6248abd1829a918c4c28add13a6bcaa284b9';
+    final apiKey = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjkxZGU3MjMzOGJiNTQ2NDJhNjBiNGUxMjNiNzdlZDc2IiwiaCI6Im11cm11cjY0In0=';
 
     final url = Uri.parse('https://api.openrouteservice.org/v2/matrix/driving-car');
 

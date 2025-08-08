@@ -4,12 +4,48 @@ import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/features/seller/home/viewmodel/seller_home_screen_vm.dart';
 import 'package:agrimarket/features/seller/orders/viewmodel/seller_orders_vm.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class SellerHomeScreen extends StatelessWidget {
   const SellerHomeScreen({super.key});
+
+  List<String> generateTagsForProduct(Map<String, dynamic> product) {
+  List<String> tags = [];
+
+  // Tag từ tên sản phẩm
+  String name = (product['name'] ?? '').toLowerCase();
+  tags.addAll(name.split(' ')); // Tách từ
+  
+  // Tag từ category
+  if (product['category'] != null) {
+    tags.add(product['category'].toString().toLowerCase());
+  }
+
+  // Loại bỏ trùng lặp
+  return tags.toSet().toList();
+}
+
+Future<void> updateAllProductTags() async {
+  final productsRef = FirebaseFirestore.instance.collection('products');
+  final snapshot = await productsRef.get();
+
+  for (var doc in snapshot.docs) {
+    final product = doc.data();
+    final tags = generateTagsForProduct(product);
+
+    await productsRef.doc(doc.id).update({
+      'tags': tags,
+    });
+  }
+
+  print("✅ Đã thêm tags cho toàn bộ sản phẩm");
+}
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +189,7 @@ class SellerHomeScreen extends StatelessWidget {
             runSpacing: 12,
             children: List.generate(items.length, (index) {
               return GestureDetector(
-                onTap: () {
+                onTap: () async {
                   try {
                     switch (index) {
                       case 0:
@@ -174,6 +210,9 @@ class SellerHomeScreen extends StatelessWidget {
                       case 4:
                         Get.toNamed(AppRoutes.sellerFinancial);
                         break;
+                      // case 6:
+                      //   await updateAllProductTags();
+                      //   break;
                       case 7:
                         vm.toggleOpen();
                         break;

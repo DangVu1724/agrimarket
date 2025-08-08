@@ -170,11 +170,11 @@ class SellerProductVm extends GetxController {
     // Kiểm tra giá và số lượng không được âm
     final price = double.tryParse(priceController.text.trim()) ?? 0.0;
     final quantity = int.tryParse(quantityController.text.trim()) ?? 0;
-    if (price < 0) {
+    if (price <= 0) {
       Get.snackbar('Lỗi', 'Giá sản phẩm không được nhỏ hơn 0.');
       return false;
     }
-    if (quantity < 0) {
+    if (quantity <= 0) {
       Get.snackbar('Lỗi', 'Số lượng sản phẩm không được nhỏ hơn 0.');
       return false;
     }
@@ -182,6 +182,9 @@ class SellerProductVm extends GetxController {
   }
 
   ProductModel _createProductModel(String imageUrl) {
+    final tags1 = nameController.text.split(',').map((e) => e.trim()).toList();
+    final tags2 = categoryDefault.value?.split(',').map((e) => e.trim()).toList() ?? [];
+    final tags = [...tags1, ...tags2];
     return ProductModel(
       id: '',
       name: nameController.text.trim(),
@@ -192,6 +195,7 @@ class SellerProductVm extends GetxController {
       category: categoryDefault.value ?? '',
       storeId: storeModel!.storeId,
       imageUrl: imageUrl,
+      tags: tags,
     );
   }
 

@@ -25,6 +25,7 @@ class AuthMiddleware extends GetMiddleware {
       AppRoutes.security,
       AppRoutes.privacyPolicy,
       AppRoutes.settings,
+      AppRoutes.buyerAccount
     ];
 
     // Nếu route hiện tại là public, cho phép truy cập
