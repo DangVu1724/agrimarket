@@ -73,6 +73,8 @@ dependencies:
   flutter_rating_bar: ^4.0.1
   google_fonts: ^6.2.1
   connectivity_plus: ^6.1.4
+  diacritic: ^0.1.6
+  sliding_up_panel: ^2.0.0+1
 
 
 

@@ -1,14 +1,15 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
-import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/core/widgets/store_product_list.dart';
-import 'package:agrimarket/core/widgets/promotion_badge.dart';
 import 'package:agrimarket/core/widgets/storetile.dart';
 import 'package:agrimarket/data/models/buyer.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/data/services/address_service.dart';
 import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
+import 'package:agrimarket/features/buyer/home/view/nearby_stores.dart';
 import 'package:agrimarket/features/buyer/home/view/promotion_store_horizontal_list.dart';
+import 'package:agrimarket/features/buyer/home/view/recommended_store_horizontal_list.dart';
 import 'package:agrimarket/features/buyer/home/viewmodel/store_vm.dart';
+import 'package:agrimarket/features/buyer/home/viewmodel/recommendation_vm.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -38,14 +39,32 @@ class HomeBuyerScreen extends StatelessWidget {
                 _buildBanner(),
                 SizedBox(height: 15),
                 _buildCategoryIcons(),
-                _buildSectionHeader(
-                  "Ưu đãi nhập trời",
-                  actionText: "Xem tất cả",
-                  actionRoute: AppRoutes.storePromotionList,
-                ),
-                PromotionStoreHorizontalList(),
-                _buildSectionHeader("Bỗng dưng thèm trái ngọt", actionText: "Xem tất cả"),
-                StoreProductList(storeId: 'store_Fs06RKoGxPfrFuxY8E78FtyRByD2_8165'),
+
+                if (storeVm.storesListPromotion.isNotEmpty) ...[
+                  _buildSectionHeader(
+                    "Ưu đãi nhập trời",
+                    actionText: "Xem tất cả",
+                    actionRoute: AppRoutes.storePromotionList,
+                  ),
+                  PromotionStoreHorizontalList(),
+                ],
+                Obx(() {
+                  final recoVm = Get.find<RecommendationVm>();
+                  if (recoVm.recommendedStores.isEmpty) return SizedBox.shrink();
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [_buildSectionHeader("Dành cho bạn"), const RecommendedStoreHorizontalList()],
+                  );
+                }),
+                Obx(() {
+                  final recoVm = Get.find<RecommendationVm>();
+                  if (recoVm.nearbyStores.isEmpty) return SizedBox.shrink();
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [_buildSectionHeader("Gần bạn"), const NearbyStores()],
+                  );
+                }),
+
                 _buildStoreList(),
               ],
             ),
@@ -225,13 +244,24 @@ class HomeBuyerScreen extends StatelessWidget {
     return ListView.builder(
       physics: NeverScrollableScrollPhysics(),
       shrinkWrap: true,
-      itemCount: storeVm.storesList.length,
+      itemCount: storeVm.storesList.length + 1, // +1 để thêm widget đặc biệt
       itemBuilder: (context, index) {
-        final store = storeVm.storesList[index];
         final buyer = vm.buyerData.value;
         if (buyer == null) {
           return SizedBox.shrink();
         }
+        if (index == 7) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSectionHeader("Bỗng dưng thèm trái ngọt", actionText: "Xem tất cả"),
+              StoreProductList(storeId: 'store_Fs06RKoGxPfrFuxY8E78FtyRByD2_8165'),
+            ],
+          );
+        }
+
+        if (index >= storeVm.storesList.length) return SizedBox.shrink();
+        final store = storeVm.storesList[index];
         return _buildStoreItem(store, buyer);
       },
     );

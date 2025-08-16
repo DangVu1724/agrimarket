@@ -163,6 +163,10 @@ class StoreService {
     return _storeRepository.fetchStoresbyID(storeId);
   }
 
+  Future<List<StoreModel>> fetchStoresByIds(List<String> ids) {
+    return _storeRepository.fetchStoresByIds(ids);
+  }
+
   void clearStoresCache() {
     _box.delete('stores_list');
     _box.delete('stores_list_timestamp');

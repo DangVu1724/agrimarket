@@ -10,25 +10,32 @@ import '../../app/theme/app_colors.dart';
 import 'profile/view/profile_screen.dart';
 
 class BuyerHome extends StatelessWidget {
-
   BuyerHome({super.key});
 
   final RxInt _currentIndex = 0.obs;
   final BuyerVm buyerVm = Get.find<BuyerVm>();
   final UserVm userVm = Get.find<UserVm>();
 
-  final List<Widget> _screens = [
-    HomeBuyerScreen(),
-    const SearchScreen(),
-    const OrdersScreen(),
-    ProfileScreen(),
-  ];
+  Widget _buildScreen(int index) {
+    switch (index) {
+      case 0:
+        return HomeBuyerScreen();
+      case 1:
+        return SearchScreen();
+      case 2:
+        return const OrdersScreen();
+      case 3:
+        return ProfileScreen();
+      default:
+        return HomeBuyerScreen();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Obx(() => _screens[_currentIndex.value]),
+      body: Obx(() => _buildScreen(_currentIndex.value)),
       bottomNavigationBar: Obx(
         () => BottomNavigationBar(
           backgroundColor: Colors.white,
@@ -39,23 +46,11 @@ class BuyerHome extends StatelessWidget {
           showUnselectedLabels: true,
           type: BottomNavigationBarType.fixed,
           items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Iconsax.home),
-              label: 'Trang chủ',
-            ),
-            
-            BottomNavigationBarItem(
-              icon: Icon(Icons.search),
-              label: 'Tìm kiếm',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Iconsax.receipt_item),
-              label: 'Đơn hàng',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Iconsax.user_square),
-              label: 'Tài khoản',
-            ),
+            BottomNavigationBarItem(icon: Icon(Iconsax.home), label: 'Trang chủ'),
+
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Tìm kiếm'),
+            BottomNavigationBarItem(icon: Icon(Iconsax.receipt_item), label: 'Đơn hàng'),
+            BottomNavigationBarItem(icon: Icon(Iconsax.user_square), label: 'Tài khoản'),
           ],
         ),
       ),

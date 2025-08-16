@@ -29,6 +29,10 @@ class CacheUtils {
     print('🧹 Starting cache cleanup...');
 
     for (final boxName in _boxNames) {
+      if (boxName == 'searchCache') {
+        print('ℹ️ Skipping clearing $boxName');
+        continue; // bỏ qua searchCache
+      }
       try {
         await Hive.deleteBoxFromDisk(boxName);
         print('✅ Cleared $boxName');

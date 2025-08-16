@@ -19,6 +19,10 @@ class EnvConfig {
   // Security
   static String get encryptionKey => dotenv.env['ENCRYPTION_KEY'] ?? 'default_key_32_chars_long_here';
 
+  // Recommendation API (external server)
+  static String get recoApiBaseUrl => dotenv.env['RECO_API_BASE_URL'] ?? '';
+  static String get recoApiKey => dotenv.env['RECO_API_KEY'] ?? '';
+
   // Validation
   static bool get isConfigValid {
     return firebaseProjectId.isNotEmpty &&

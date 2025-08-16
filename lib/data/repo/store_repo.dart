@@ -84,15 +84,42 @@ class StoreRepository {
     }
   }
 
+  Future<List<StoreModel>> fetchStoresByIds(List<String> ids) async {
+    try {
+      if (ids.isEmpty) return [];
+      // Firestore whereIn supports up to 10 items per call; split if needed
+      final chunks = <List<String>>[];
+      const int maxWhereIn = 10;
+      for (var i = 0; i < ids.length; i += maxWhereIn) {
+        chunks.add(ids.sublist(i, i + maxWhereIn > ids.length ? ids.length : i + maxWhereIn));
+      }
+
+      final results = <StoreModel>[];
+      for (final chunk in chunks) {
+        final snapshot =
+            await FirebaseFirestore.instance.collection('stores').where(FieldPath.documentId, whereIn: chunk).get();
+        results.addAll(snapshot.docs.map((doc) => StoreModel.fromJson({...doc.data(), 'storeId': doc.id})).toList());
+      }
+
+      // Keep order as the ids list
+      final idToStore = {for (final s in results) s.storeId: s};
+      return ids.map((id) => idToStore[id]).whereType<StoreModel>().toList();
+    } catch (e) {
+      Get.snackbar('Lỗi', 'Không thể tải cửa hàng gợi ý: $e');
+      return [];
+    }
+  }
+
   Future<List<Review>> fetchReviewsForStore(String storeId) async {
-       final snapshot = await FirebaseFirestore.instance
-           .collection('stores')
-           .doc(storeId)
-           .collection('reviews')
-           .orderBy('createdAt', descending: true)
-           .get();
-       return snapshot.docs.map((doc) => Review.fromJson(doc.data())).toList();
-     }
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('stores')
+            .doc(storeId)
+            .collection('reviews')
+            .orderBy('createdAt', descending: true)
+            .get();
+    return snapshot.docs.map((doc) => Review.fromJson(doc.data())).toList();
+  }
 
   // Debug method to check all stores
   Future<void> debugAllStores() async {

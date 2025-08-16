@@ -213,7 +213,6 @@ class AuthController extends GetxController {
     }
   }
 
-
   void _savePendingUser(
     String email,
     String name,
@@ -240,7 +239,6 @@ class AuthController extends GetxController {
         'productCache',
         'menuCache',
         'promotionCache',
-        'searchCache',
         'discountCodeCache',
         'payment_method',
       ];

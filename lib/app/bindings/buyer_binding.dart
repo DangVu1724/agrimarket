@@ -6,6 +6,7 @@ import 'package:agrimarket/features/buyer/checkout/viewmodel/discount_vm.dart';
 import 'package:agrimarket/features/buyer/checkout/viewmodel/payment_vm.dart';
 import 'package:agrimarket/features/buyer/home/viewmodel/buyer_home_vm.dart';
 import 'package:agrimarket/features/buyer/home/viewmodel/store_vm.dart';
+import 'package:agrimarket/features/buyer/home/viewmodel/recommendation_vm.dart';
 import 'package:agrimarket/features/buyer/orders/vỉewmodel/buyer_order_vm.dart';
 import 'package:agrimarket/features/buyer/other/viewmodel/add_address_vm.dart';
 import 'package:agrimarket/features/buyer/profile/viewmodel/address_list_vm.dart';
@@ -24,6 +25,7 @@ class BuyerBinding extends Bindings {
     // Home & Store
     Get.lazyPut<BuyerHomeScreenVm>(() => BuyerHomeScreenVm());
     Get.lazyPut<StoreVm>(() => StoreVm());
+    Get.lazyPut<RecommendationVm>(() => RecommendationVm());
     Get.put(StoreDetailVm(), permanent: true);
 
     // Cart & Checkout

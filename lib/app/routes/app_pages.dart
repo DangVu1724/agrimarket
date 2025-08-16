@@ -103,7 +103,7 @@ class AppPages {
     GetPage(name: AppRoutes.cart, page: () => CartScreen(), binding: BuyerBinding(), middlewares: [AuthMiddleware()]),
     GetPage(
       name: AppRoutes.buyerSearch,
-      page: () => const SearchScreen(),
+      page: () =>  SearchScreen(),
       binding: BuyerBinding(),
       middlewares: [AuthMiddleware()],
     ),

@@ -13,7 +13,6 @@ class OrderService {
 
   Future<String> createOrder(OrderModel order) async {
     try {
-      // Generate unique order ID if not provided
       final orderWithId = order.orderId.isEmpty ? order.copyWith(orderId: _uuid.v4()) : order;
 
       await _orderRepository.createOrder(orderWithId);
@@ -28,7 +27,6 @@ class OrderService {
     required Function(List<OrderModel>) onOrdersChanged,
     required Function(String) onError,
   }) {
-    // Dispose existing listener if any
     _ordersSubscription?.cancel();
 
     try {

@@ -51,11 +51,14 @@ class StoreScreen extends StatelessWidget {
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () {
-                    if (Get.isSnackbarOpen) {
-                      Get.closeCurrentSnackbar();
-                    } else {
-                      Get.back();
+                    try {
+                      if (Get.isSnackbarOpen) {
+                        Get.closeCurrentSnackbar();
+                      }
+                    } catch (_) {
+                      // ignore
                     }
+                    Get.back();
                   },
                 ),
                 actions: [
@@ -80,7 +83,7 @@ class StoreScreen extends StatelessWidget {
                           'currentUserId': buyerVm.buyerData.value?.uid,
                           'peerId': store.storeId,
                           'peerName': store.name,
-                          'peerImage': store.storeImageUrl
+                          'peerImage': store.storeImageUrl,
                         },
                       );
                     },

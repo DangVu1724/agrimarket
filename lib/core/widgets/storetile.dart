@@ -10,18 +10,11 @@ class StoreTile extends StatelessWidget {
   final String? distanceText;
   final int? estimatedTime;
 
-  const StoreTile({
-    Key? key,
-    required this.store,
-    this.distanceText,
-    this.estimatedTime,
-  }) : super(key: key);
+  const StoreTile({Key? key, required this.store, this.distanceText, this.estimatedTime}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final timeInfo = (distanceText != null)
-        ? "🛵 $distanceText • ⏱ $estimatedTime phút"
-        : "Không xác định vị trí";
+    final timeInfo = (distanceText != null) ? "🛵 $distanceText • ⏱ $estimatedTime phút" : "Không xác định vị trí";
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -30,12 +23,7 @@ class StoreTile extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.15),
-            spreadRadius: 2,
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
+          BoxShadow(color: Colors.grey.withOpacity(0.15), spreadRadius: 2, blurRadius: 6, offset: const Offset(0, 3)),
         ],
       ),
       child: InkWell(
@@ -48,16 +36,16 @@ class StoreTile extends StatelessWidget {
               isPromotion: store.isPromotion,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: store.storeImageUrl?.isNotEmpty == true
-                    ? Image.network(
-                        store.storeImageUrl!,
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.store, size: 50),
-                      )
-                    : const Icon(Icons.store, size: 50),
+                child:
+                    store.storeImageUrl?.isNotEmpty == true
+                        ? Image.network(
+                          store.storeImageUrl!,
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.store, size: 50),
+                        )
+                        : const Icon(Icons.store, size: 50),
               ),
             ),
             const SizedBox(width: 12),
@@ -65,16 +53,17 @@ class StoreTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    store.name,
-                    style: AppTextStyles.headline.copyWith(fontSize: 16),
-                  ),
+                  Text(store.name, style: AppTextStyles.headline.copyWith(fontSize: 16)),
                   const SizedBox(height: 6),
                   Text(
-                    timeInfo,
+                    store.storeLocation.address,
                     style: AppTextStyles.body.copyWith(fontSize: 13),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 6),
+                  Text(timeInfo, style: AppTextStyles.body.copyWith(fontSize: 13)),
+                  const SizedBox(height: 6),
                   Row(
                     children: [
                       if (store.rating != null) ...[
@@ -84,20 +73,14 @@ class StoreTile extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               store.rating.toString(),
-                              style: AppTextStyles.body.copyWith(
-                                fontSize: 13,
-                                color: Colors.black,
-                              ),
+                              style: AppTextStyles.body.copyWith(fontSize: 13, color: Colors.black),
                             ),
                           ],
                         ),
                         const SizedBox(width: 10),
                       ],
                       store.isPromotion
-                          ? PromotionBadgeWithText(
-                              isPromotion: store.isPromotion,
-                              text: 'Khuyến mãi',
-                            )
+                          ? PromotionBadgeWithText(isPromotion: store.isPromotion, text: 'Khuyến mãi')
                           : const SizedBox.shrink(),
                     ],
                   ),
