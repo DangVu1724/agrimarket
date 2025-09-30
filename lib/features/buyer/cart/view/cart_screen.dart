@@ -37,6 +37,8 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
+        final currencyFormatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Giỏ hàng', style: AppTextStyles.headline),
@@ -61,70 +63,95 @@ class _CartScreenState extends State<CartScreen> {
           final grouped = cartVm.groupCartByStore(cartData.items);
 
           return ListView(
-            children:
-                grouped.entries.map((entry) {
-                  final storeId = entry.key;
-                  final items = entry.value;
-                  final storeName = items.first.storeName;
-                  final store = cartVm.store.value[storeId];
+            children: [
+              ...grouped.entries.map((entry) {
+                final storeId = entry.key;
+                final items = entry.value;
+                final storeName = items.first.storeName;
+                final store = cartVm.store.value[storeId];
 
-                  return Container(
-                    margin: const EdgeInsets.all(6),
-
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Tên cửa hàng
-                        Container(
-                          // padding: EdgeInsets.all(12),
-                          // decoration: BoxDecoration(
-                          //   color: AppColors.primary,
-                          //   borderRadius: BorderRadius.circular(12)
-                          // ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                return Container(
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(color: Colors.grey.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4)),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Tên cửa hàng + trạng thái
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
                             children: [
                               Text(storeName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-
-                              Obx(() {
-                                final store = cartVm.store.value[storeId];
-                                if (store == null) {
-                                  return ElevatedButton.icon(
-                                    onPressed: null,
-                                    icon: const Icon(Icons.payment, color: AppColors.primary),
-                                    label: const Text('Đang tải...', style: TextStyle(color: AppColors.primary)),
-                                    style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.grey)),
-                                  );
-                                }
-                                return ElevatedButton.icon(
-                                  style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
-                                      !store.isOpened ? Colors.grey : AppColors.background,
-                                    ),
+                              if (store != null && !store.isOpened)
+                                Container(
+                                  margin: const EdgeInsets.only(left: 8),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.redAccent,
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  icon: const Icon(Icons.payment, color: AppColors.primary),
-                                  label: const Text('Thanh toán', style: TextStyle(color: AppColors.primary)),
-                                  onPressed:
-                                      !store.isOpened
-                                          ? null
-                                          : () {
-                                            Get.toNamed(AppRoutes.checkOut, arguments: storeId);
-                                          },
-                                );
-                              }),
+                                  child: const Text(
+                                    'Đang đóng cửa',
+                                    style: TextStyle(color: Colors.white, fontSize: 12),
+                                  ),
+                                ),
                             ],
                           ),
+
+                          Obx(() {
+                            final store = cartVm.store.value[storeId];
+                            if (store == null) {
+                              return ElevatedButton.icon(
+                                onPressed: null,
+                                icon: const Icon(Icons.payment, color: AppColors.primary),
+                                label: const Text('Đang tải...', style: TextStyle(color: AppColors.primary)),
+                                style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.grey)),
+                              );
+                            }
+                            return ElevatedButton.icon(
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                  !store.isOpened ? Colors.grey : AppColors.background,
+                                ),
+                              ),
+                              icon: const Icon(Icons.payment, color: AppColors.primary),
+                              label: const Text('Thanh toán', style: TextStyle(color: AppColors.primary)),
+                              onPressed:
+                                  !store.isOpened
+                                      ? null
+                                      : () {
+                                        Get.toNamed(AppRoutes.checkOut, arguments: storeId);
+                                      },
+                            );
+                          }),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Danh sách sản phẩm của cửa hàng này
+                      ...items.map((item) => _buildCartItem(item, cartVm)).toList(),
+
+                      // Tổng tiền từng cửa hàng
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12, bottom: 8),
+                        child: Text(
+                          'Tổng: ${currencyFormatter.format(items.fold<int>(0, (sum, item) => sum + ((item.isOnSaleAtAddition == true && item.promotionPrice != null) ? (item.promotionPrice! * item.quantity.value).toInt() : (item.priceAtAddition * item.quantity.value).toInt())))}',
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
                         ),
-                        const SizedBox(height: 8),
-
-                        // Danh sách sản phẩm của cửa hàng này
-                        ...items.map((item) => _buildCartItem(item, cartVm)).toList(),
-
-                        const Divider(),
-                      ],
-                    ),
-                  );
-                }).toList(),
+                      ),
+                      const Divider(),
+                    ],
+                  ),
+                );
+              }),
+            ],
           );
         }),
       ),

@@ -20,6 +20,8 @@ class AuthController extends GetxController {
 
   var isLoading = false.obs;
 
+  AuthService get authService => _authService;
+
   Future<void> signIn({required String email, required String password}) async {
     try {
       isLoading.value = true;
@@ -45,6 +47,12 @@ class AuthController extends GetxController {
         }
 
         _box.put('user', {'uid': userModel.uid, 'role': userModel.role});
+
+        if (userModel.role == 'buyer') {
+        await _authService.saveFcmTokenToBuyer(user.uid);
+      } else if (userModel.role == 'seller') {
+        await _authService.saveFcmTokenToStore(user.uid);
+      }
 
         // Force refresh seller controllers if user is seller
         if (userModel.role == 'seller') {
@@ -178,6 +186,11 @@ class AuthController extends GetxController {
           _savePendingUser(user.email ?? '', user.displayName ?? '', user.phoneNumber ?? '', null, null, null);
           Get.offAllNamed(AppRoutes.roleSelection);
         } else {
+          if (userModel.role == 'buyer') {
+        await _authService.saveFcmTokenToBuyer(user.uid);
+      } else if (userModel.role == 'seller') {
+        await _authService.saveFcmTokenToStore(user.uid);
+      }
           await _navigateByRole(user.uid, userModel.role);
         }
       }

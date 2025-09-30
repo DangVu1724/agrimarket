@@ -11,14 +11,19 @@ class RoleSelectionScreen extends StatelessWidget {
   RoleSelectionScreen({super.key});
 
   void _selectRole(String role) async {
-    await _authController.updateUserRole(role);
+  await _authController.updateUserRole(role);
 
+  final user = _authController.authService.currentUser;
+  if (user != null) {
     if (role == 'buyer') {
+      await _authController.authService.saveFcmTokenToBuyer(user.uid);
       Get.offNamed(AppRoutes.addAddress);
     } else if (role == 'seller') {
+      await _authController.authService.saveFcmTokenToStore(user.uid);
       Get.offNamed(AppRoutes.createStoreInfo);
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {

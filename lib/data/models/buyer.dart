@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BuyerModel {
   final String uid;
+  final List<String> fcmTokens;
   final List<String> favoriteStoreIds;
   final List<Address> addresses;
   final List<String> orderIds;
@@ -11,6 +12,7 @@ class BuyerModel {
     this.favoriteStoreIds = const [],
     this.addresses = const [],
     this.orderIds = const [],
+    this.fcmTokens = const [],
   });
 
   factory BuyerModel.fromJson(Map<String, dynamic> json) {
@@ -19,6 +21,8 @@ class BuyerModel {
       favoriteStoreIds: List<String>.from(json['favoriteStoreIds'] ?? []),
       addresses: (json['addresses'] as List? ?? []).map((e) => Address.fromJson(e)).toList(),
       orderIds: List<String>.from(json['orderIds'] ?? []),
+      fcmTokens: List<String>.from(json['fcmTokens'] ?? []
+    ),
     );
   }
 
@@ -27,6 +31,7 @@ class BuyerModel {
     'favoriteStoreIds': favoriteStoreIds,
     'addresses': addresses.map((e) => e.toJson()).toList(),
     'orderIds': orderIds,
+    'fcmTokens': fcmTokens,
   };
 
   BuyerModel copyWith({

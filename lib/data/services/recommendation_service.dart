@@ -8,7 +8,7 @@ class RecommendationService {
   Future<String?> _getIdToken() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      return await user.getIdToken(true); 
+      return await user.getIdToken(true);
     }
     return null;
   }
@@ -66,47 +66,43 @@ class RecommendationService {
   }
 
   Future<List<String>> fetchNearbyStoreIds({required double lat, required double lng}) async {
-  final idToken = await _getIdToken();
-  if (idToken == null) {
-    print('❌ User not logged in or failed to get ID Token');
+    final idToken = await _getIdToken();
+    if (idToken == null) {
+      print('❌ User not logged in or failed to get ID Token');
+      return [];
+    }
+
+    final uri = Uri.parse(
+      '${EnvConfig.recoApiBaseUrl}/nearby/stores',
+    ).replace(queryParameters: {'lat': lat.toString(), 'lng': lng.toString()});
+
+    final headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $idToken'};
+
+    print('--- Nearby Stores Request ---');
+    print('URI: $uri');
+    print('Headers: $headers');
+
+    final response = await http.get(uri, headers: headers);
+
+    print('Status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      try {
+        final data = jsonDecode(response.body);
+        if (data['storeIds'] is List) {
+          print('✅ Fetched storeIds: ${data['storeIds']}');
+          return List<String>.from(data['storeIds']);
+        } else {
+          print('⚠️ storeIds not found in response');
+        }
+      } catch (e) {
+        print('❌ JSON decode error: $e');
+      }
+    } else {
+      print('❌ Error fetching nearby stores: ${response.statusCode} ${response.reasonPhrase}');
+    }
+
     return [];
   }
-
-  final uri = Uri.parse('${EnvConfig.recoApiBaseUrl}/nearby/stores').replace(
-    queryParameters: {'lat': lat.toString(), 'lng': lng.toString()},
-  );
-
-  final headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer $idToken',
-  };
-
-  print('--- Nearby Stores Request ---');
-  print('URI: $uri');
-  print('Headers: $headers');
-
-  final response = await http.get(uri, headers: headers);
-
-  print('Status code: ${response.statusCode}');
-  print('Response body: ${response.body}');
-
-  if (response.statusCode == 200) {
-    try {
-      final data = jsonDecode(response.body);
-      if (data['storeIds'] is List) {
-        print('✅ Fetched storeIds: ${data['storeIds']}');
-        return List<String>.from(data['storeIds']);
-      } else {
-        print('⚠️ storeIds not found in response');
-      }
-    } catch (e) {
-      print('❌ JSON decode error: $e');
-    }
-  } else {
-    print('❌ Error fetching nearby stores: ${response.statusCode} ${response.reasonPhrase}');
-  }
-
-  return [];
-}
-
 }

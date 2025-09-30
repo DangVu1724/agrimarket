@@ -10,6 +10,7 @@ import 'package:agrimarket/features/buyer/home/view/promotion_store_horizontal_l
 import 'package:agrimarket/features/buyer/home/view/recommended_store_horizontal_list.dart';
 import 'package:agrimarket/features/buyer/home/viewmodel/store_vm.dart';
 import 'package:agrimarket/features/buyer/home/viewmodel/recommendation_vm.dart';
+import 'package:agrimarket/features/buyer/user_vm.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -75,15 +76,47 @@ class HomeBuyerScreen extends StatelessWidget {
   }
 
   Widget _buildAppBar() {
+    final UserVm userVm = Get.find<UserVm>();
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
-      leading: Icon(Icons.location_on, color: Colors.black, size: 20),
-      title: GestureDetector(
-        onTap: () {
-          Get.toNamed(AppRoutes.buyerAddress);
-        },
-        child: Text(vm.defaultAddress?.address ?? '... Loading', style: TextStyle(color: Colors.black, fontSize: 16)),
+      leadingWidth: 60,
+      leading: Padding(
+        padding: const EdgeInsets.only(left: 12),
+        child: CircleAvatar(
+          backgroundImage:
+              userVm.userAvatar.value.isNotEmpty && userVm.userAvatar.value.startsWith('http')
+                  ? NetworkImage(userVm.userAvatar.value)
+                  : AssetImage('assets/images/avatar.png') as ImageProvider,
+          radius: 20,
+        ),
+      ),
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Xin chào, ${userVm.userName} 👋',
+            style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w500),
+          ),
+          GestureDetector(
+            onTap: () {
+              Get.toNamed(AppRoutes.buyerAddress);
+            },
+            child: Row(
+              children: [
+                Icon(Icons.location_on, color: Colors.green, size: 16),
+                SizedBox(width: 2),
+                Flexible(
+                  child: Text(
+                    vm.defaultAddress?.address ?? '... Loading',
+                    style: TextStyle(color: Colors.black, fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
       actions: [
         GestureDetector(
@@ -139,6 +172,7 @@ class HomeBuyerScreen extends StatelessWidget {
     );
   }
 
+  // --- Category Icons ---
   Widget _buildCategoryIcons() {
     final items = [
       'Trái cây',
@@ -160,14 +194,27 @@ class HomeBuyerScreen extends StatelessWidget {
       "assets/images/sea_food.png",
       "assets/images/rice.png",
     ];
+
+    final List<Color> bgColors = [
+      Colors.green.shade100,
+      Colors.orange.shade100,
+      Colors.pink.shade100,
+      Colors.blue.shade100,
+      Colors.purple.shade100,
+      Colors.teal.shade100,
+      Colors.yellow.shade100,
+      Colors.red.shade100,
+    ];
+
     return SizedBox(
-      height: 100,
+      height: 110,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: 14),
         itemCount: items.length,
         itemBuilder:
-            (_, index) => GestureDetector(
+            (_, index) => InkWell(
+              borderRadius: BorderRadius.circular(40),
               onTap: () {
                 Get.toNamed(AppRoutes.categoryStoreScreen, arguments: items[index]);
               },
@@ -176,14 +223,14 @@ class HomeBuyerScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.grey.shade200,
-                      child: Image.asset(imageCategory[index], width: 40, height: 40, fit: BoxFit.cover),
+                      radius: 32,
+                      backgroundColor: bgColors[index % bgColors.length],
+                      child: Image.asset(imageCategory[index], width: 38, height: 38),
                     ),
                     SizedBox(height: 6),
                     Text(
                       items[index],
-                      style: TextStyle(fontSize: 12),
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
@@ -196,19 +243,32 @@ class HomeBuyerScreen extends StatelessWidget {
     );
   }
 
+  // --- Section Header ---
   Widget _buildSectionHeader(String title, {String? actionText, String? actionRoute, dynamic arguments}) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.green.shade800, // xanh đậm cho header
+            ),
+          ),
           if (actionText != null)
-            GestureDetector(
-              onTap: () {
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.orange, // nút xem tất cả màu cam
+                padding: EdgeInsets.zero,
+                minimumSize: Size(50, 30),
+              ),
+              onPressed: () {
                 Get.toNamed(actionRoute ?? '', arguments: arguments);
               },
-              child: Text(actionText, style: TextStyle(color: Colors.green)),
+              child: Text(actionText),
             ),
         ],
       ),

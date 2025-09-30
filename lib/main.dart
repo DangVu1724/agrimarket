@@ -10,18 +10,25 @@ import 'package:agrimarket/data/services/background_promotion_service.dart';
 import 'package:agrimarket/data/services/network_service.dart';
 import 'package:agrimarket/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'app/routes/app_pages.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await initializeDateFormatting('vi_VN', null);
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
 
   await Hive.initFlutter();
   await CacheUtils.clearAllCache();
@@ -51,6 +58,36 @@ void main() async {
     print('Error loading dotenv: $e');
   }
 
+   const AndroidInitializationSettings androidInit =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+  const InitializationSettings initSettings =
+      InitializationSettings(android: androidInit);
+  await flutterLocalNotificationsPlugin.initialize(initSettings);
+
+  // Lắng nghe FCM khi app foreground
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+    print("📩 Foreground FCM: ${message.notification?.title}");
+
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+      'default_channel_id',
+      'Thông báo',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+    const NotificationDetails platformDetails =
+        NotificationDetails(android: androidDetails);
+
+    // Show local notification
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      message.notification?.title ?? "Thông báo",
+      message.notification?.body ?? "",
+      platformDetails,
+      payload: message.data['orderId'],
+    );
+  });
+
   // Khởi động background promotion service
   final backgroundService = BackgroundPromotionService();
   backgroundService.startBackgroundService();
@@ -60,6 +97,11 @@ void main() async {
   Get.put(NetworkService(), permanent: true);
 
   runApp(const MyApp());
+}
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('Handling background message: ${message.messageId}');
 }
 
 void _scheduleCacheCleanup() {

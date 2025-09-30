@@ -450,60 +450,98 @@ class CheckoutScreen extends StatelessWidget {
   }
 
   Future<void> _handleOrderCreation() async {
-    final CartVm cartVm = Get.find<CartVm>();
-    final CheckoutVm checkoutVm = Get.find<CheckoutVm>();
-    final PaymentVm paymentVm = Get.find<PaymentVm>();
-    final DiscountVm discountVm = Get.find<DiscountVm>();
-    final BuyerVm buyerVm = Get.find<BuyerVm>();
-    final UserVm userVm = Get.find<UserVm>();
-    try {
-      // Validation đã được thực hiện ở trên, chỉ cần lấy data
-      final items = cartVm.cart.value?.items.where((item) => item.storeId == storeId).toList() ?? [];
+  final CartVm cartVm = Get.find<CartVm>();
+  final CheckoutVm checkoutVm = Get.find<CheckoutVm>();
+  final PaymentVm paymentVm = Get.find<PaymentVm>();
+  final DiscountVm discountVm = Get.find<DiscountVm>();
+  final BuyerVm buyerVm = Get.find<BuyerVm>();
+  final UserVm userVm = Get.find<UserVm>();
 
-      // Calculate discount
-      double discountPrice = 0;
-      String? discountCodeId;
-      if (discountVm.hasSelectedDiscountCode) {
-        final selectedCode = discountVm.selectedDiscountCode.value!;
-        discountCodeId = selectedCode.id;
-
-        if (selectedCode.discountType == 'fixed') {
-          discountPrice = selectedCode.value;
-        } else if (selectedCode.discountType == 'percent') {
-          final total = cartVm.getTotalPriceByStore(storeId);
-          discountPrice = total * selectedCode.value / 100;
-        }
-      }
-
-      // Create order
-      final orderId = await checkoutVm.createOrder(
-        storeId: storeId,
-        storeName: checkoutVm.store.value?.name ?? '',
-        buyerName: userVm.userName.value,
-        buyerPhone: userVm.userPhone.value,
-        items: items,
-        paymentMethod: paymentVm.paymentMethod.value,
-        deliveryAddress: buyerVm.defaultAddress!.address,
-        discountCodeId: discountCodeId,
-        discountPrice: discountPrice,
-        isPaid: paymentVm.paymentMethod.value == 'Thanh toán khi nhận hàng' ? false : true,
-        isCommissionPaid: paymentVm.paymentMethod.value == 'Thanh toán khi nhận hàng' ? false : true,
-      );
-
-      if (orderId != null) {
-        try {
-          await cartVm.removeItemsByStoreId(storeId);
-
-          discountVm.clearSelectedDiscountCode();
-
-          paymentVm.clearPaymentMethod();
-        } catch (clearError) {}
-        Get.offAllNamed(AppRoutes.buyerHome);
-      }
-    } catch (e) {
-      // Handle error silently or show snackbar if needed
+  try {
+    // Lấy danh sách sản phẩm thuộc storeId
+    final cartItems = cartVm.cart.value?.items
+            .where((item) => item.storeId == storeId)
+            .toList() ??
+        [];
+    if (cartItems.isEmpty) {
+      throw Exception('Giỏ hàng trống cho store này');
     }
+
+    // Convert CartItem -> Map để gửi lên server
+    final items = cartItems.map((item) {
+      final price = (item.isOnSaleAtAddition ?? false) && item.promotionPrice != null
+          ? item.promotionPrice!
+          : item.priceAtAddition;
+      return {
+        'productId': item.productId,
+        'name': item.productName,
+        'quantity': item.quantity.value,
+        'price': price,
+        'unit': item.unit,
+        'promotionPrice': item.promotionPrice,
+      };
+    }).toList();
+
+    // Tính tổng tiền
+    double total = 0;
+    for (final item in cartItems) {
+      final price = (item.isOnSaleAtAddition ?? false) && item.promotionPrice != null
+          ? item.promotionPrice!
+          : item.priceAtAddition;
+      total += price * item.quantity.value;
+    }
+
+    // Áp dụng giảm giá nếu có
+    double discountPrice = 0;
+    String? discountCodeId;
+    if (discountVm.hasSelectedDiscountCode) {
+      final selectedCode = discountVm.selectedDiscountCode.value!;
+      discountCodeId = selectedCode.id;
+
+      if (selectedCode.discountType == 'fixed') {
+        discountPrice = selectedCode.value;
+      } else if (selectedCode.discountType == 'percent') {
+        discountPrice = total * selectedCode.value / 100;
+      }
+      total -= discountPrice;
+    }
+
+    // Chuẩn bị orderData theo backend yêu cầu
+    final orderData = {
+      "buyerName": userVm.userName.value,
+      "buyerPhone": userVm.userPhone.value,
+      "buyerUid": buyerVm.buyerData.value?.uid ?? checkoutVm.auth.currentUser?.uid,
+      "deliveryAddress": buyerVm.defaultAddress?.address ?? '',
+      "storeId": storeId,
+      "storeName": cartItems.first.storeName,
+      "items": items,
+      "totalPrice": total,
+      "discountCodeId": discountCodeId,
+      "discountPrice": discountPrice,
+      "paymentMethod": paymentVm.paymentMethod.value,
+    };
+
+    // Gọi createOrder
+    final orderId = await checkoutVm.createOrder(orderData);
+
+    if (orderId != null) {
+      // Xoá sản phẩm trong giỏ sau khi đặt hàng thành công
+      await cartVm.removeItemsByStoreId(storeId);
+
+      // Clear discount & payment
+      discountVm.clearSelectedDiscountCode();
+      paymentVm.clearPaymentMethod();
+
+      // Điều hướng về trang home
+      Get.offAllNamed(AppRoutes.buyerHome);
+    }
+  } catch (e) {
+    print('❌ Error in _handleOrderCreation: $e');
+    Get.snackbar('Lỗi', 'Đặt hàng thất bại: $e');
   }
+}
+
+
 
   Widget _buildDivider() => Container(width: double.infinity, height: 1, color: Colors.grey.shade300);
 

@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:agrimarket/core/utils/security_utils.dart';
@@ -6,6 +8,47 @@ import 'package:agrimarket/core/utils/security_utils.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  User? get currentUser => _auth.currentUser;
+
+  
+  Future<void> saveFcmTokenToBuyer(String uid) async {
+  final fcmToken = await FirebaseMessaging.instance.getToken();
+  if (fcmToken != null) {
+    await _firestore.collection('buyers').doc(uid).set({
+      'fcmTokens': [fcmToken]
+    }, SetOptions(merge: true));
+  }
+}
+
+Future<void> saveFcmTokenToStore(String uid) async {
+  final fcmToken = await FirebaseMessaging.instance.getToken();
+
+  if (fcmToken != null) {
+    // Tìm document trong stores mà có owner = uid
+    final query = await _firestore
+        .collection('stores')
+        .where('ownerUid', isEqualTo: uid)
+        .limit(1)
+        .get();
+
+    if (query.docs.isNotEmpty) {
+      final storeId = query.docs.first.id; 
+      
+      await _firestore
+          .collection('stores')
+          .doc(storeId)
+          .set({
+            'fcmTokens': FieldValue.arrayUnion([fcmToken]),
+          }, SetOptions(merge: true));
+    } else {
+      print('Không tìm thấy store cho user $uid');
+    }
+  }
+}
+
+
+
 
   // Đăng ký
   Future<User?> registerWithEmailAndPassword(String email, String password) async {

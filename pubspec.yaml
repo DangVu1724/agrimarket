@@ -75,6 +75,8 @@ dependencies:
   connectivity_plus: ^6.1.4
   diacritic: ^0.1.6
   sliding_up_panel: ^2.0.0+1
+  firebase_messaging: ^15.2.10
+  flutter_local_notifications: ^19.4.2
 
 
 

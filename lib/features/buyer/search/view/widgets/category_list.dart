@@ -2,8 +2,8 @@ import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class CategoryListWidget extends StatelessWidget {
-  const CategoryListWidget({super.key});
+class CategoryList extends StatelessWidget {
+  const CategoryList({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class CategoryListWidget extends StatelessWidget {
       'Thuỷ hải sản',
       'Gạo',
     ];
-    final List<String> imageCategory = [
+    final imageCategory = [
       "assets/images/fruit.png",
       "assets/images/vegetable.png",
       "assets/images/cooked_food.png",
@@ -34,9 +34,8 @@ class CategoryListWidget extends StatelessWidget {
       alignment: WrapAlignment.center,
       children: List.generate(items.length, (index) {
         return GestureDetector(
-          onTap: () {
-            Get.toNamed(AppRoutes.categoryStoreScreen, arguments: items[index]);
-          },
+          onTap: () =>
+              Get.toNamed(AppRoutes.categoryStoreScreen, arguments: items[index]),
           child: Column(
             children: [
               Container(
@@ -46,7 +45,11 @@ class CategoryListWidget extends StatelessWidget {
                   color: Colors.white,
                   shape: BoxShape.circle,
                   boxShadow: [
-                    BoxShadow(color: Colors.grey.withOpacity(0.3), blurRadius: 6, offset: const Offset(0, 3)),
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
                   ],
                 ),
                 child: Padding(
@@ -60,7 +63,8 @@ class CategoryListWidget extends StatelessWidget {
                 child: Text(
                   items[index],
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                      fontSize: 12, fontWeight: FontWeight.w500),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

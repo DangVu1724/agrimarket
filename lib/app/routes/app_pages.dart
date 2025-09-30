@@ -103,7 +103,7 @@ class AppPages {
     GetPage(name: AppRoutes.cart, page: () => CartScreen(), binding: BuyerBinding(), middlewares: [AuthMiddleware()]),
     GetPage(
       name: AppRoutes.buyerSearch,
-      page: () =>  SearchScreen(),
+      page: () => SearchScreen(),
       binding: BuyerBinding(),
       middlewares: [AuthMiddleware()],
     ),
@@ -228,8 +228,6 @@ class AppPages {
     //   binding: BuyerBinding(),
     //   middlewares: [AuthMiddleware()],
     // ),
-
-
 
     // ===== SELLER ROUTES (Cần AuthMiddleware + SellerBinding) =====
     GetPage(

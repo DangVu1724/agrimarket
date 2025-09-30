@@ -18,6 +18,7 @@ class StoreModel {
   final int? totalReviews;
   final List<Review> reviews;
   final DateTime? updatedAt;
+  final List<String>? fcmTokens;
 
   StoreModel({
     required this.storeId,
@@ -37,6 +38,7 @@ class StoreModel {
     this.totalReviews,
     this.reviews = const [],
     this.updatedAt,
+    this.fcmTokens,
   });
 
   Map<String, dynamic> toJson() => {
@@ -57,6 +59,7 @@ class StoreModel {
     'totalReviews': totalReviews,
     'reviews': reviews.map((e) => e.toJson()).toList(),
     'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
+    'fcmTokens': fcmTokens,
   };
 
   factory StoreModel.fromJson(Map<String, dynamic> json) => StoreModel(
@@ -89,6 +92,7 @@ class StoreModel {
                 ? (json['updatedAt'] as Timestamp).toDate()
                 : DateTime.tryParse(json['updatedAt'].toString()))
             : null,
+    fcmTokens: json['fcmTokens'] != null ? List<String>.from(json['fcmTokens']) : null,
   );
 
   StoreModel copyWith({

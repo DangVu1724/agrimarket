@@ -1,7 +1,9 @@
+import 'package:agrimarket/core/constants/env_config.dart';
 import 'package:agrimarket/data/models/cart.dart';
 import 'package:agrimarket/data/models/order.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/data/services/order_service.dart';
+import 'package:agrimarket/data/services/simple_notification_service.dart';
 import 'package:agrimarket/data/services/store_service.dart';
 import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
 import 'package:agrimarket/features/buyer/user_vm.dart';
@@ -21,6 +23,7 @@ class CheckoutVm extends GetxController {
   final UserVm userVm = Get.find<UserVm>();
   final BuyerVm buyerVm = Get.find<BuyerVm>();
   final FirebaseAuth auth = FirebaseAuth.instance;
+  final NotificationService notificationService = NotificationService();
 
   @override
   void onInit() {
@@ -64,106 +67,26 @@ class CheckoutVm extends GetxController {
     hasInitialized.value = false;
   }
 
-  Future<String?> createOrder({
-    required String storeId,
-    required String storeName,
-    required String buyerName,
-    required String buyerPhone,
-    required List<CartItem> items,
-    required String paymentMethod,
-    required String deliveryAddress,
-    String? discountCodeId,
-    double? discountPrice,
-    bool? isPaid,
-    bool? isCommissionPaid,
-  }) async {
-    if (items.isEmpty) {
-      throw Exception('Không có sản phẩm nào trong đơn hàng');
-    }
-
-    if (paymentMethod.isEmpty) {
-      throw Exception('Vui lòng chọn phương thức thanh toán');
-    }
-
-    if (deliveryAddress.isEmpty) {
-      throw Exception('Vui lòng nhập địa chỉ giao hàng');
-    }
-
-    if (buyerName.isEmpty) {
-      throw Exception('Vui lòng nhập tên người mua');
-    }
-
-    if (buyerPhone.isEmpty) {
-      throw Exception('Vui lòng nhập số điện thoại người mua');
-    }
-
-    isCreatingOrder.value = true;
-    errorMessage.value = '';
-
+  Future<String?> createOrder(Map<String, dynamic> orderData) async {
     try {
-      // Convert CartItems to OrderItems
-      final orderItems =
-          items
-              .map(
-                (item) => OrderItem(
-                  productId: item.productId,
-                  name: item.productName,
-                  quantity: item.quantity.value,
-                  price: item.priceAtAddition,
-                  unit: item.unit,
-                  promotionPrice: item.promotionPrice,
-                ),
-              )
-              .toList();
-
-      // Calculate total price
-      double totalPrice = 0;
-      for (final item in items) {
-        final price =
-            (item.isOnSaleAtAddition ?? false) && item.promotionPrice != null
-                ? item.promotionPrice!
-                : item.priceAtAddition;
-        totalPrice += price * item.quantity.value;
-      }
-
-      // Add service fee and shipping fee
-      final serviceFee = 5000;
-      final shippingFee = 20000;
-      final finalTotal = totalPrice + serviceFee + shippingFee - (discountPrice ?? 0);
-
-
-      // Create order
-      final order = OrderModel(
-        orderId: '',
-        buyerUid: auth.currentUser?.uid ?? '',
-        storeId: storeId,
-        storeName: storeName,
-        buyerName: buyerName,
-        buyerPhone: buyerPhone,
-        items: orderItems,
-        status: 'pending', // Initial status
-        paymentMethod: paymentMethod,
-        totalPrice: finalTotal,
-        discountPrice: discountPrice,
-        createdAt: DateTime.now(),
-        deliveryAddress: deliveryAddress,
-        discountCodeId: discountCodeId,
-        isPaid: isPaid,
-        isCommissionPaid: isCommissionPaid,
+      final orderId = await notificationService.createOrder(
+        orderData,
       );
 
-      final orderId = await orderService.createOrder(order);
-      print('Order created successfully with ID: $orderId');
+      if (orderId != null) {
+        print('✅ Order created successfully: $orderId');
+      } else {
+        print('❌ Failed to create order');
+      }
 
       return orderId;
     } catch (e) {
-      print('Error creating order: $e');
-      errorMessage.value = 'Không thể tạo đơn hàng: $e';
+      print('❌ Exception in CheckoutVm.createOrder: $e');
       return null;
-    } finally {
-      isCreatingOrder.value = false;
     }
   }
+
+
 
   double get totalPrice {
     double total = 0;
