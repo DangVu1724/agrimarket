@@ -5,132 +5,170 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-class DiscountCodeScreen extends StatelessWidget {
+class DiscountCodeScreen extends StatefulWidget {
   final String storeId;
   final double total;
   const DiscountCodeScreen({super.key, required this.storeId, required this.total});
 
   @override
-  Widget build(BuildContext context) {
-    final DiscountVm vm = Get.find<DiscountVm>();
-    final formatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
-    final formatted = DateFormat('dd/MM/yyyy');
+  State<DiscountCodeScreen> createState() => _DiscountCodeScreenState();
+}
 
-    // Load discount codes when screen opens
+class _DiscountCodeScreenState extends State<DiscountCodeScreen> {
+  late final DiscountVm vm;
+  final formatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
+  final dateFormatter = DateFormat('dd/MM/yyyy');
+
+  @override
+  void initState() {
+    super.initState();
+    vm = Get.find<DiscountVm>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!vm.hasInitialized.value) {
-        vm.fetchDiscountCodes(storeId);
-      }
+      vm.fetchDiscountCodes(widget.storeId);
     });
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Mã giảm giá')),
-      body: Column(
-        children: [
-          Expanded(
-            child: Obx(() {
-              if (vm.isLoadingDiscountCodes.value) {
-                return const Center(child: CircularProgressIndicator());
-              }
+      appBar: AppBar(title: const Text('Khuyến mãi')),
+      body: Obx(() {
+        if (vm.isLoadingDiscountCodes.value || vm.isLoadingVouchers.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-              if (vm.errorMessage.value.isNotEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Lỗi: ${vm.errorMessage.value}'),
-                      const SizedBox(height: 16),
-                      ElevatedButton(onPressed: () => vm.fetchDiscountCodes(storeId), child: const Text('Thử lại')),
-                    ],
-                  ),
-                );
-              }
+        if (vm.errorMessage.value.isNotEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Lỗi: ${vm.errorMessage.value}'),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    vm.fetchDiscountCodes(widget.storeId);
+                    vm.fetchVouchers();
+                  },
+                  child: const Text('Thử lại'),
+                ),
+              ],
+            ),
+          );
+        }
 
-              if (vm.discountCodes.isEmpty) {
-                return const Center(child: Text('Không có mã giảm giá nào'));
-              }
+        final now = DateTime.now();
 
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: vm.discountCodes.length,
-                itemBuilder: (context, index) {
-                  final discountCode = vm.discountCodes[index];
-
-                  return Obx(() {
-                    final isSelected = vm.selectedDiscountCode.value?.id == discountCode.id;
-                    final isValid = discountCode.minOrder <= total;
-                    return GestureDetector(
-                      onTap: () {
-                        if (isValid) {
-                          print('Selecting discount code: ${discountCode.code}');
-                          vm.selectDiscountCode(discountCode);
-                        } else {
-                          print('Discount code not valid: ${discountCode.code}');
-                          return;
-                        }
-                      },
-                      child: Opacity(
-                        opacity: isValid ? 1 : 0.5,
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey.shade300, width: 1),
-                            color: isSelected ? AppColors.primary.withOpacity(0.05) : Colors.white,
-                          ),
-                          child: Row(
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Text("Voucher", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const SizedBox(height: 8),
+            if (vm.vouchers.isEmpty)
+              const Text("Không có voucher khả dụng")
+            else
+              ...vm.vouchers.map((voucher) {
+                final isSelected = vm.selectedVoucher.value == voucher;
+                final quantity = voucher.count;
+                return GestureDetector(
+                  onTap: () => vm.selectVoucher(voucher),
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected ? AppColors.primary : Colors.grey.shade300,
+                      ),
+                      color: isSelected ? AppColors.primary.withOpacity(0.05) : Colors.white,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      discountCode.code,
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    if (discountCode.discountType == 'fixed')
-                                      Text(
-                                        'Giảm ${formatter.format(discountCode.value)} cho đơn hàng từ ${formatter.format(discountCode.minOrder)}',
-                                        style: TextStyle(color: Colors.grey),
-                                      ),
-                                    if (discountCode.discountType == 'percent')
-                                      Text(
-                                        'Giảm ${discountCode.value}% cho đơn hàng từ ${formatter.format(discountCode.minOrder)}',
-                                        style: TextStyle(color: Colors.grey),
-                                      ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'HSD: ${formatted.format(discountCode.expiredDate)}',
-                                      style: TextStyle(color: Colors.grey),
-                                    ),
-                                  ],
-                                ),
+                              Row(
+                                children: [
+                                  Text(voucher.code, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                  if (quantity > 1) const SizedBox(width: 6),
+                                  if (quantity > 1) Text("x$quantity", style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                                ],
                               ),
-                              const SizedBox(width: 12),
-                              Container(
-                                width: 24,
-                                height: 24,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: isSelected ? AppColors.primary : Colors.transparent,
-                                  border: Border.all(color: isSelected ? AppColors.primary : Colors.grey, width: 2),
-                                ),
-                                child: isSelected ? Icon(Icons.check, color: Colors.white, size: 16) : null,
+                              const SizedBox(height: 4),
+                              Text(
+                                voucher.discountType == 'fixed'
+                                    ? 'Giảm ${formatter.format(voucher.discountValue)} (đơn từ ${formatter.format(voucher.minOrder)})'
+                                    : 'Giảm ${voucher.discountValue}% (đơn từ ${formatter.format(voucher.minOrder)})',
+                                style: const TextStyle(color: Colors.grey),
                               ),
+                              const SizedBox(height: 4),
+                              Text('HSD: ${dateFormatter.format(voucher.endDate)}', style: const TextStyle(color: Colors.grey)),
                             ],
                           ),
                         ),
+                        if (isSelected) const Icon(Icons.check_circle, color: AppColors.primary),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+
+            const SizedBox(height: 24),
+
+            Text("Mã giảm giá", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const SizedBox(height: 8),
+            if (vm.discountCodes.isEmpty)
+              const Text("Không có mã giảm giá khả dụng")
+            else
+              ...vm.discountCodes.map((discountCode) {
+                final isSelected = vm.selectedDiscountCode.value?.id == discountCode.id;
+                final isValid = discountCode.minOrder <= widget.total && discountCode.expiredDate.isAfter(now);
+
+                return GestureDetector(
+                  onTap: () {
+                    if (isValid) vm.selectDiscountCode(discountCode);
+                  },
+                  child: Opacity(
+                    opacity: isValid ? 1 : 0.5,
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected ? AppColors.primary : Colors.grey.shade300,
+                        ),
+                        color: isSelected ? AppColors.primary.withOpacity(0.05) : Colors.white,
                       ),
-                    );
-                  });
-                },
-              );
-            }),
-          ),
-        ],
-      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(discountCode.code, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                const SizedBox(height: 4),
+                                Text(
+                                  discountCode.discountType == 'fixed'
+                                      ? 'Giảm ${formatter.format(discountCode.value)} (đơn từ ${formatter.format(discountCode.minOrder)})'
+                                      : 'Giảm ${discountCode.value}% (đơn từ ${formatter.format(discountCode.minOrder)})',
+                                  style: const TextStyle(color: Colors.grey),
+                                ),
+                                const SizedBox(height: 4),
+                                Text('HSD: ${dateFormatter.format(discountCode.expiredDate)}', style: const TextStyle(color: Colors.grey)),
+                              ],
+                            ),
+                          ),
+                          if (isSelected) const Icon(Icons.check_circle, color: AppColors.primary),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+          ],
+        );
+      }),
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.all(16),
         child: SizedBox(
@@ -139,7 +177,11 @@ class DiscountCodeScreen extends StatelessWidget {
           child: CustomButton(
             text: 'Áp dụng',
             onPressed: () {
-              Get.back();
+              
+              Get.back(result: {
+                'voucher': vm.selectedVoucher.value,
+                'discount': vm.selectedDiscountCode.value,
+              });
             },
           ),
         ),

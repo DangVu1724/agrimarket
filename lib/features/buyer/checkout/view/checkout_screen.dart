@@ -161,26 +161,7 @@ class CheckoutScreen extends StatelessWidget {
                 Column(
                   children: [
                     Obx(() {
-                      final total = cartVm.getTotalPriceByStore(storeId);
                       final totalQuantity = cartVm.getTotalQuantity(storeId);
-                      // final discount = cartVm.getTotalDiscountByStore(storeId);
-                      final serviceFee = 5000;
-                      final shippingFee = 20000;
-                      double discountPrice = 0;
-                      try {
-                        if (discountVm.selectedDiscountCode.value?.discountType == 'fixed') {
-                          final discount = discountVm.selectedDiscountCode.value?.value ?? 0;
-                          discountPrice = discount;
-                        }
-                        if (discountVm.selectedDiscountCode.value?.discountType == 'percent') {
-                          final discountPercent = discountVm.selectedDiscountCode.value?.value ?? 0;
-                          discountPrice = total * discountPercent / 100;
-                        }
-                      } catch (discountError) {
-                        discountPrice = 0;
-                      }
-                      final finalTotal = total + serviceFee + shippingFee - discountPrice;
-
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -190,16 +171,18 @@ class CheckoutScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text("Tạm tính:", style: TextStyle(fontSize: 15)),
-                              Text(formatter.format(total), style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text(
+                                formatter.format(checkoutVm.subTotal),
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ],
                           ),
-
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text("Phí dịch vụ:", style: TextStyle(fontSize: 15)),
                               Text(
-                                formatter.format(serviceFee),
+                                formatter.format(checkoutVm.serviceFee),
                                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                             ],
@@ -209,30 +192,22 @@ class CheckoutScreen extends StatelessWidget {
                             children: [
                               const Text("Phí giao hàng:", style: TextStyle(fontSize: 15)),
                               Text(
-                                formatter.format(shippingFee),
+                                formatter.format(checkoutVm.shippingFee),
                                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
-                          if (discountVm.selectedDiscountCode.value != null) ...{
-                            const SizedBox(height: 6),
+                          if (discountVm.hasSelectedDiscount || discountVm.hasSelectedVoucher)
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text("Giảm giá:", style: TextStyle(fontSize: 15)),
-                                if (discountVm.selectedDiscountCode.value?.discountType == 'fixed')
-                                  Text(
-                                    '- ${formatter.format(discountVm.selectedDiscountCode.value!.value)}',
-                                    style: const TextStyle(color: Colors.red),
-                                  ),
-                                if (discountVm.selectedDiscountCode.value?.discountType == 'percent')
-                                  Text(
-                                    '- ${formatter.format(total * discountVm.selectedDiscountCode.value!.value / 100)}',
-                                    style: const TextStyle(color: Colors.red),
-                                  ),
+                                Text(
+                                  '- ${formatter.format(checkoutVm.discountAmount)}',
+                                  style: const TextStyle(color: Colors.red),
+                                ),
                               ],
                             ),
-                          },
                           const SizedBox(height: 6),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -256,7 +231,7 @@ class CheckoutScreen extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                formatter.format(finalTotal),
+                                formatter.format(checkoutVm.total),
                                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                             ],
@@ -270,41 +245,45 @@ class CheckoutScreen extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text('Mã giảm giá', style: AppTextStyles.headline.copyWith(fontSize: 14)),
                 const SizedBox(height: 10),
-                ListTile(
-                  leading: Icon(Icons.discount_outlined, color: AppColors.primary, size: 14),
-                  title: Text('Áp dụng mã giảm giá', style: AppTextStyles.headline.copyWith(fontSize: 16)),
-                  subtitle: Obx(() {
-                    try {
-                      return Text(
-                        discountVm.hasSelectedDiscountCode
-                            ? "Đã áp dụng mã giảm giá ${discountVm.selectedDiscountCodeText ?? ''}"
-                            : "Chọn mã giảm giá",
-                        style: AppTextStyles.headline.copyWith(
-                          fontSize: 14,
-                          color: discountVm.hasSelectedDiscountCode ? AppColors.primary : Colors.grey,
-                        ),
+                Obx(() {
+                  final hasDiscount = discountVm.selectedDiscountCode.value != null;
+                  final hasVoucher = discountVm.selectedVoucher.value != null;
+
+                  String subtitleText = "Chọn mã giảm giá";
+                  Color subtitleColor = Colors.grey;
+
+                  if (hasDiscount) {
+                    subtitleText = "Đã áp dụng mã giảm giá ${discountVm.selectedDiscountCode.value?.code ?? ''}";
+                    subtitleColor = AppColors.primary;
+                  } else if (hasVoucher) {
+                    subtitleText = "Đã áp dụng voucher ${discountVm.selectedVoucher.value?.code ?? ''}";
+                    subtitleColor = AppColors.primary;
+                  }
+
+                  return ListTile(
+                    leading: Icon(Icons.discount_outlined, color: AppColors.primary, size: 20),
+                    title: Text('Áp dụng khuyến mãi', style: AppTextStyles.headline.copyWith(fontSize: 16)),
+                    subtitle: Text(
+                      subtitleText,
+                      style: AppTextStyles.headline.copyWith(fontSize: 14, color: subtitleColor),
+                    ),
+                    trailing: Icon(Icons.arrow_forward_ios, color: AppColors.primary, size: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: Colors.grey.shade300, width: 1),
+                    ),
+                    onTap: () async {
+                      await Get.toNamed(
+                        AppRoutes.discountCode,
+                        arguments: {'storeId': storeId, 'total': cartVm.getTotalPriceByStore(storeId)},
                       );
-                    } catch (e) {
-                      return Text(
-                        "Chọn mã giảm giá",
-                        style: AppTextStyles.headline.copyWith(fontSize: 14, color: Colors.grey),
-                      );
-                    }
-                  }),
-                  trailing: Icon(Icons.arrow_forward_ios, color: AppColors.primary, size: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: Colors.grey.shade300, width: 1),
-                  ),
-                  onTap: () async {
-                    await Get.toNamed(
-                      AppRoutes.discountCode,
-                      arguments: {'storeId': storeId, 'total': cartVm.getTotalPriceByStore(storeId)},
-                    );
-                    // Reload discount codes when returning from discount screen
-                    discountVm.fetchDiscountCodes(storeId);
-                  },
-                ),
+
+                      // Reload cả discount codes và vouchers khi quay lại
+                      discountVm.fetchDiscountCodes(storeId);
+                    },
+                  );
+                }),
+
                 const SizedBox(height: 10),
                 Text('Phương thức thanh toán', style: AppTextStyles.headline.copyWith(fontSize: 14)),
                 const SizedBox(height: 10),
@@ -450,98 +429,72 @@ class CheckoutScreen extends StatelessWidget {
   }
 
   Future<void> _handleOrderCreation() async {
-  final CartVm cartVm = Get.find<CartVm>();
-  final CheckoutVm checkoutVm = Get.find<CheckoutVm>();
-  final PaymentVm paymentVm = Get.find<PaymentVm>();
-  final DiscountVm discountVm = Get.find<DiscountVm>();
-  final BuyerVm buyerVm = Get.find<BuyerVm>();
-  final UserVm userVm = Get.find<UserVm>();
+    final CartVm cartVm = Get.find<CartVm>();
+    final CheckoutVm checkoutVm = Get.find<CheckoutVm>();
+    final PaymentVm paymentVm = Get.find<PaymentVm>();
+    final DiscountVm discountVm = Get.find<DiscountVm>();
+    final BuyerVm buyerVm = Get.find<BuyerVm>();
+    final UserVm userVm = Get.find<UserVm>();
 
-  try {
-    // Lấy danh sách sản phẩm thuộc storeId
-    final cartItems = cartVm.cart.value?.items
-            .where((item) => item.storeId == storeId)
-            .toList() ??
-        [];
-    if (cartItems.isEmpty) {
-      throw Exception('Giỏ hàng trống cho store này');
-    }
-
-    // Convert CartItem -> Map để gửi lên server
-    final items = cartItems.map((item) {
-      final price = (item.isOnSaleAtAddition ?? false) && item.promotionPrice != null
-          ? item.promotionPrice!
-          : item.priceAtAddition;
-      return {
-        'productId': item.productId,
-        'name': item.productName,
-        'quantity': item.quantity.value,
-        'price': price,
-        'unit': item.unit,
-        'promotionPrice': item.promotionPrice,
-      };
-    }).toList();
-
-    // Tính tổng tiền
-    double total = 0;
-    for (final item in cartItems) {
-      final price = (item.isOnSaleAtAddition ?? false) && item.promotionPrice != null
-          ? item.promotionPrice!
-          : item.priceAtAddition;
-      total += price * item.quantity.value;
-    }
-
-    // Áp dụng giảm giá nếu có
-    double discountPrice = 0;
-    String? discountCodeId;
-    if (discountVm.hasSelectedDiscountCode) {
-      final selectedCode = discountVm.selectedDiscountCode.value!;
-      discountCodeId = selectedCode.id;
-
-      if (selectedCode.discountType == 'fixed') {
-        discountPrice = selectedCode.value;
-      } else if (selectedCode.discountType == 'percent') {
-        discountPrice = total * selectedCode.value / 100;
+    try {
+      // Lấy danh sách sản phẩm thuộc storeId
+      final cartItems = cartVm.cart.value?.items.where((item) => item.storeId == storeId).toList() ?? [];
+      if (cartItems.isEmpty) {
+        throw Exception('Giỏ hàng trống cho store này');
       }
-      total -= discountPrice;
+
+      // Convert CartItem -> Map để gửi lên server
+      final items =
+          cartItems.map((item) {
+            final originalPrice = item.priceAtAddition;
+            final promoPrice =
+                (item.isOnSaleAtAddition ?? false) && item.promotionPrice != null
+                    ? item.promotionPrice!
+                    : originalPrice;
+
+            return {
+              'productId': item.productId,
+              'name': item.productName,
+              'quantity': item.quantity.value,
+              'price': originalPrice, 
+              'unit': item.unit,
+              'promotionPrice': promoPrice, 
+            };
+          }).toList();
+
+      // Chuẩn bị orderData theo backend yêu cầu
+      final orderData = {
+        "buyerName": userVm.userName.value,
+        "buyerPhone": userVm.userPhone.value,
+        "buyerUid": buyerVm.buyerData.value?.uid ?? checkoutVm.auth.currentUser?.uid,
+        "deliveryAddress": buyerVm.defaultAddress?.address ?? '',
+        "storeId": storeId,
+        "storeName": cartItems.first.storeName,
+        "items": items,
+        "totalPrice": checkoutVm.total,
+        "discountCodeId":
+            (discountVm.selectedDiscountCode.value?.id != null && discountVm.selectedDiscountCode.value!.id.isNotEmpty)
+                ? discountVm.selectedDiscountCode.value!.id
+                : discountVm.selectedVoucher.value?.voucherId,
+
+        "discountPrice": checkoutVm.discountAmount,
+        "paymentMethod": paymentVm.paymentMethod.value,
+      };
+
+      final orderId = await checkoutVm.createOrder(orderData);
+
+      if (orderId != null) {
+        await cartVm.removeItemsByStoreId(storeId);
+
+        discountVm.clearAll();
+        paymentVm.clearPaymentMethod();
+
+        Get.offAllNamed(AppRoutes.buyerHome);
+      }
+    } catch (e) {
+      Get.snackbar('Lỗi', 'Đặt hàng thất bại: $e');
     }
-
-    // Chuẩn bị orderData theo backend yêu cầu
-    final orderData = {
-      "buyerName": userVm.userName.value,
-      "buyerPhone": userVm.userPhone.value,
-      "buyerUid": buyerVm.buyerData.value?.uid ?? checkoutVm.auth.currentUser?.uid,
-      "deliveryAddress": buyerVm.defaultAddress?.address ?? '',
-      "storeId": storeId,
-      "storeName": cartItems.first.storeName,
-      "items": items,
-      "totalPrice": total,
-      "discountCodeId": discountCodeId,
-      "discountPrice": discountPrice,
-      "paymentMethod": paymentVm.paymentMethod.value,
-    };
-
-    // Gọi createOrder
-    final orderId = await checkoutVm.createOrder(orderData);
-
-    if (orderId != null) {
-      // Xoá sản phẩm trong giỏ sau khi đặt hàng thành công
-      await cartVm.removeItemsByStoreId(storeId);
-
-      // Clear discount & payment
-      discountVm.clearSelectedDiscountCode();
-      paymentVm.clearPaymentMethod();
-
-      // Điều hướng về trang home
-      Get.offAllNamed(AppRoutes.buyerHome);
-    }
-  } catch (e) {
-    print('❌ Error in _handleOrderCreation: $e');
-    Get.snackbar('Lỗi', 'Đặt hàng thất bại: $e');
   }
-}
-
-
 
   Widget _buildDivider() => Container(width: double.infinity, height: 1, color: Colors.grey.shade300);
 

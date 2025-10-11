@@ -1,22 +1,27 @@
-import 'package:agrimarket/core/constants/env_config.dart';
 import 'package:agrimarket/data/models/cart.dart';
-import 'package:agrimarket/data/models/order.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/data/services/order_service.dart';
 import 'package:agrimarket/data/services/simple_notification_service.dart';
 import 'package:agrimarket/data/services/store_service.dart';
 import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
+import 'package:agrimarket/features/buyer/cart/viewmodel/cart_vm.dart';
+import 'package:agrimarket/features/buyer/checkout/viewmodel/discount_vm.dart';
 import 'package:agrimarket/features/buyer/user_vm.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
 class CheckoutVm extends GetxController {
+    final CartVm cartVm = Get.find<CartVm>();
+
   final RxList<CartItem> checkOutItems = <CartItem>[].obs;
   final Rx<StoreModel?> store = Rx<StoreModel?>(null);
   final RxBool isLoadingStore = false.obs;
   final RxString errorMessage = ''.obs;
   final RxBool hasInitialized = false.obs;
   final RxBool isCreatingOrder = false.obs;
+  final RxDouble discountPrice = 0.0.obs;
+  final int serviceFee = 5000;
+  final int shippingFee = 20000;
 
   final StoreService storeService = StoreService();
   final OrderService orderService = OrderService();
@@ -24,16 +29,18 @@ class CheckoutVm extends GetxController {
   final BuyerVm buyerVm = Get.find<BuyerVm>();
   final FirebaseAuth auth = FirebaseAuth.instance;
   final NotificationService notificationService = NotificationService();
+  final DiscountVm discountVm = Get.find<DiscountVm>();
 
   @override
   void onInit() {
     super.onInit();
     userVm.loadUserData();
     buyerVm.fetchBuyerData();
-  }
-
-  void setItems(List<CartItem> items) {
-    checkOutItems.assignAll(items);
+    checkOutItems.assignAll(cartVm.cart.value?.items ?? []);
+    ever(cartVm.cart, (cart) {
+      checkOutItems.assignAll(cart?.items ?? []);
+    });
+  
   }
 
   Future<void> getStore(String storeId) async {
@@ -69,9 +76,7 @@ class CheckoutVm extends GetxController {
 
   Future<String?> createOrder(Map<String, dynamic> orderData) async {
     try {
-      final orderId = await notificationService.createOrder(
-        orderData,
-      );
+      final orderId = await notificationService.createOrder(orderData);
 
       if (orderId != null) {
         print('✅ Order created successfully: $orderId');
@@ -86,9 +91,7 @@ class CheckoutVm extends GetxController {
     }
   }
 
-
-
-  double get totalPrice {
+  double get subTotal {
     double total = 0;
     for (var item in checkOutItems) {
       final price =
@@ -97,4 +100,25 @@ class CheckoutVm extends GetxController {
     }
     return total;
   }
+
+  double get discountAmount {
+    // Ưu tiên discount code
+    if (discountVm.hasSelectedDiscount) {
+      final code = discountVm.selectedDiscountCode.value!;
+      if (code.discountType == 'fixed') return code.value.toDouble();
+      if (code.discountType == 'percent') return subTotal * code.value / 100;
+    }
+
+    // Nếu không có discount code thì check voucher
+    if (discountVm.hasSelectedVoucher) {
+      final voucher = discountVm.selectedVoucher.value!;
+      if (voucher.discountType == 'fixed') return voucher.discountValue.toDouble();
+      if (voucher.discountType == 'percentage') return subTotal * voucher.discountValue / 100;
+      return voucher.discountValue.toDouble();
+    }
+
+    return 0;
+  }
+
+  double get total => subTotal + serviceFee + shippingFee - discountAmount;
 }

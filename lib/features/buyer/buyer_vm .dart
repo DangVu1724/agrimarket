@@ -17,11 +17,26 @@ class BuyerVm extends GetxController {
   final favoriteStoreId = <String>[].obs;
   final favoriteStores = <StoreModel>[].obs;
   final buyerData = Rxn<BuyerModel>();
+  final RxnInt userPoints = RxnInt();
 
   @override
   void onInit() {
     super.onInit();
     fetchBuyerData();
+    getUserPointsStream().listen((points) {
+      userPoints.value = points;
+    });
+  }
+
+
+  Stream<int> getUserPointsStream() {
+    final uid = auth.currentUser?.uid;
+    if (uid == null) return const Stream.empty();
+
+    return firestore.collection('buyers').doc(uid).snapshots().map((doc) {
+      if (!doc.exists) return 0;
+      return doc.data()?['points'] ?? 0;
+    });
   }
 
   Address? get defaultAddress { 

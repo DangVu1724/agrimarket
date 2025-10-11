@@ -42,6 +42,7 @@ class AppRoutes {
   static const String buyerAccount = '/buyer/account';
   static const String buyerAddress = '/buyer/address';
   static const String buyerChatList = '/buyer/chatList';
+  static const String voucher = '/buyer/voucher';
 
 
   // Common (có thể dùng cho cả buyer và seller)

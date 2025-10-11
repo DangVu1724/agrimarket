@@ -32,6 +32,7 @@ import 'package:agrimarket/features/buyer/home/view/buyer_home_screen.dart';
 import 'package:agrimarket/features/buyer/orders/view/order_screen.dart';
 import 'package:agrimarket/features/buyer/profile/view/profile_screen.dart';
 import 'package:agrimarket/features/buyer/profile/view/security_screen.dart';
+import 'package:agrimarket/features/buyer/profile/view/voucher_screen.dart';
 import 'package:agrimarket/features/buyer/search/view/search_screen.dart';
 import 'package:agrimarket/features/buyer/profile/view/setting_screen.dart';
 import 'package:agrimarket/features/buyer/store/view/product_detail_screen.dart';
@@ -216,6 +217,12 @@ class AppPages {
     GetPage(
       name: AppRoutes.buyerChatList,
       page: () => BuyerChatListScreen(),
+      binding: BuyerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.voucher,
+      page: () => const VoucherScreen(),
       binding: BuyerBinding(),
       middlewares: [AuthMiddleware()],
     ),

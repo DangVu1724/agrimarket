@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BuyerModel {
   final String uid;
+  final int? points;
   final List<String> fcmTokens;
   final List<String> favoriteStoreIds;
   final List<Address> addresses;
@@ -9,6 +10,7 @@ class BuyerModel {
 
   BuyerModel({
     required this.uid,
+    this.points = 0,
     this.favoriteStoreIds = const [],
     this.addresses = const [],
     this.orderIds = const [],
@@ -18,6 +20,7 @@ class BuyerModel {
   factory BuyerModel.fromJson(Map<String, dynamic> json) {
     return BuyerModel(
       uid: json['uid'],
+      points: (json['points'] as num?)?.toInt(),
       favoriteStoreIds: List<String>.from(json['favoriteStoreIds'] ?? []),
       addresses: (json['addresses'] as List? ?? []).map((e) => Address.fromJson(e)).toList(),
       orderIds: List<String>.from(json['orderIds'] ?? []),
@@ -28,6 +31,7 @@ class BuyerModel {
 
   Map<String, dynamic> toJson() => {
     'uid': uid,
+    'points': points,
     'favoriteStoreIds': favoriteStoreIds,
     'addresses': addresses.map((e) => e.toJson()).toList(),
     'orderIds': orderIds,
@@ -36,12 +40,14 @@ class BuyerModel {
 
   BuyerModel copyWith({
     String? uid,
+    int? points,
     List<String>? favoriteStoreIds,
     List<Address>? addresses,
     List<String>? orderIds,
   }) {
     return BuyerModel(
       uid: uid ?? this.uid,
+      points: points ?? this.points,
       favoriteStoreIds: favoriteStoreIds ?? this.favoriteStoreIds,
       addresses: addresses ?? this.addresses,
       orderIds: orderIds ?? this.orderIds,
