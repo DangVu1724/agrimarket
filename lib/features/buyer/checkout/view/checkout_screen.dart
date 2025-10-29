@@ -278,8 +278,6 @@ class CheckoutScreen extends StatelessWidget {
                         arguments: {'storeId': storeId, 'total': cartVm.getTotalPriceByStore(storeId)},
                       );
 
-                      // Reload cả discount codes và vouchers khi quay lại
-                      discountVm.fetchDiscountCodes(storeId);
                     },
                   );
                 }),

@@ -120,9 +120,9 @@ class OrderService {
     }
   }
 
-  Future<void> submitReview({required String orderId, required double rating, required String comment, required String storeId, required String buyerUid}) async {
+  Future<void> submitReview({required String orderId, required double rating, required String comment, required String storeId, required String buyerUid, List<String>? reviewImages}) async {
     try {
-      await _orderRepository.submitReview(orderId: orderId, rating: rating, comment: comment, storeId: storeId, buyerUid: buyerUid);
+      await _orderRepository.submitReview(orderId: orderId, rating: rating, comment: comment, storeId: storeId, buyerUid: buyerUid,reviewImages: reviewImages);
     } catch (e) {
       throw Exception('Failed to submit review: $e');
     }

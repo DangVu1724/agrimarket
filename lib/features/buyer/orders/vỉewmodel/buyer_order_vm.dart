@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'package:agrimarket/data/models/order.dart';
 import 'package:agrimarket/data/services/order_service.dart';
 import 'package:agrimarket/features/buyer/buyer_vm .dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 
 class BuyerOrderVm extends GetxController {
   final RxList<OrderModel> unconfirmedOrders = <OrderModel>[].obs;
@@ -18,6 +21,8 @@ class BuyerOrderVm extends GetxController {
   final RxBool isReviewed = false.obs;
   final OrderService orderService = OrderService();
   final commentController = TextEditingController();
+  var images = <File>[].obs;
+  var base64Images = <String>[].obs;
 
   StreamSubscription<QuerySnapshot>? _ordersSubscription;
   String? _currentBuyerId;
@@ -36,6 +41,8 @@ class BuyerOrderVm extends GetxController {
     if (_currentBuyerId != null) {
       _setupRealTimeOrders();
     }
+    images.clear();
+    base64Images.clear();
   }
 
   @override
@@ -45,6 +52,8 @@ class BuyerOrderVm extends GetxController {
     rating.value = 0;
     comment.value = '';
     isReviewed.value = false;
+    images.clear();
+    base64Images.clear();
     super.onClose();
   }
 
@@ -137,6 +146,49 @@ class BuyerOrderVm extends GetxController {
     _setupRealTimeOrders();
   }
 
+Future<void> pickImages(BuildContext context) async {
+    final picker = ImagePicker();
+    final List<XFile>? pickedFiles = await picker.pickMultiImage(
+      imageQuality: 70,
+      maxWidth: 600,
+      maxHeight: 600,
+    );
+
+    if (pickedFiles == null || pickedFiles.isEmpty) return;
+
+    images.value = pickedFiles.map((e) => File(e.path)).toList();
+
+    List<String> encoded = [];
+
+    for (var file in pickedFiles) {
+      final bytes = await File(file.path).readAsBytes();
+      final kbSize = bytes.lengthInBytes / 1024;
+
+      if (kbSize > 300) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Ảnh "${file.name}" hơi lớn (${kbSize.toStringAsFixed(1)} KB). '
+              'Khuyến nghị ảnh < 300 KB để lưu Firestore an toàn.',
+            ),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+
+      encoded.add(base64Encode(bytes));
+    }
+
+    base64Images.assignAll(encoded);
+  }
+
+  void removeImage(int index) {
+    if (index >= 0 && index < images.length) {
+      images.removeAt(index);
+      base64Images.removeAt(index);
+    }
+  }
+
   Future<void> submitReview({
     required String orderId,
     required double rating,
@@ -150,8 +202,8 @@ class BuyerOrderVm extends GetxController {
             backgroundColor: Colors.orange, colorText: Colors.white);
         return;
       }
-
-      await orderService.submitReview(orderId: orderId, rating: rating, comment: comment, storeId: storeId, buyerUid: _currentBuyerId!);
+  
+      await orderService.submitReview(orderId: orderId, rating: rating, comment: comment, storeId: storeId, buyerUid: _currentBuyerId!,reviewImages: base64Images.toList(),);
       await orderService.updateStoreAverageRating(storeId);
       this.rating.value = rating;
       this.comment.value = comment;
@@ -161,8 +213,6 @@ class BuyerOrderVm extends GetxController {
       print('Error submitting review: $e');
     }
   }
-
-
 
 
 

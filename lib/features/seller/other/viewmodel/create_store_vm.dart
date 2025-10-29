@@ -154,6 +154,7 @@ class CreateStoreViewModel extends GetxController {
         storeImageUrl: storeImageUrl,
         state: 'pending',
         isOpened: false,
+        createdAt: DateTime.now()
       );
 
       await _storeRepository.createStore(store);

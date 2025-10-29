@@ -13,12 +13,15 @@ class StoreModel {
   final String state;
   final bool isOpened;
   final bool isPromotion;
+  final String? hotSaleId;
   final DateTime? createdAt;
   final double? rating;
   final int? totalReviews;
   final List<Review> reviews;
   final DateTime? updatedAt;
   final List<String>? fcmTokens;
+  final List<String>? tags;
+  final int orderCount;
 
   StoreModel({
     required this.storeId,
@@ -27,6 +30,7 @@ class StoreModel {
     required this.description,
     required this.categories,
     required this.storeLocation,
+    this.orderCount = 0,
     this.businessLicenseUrl,
     this.foodSafetyCertificateUrl,
     this.storeImageUrl,
@@ -34,11 +38,13 @@ class StoreModel {
     this.isOpened = false,
     this.isPromotion = false,
     this.createdAt,
+    this.hotSaleId,
     this.rating,
     this.totalReviews,
     this.reviews = const [],
     this.updatedAt,
     this.fcmTokens,
+    this.tags,
   });
 
   Map<String, dynamic> toJson() => {
@@ -46,6 +52,7 @@ class StoreModel {
     'ownerUid': ownerUid,
     'name': name,
     'description': description,
+    'orderCount': orderCount,
     'categories': categories,
     'storeLocation': storeLocation.toJson(),
     'state': state,
@@ -54,12 +61,15 @@ class StoreModel {
     'storeImageUrl': storeImageUrl,
     'isOpened': isOpened,
     'isPromotion': isPromotion,
+    'hotSaleId': hotSaleId,
     'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
     'rating': rating,
     'totalReviews': totalReviews,
     'reviews': reviews.map((e) => e.toJson()).toList(),
     'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
     'fcmTokens': fcmTokens,
+    'tags': tags,
+
   };
 
   factory StoreModel.fromJson(Map<String, dynamic> json) => StoreModel(
@@ -70,13 +80,14 @@ class StoreModel {
     categories: List<String>.from(json['categories']),
 
     storeLocation: StoreAddress.fromJson(Map<String, dynamic>.from(json['storeLocation'])),
-
+    orderCount: json['orderCount'] ?? 0,
     businessLicenseUrl: json['businessLicenseUrl'],
     foodSafetyCertificateUrl: json['foodSafetyCertificateUrl'],
     storeImageUrl: json['storeImageUrl'],
     state: json['state'] ?? 'pending',
     isOpened: json['isOpened'] ?? false,
     isPromotion: json['isPromotion'] ?? false,
+    hotSaleId: json['hotSaleId'] ?? '',
     createdAt:
         json['createdAt'] != null
             ? (json['createdAt'] is Timestamp
@@ -93,6 +104,8 @@ class StoreModel {
                 : DateTime.tryParse(json['updatedAt'].toString()))
             : null,
     fcmTokens: json['fcmTokens'] != null ? List<String>.from(json['fcmTokens']) : null,
+    tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
+
   );
 
   StoreModel copyWith({
@@ -102,22 +115,27 @@ class StoreModel {
     String? description,
     List<String>? categories,
     StoreAddress? storeLocation,
+    int? orderCount,
     String? businessLicenseUrl,
     String? foodSafetyCertificateUrl,
     String? storeImageUrl,
     String? state,
     bool? isOpened,
     bool? isPromotion,
+    String? hotSaleId,
     DateTime? createdAt,
     double? rating,
     int? totalReviews,
     List<Review>? reviews,
     DateTime? updatedAt,
+    List<String>? fcmTokens,
+    List<String>? tags,
   }) {
     return StoreModel(
       storeId: storeId ?? this.storeId,
       ownerUid: ownerUid ?? this.ownerUid,
       name: name ?? this.name,
+      orderCount: orderCount ?? this.orderCount,
       description: description ?? this.description,
       categories: categories ?? this.categories,
       storeLocation: storeLocation ?? this.storeLocation,
@@ -127,11 +145,14 @@ class StoreModel {
       state: state ?? this.state,
       isOpened: isOpened ?? this.isOpened,
       isPromotion: isPromotion ?? this.isPromotion,
+      hotSaleId: hotSaleId ?? this.hotSaleId,
       createdAt: createdAt ?? this.createdAt,
       rating: rating ?? this.rating,
       totalReviews: totalReviews ?? this.totalReviews,
       reviews: reviews ?? this.reviews,
       updatedAt: updatedAt ?? this.updatedAt,
+      fcmTokens: fcmTokens ?? this.fcmTokens,
+      tags: tags ?? this.tags,
     );
   }
 
@@ -180,6 +201,7 @@ class Review {
   final double rating;
   final String comment;
   final DateTime createdAt;
+  final List<String>? reviewImages;
 
   Review({
     required this.reviewId,
@@ -189,28 +211,33 @@ class Review {
     required this.rating,
     required this.comment,
     required this.createdAt,
+    this.reviewImages,
   });
 
   factory Review.fromJson(Map<String, dynamic> json) => Review(
-    reviewId: json['reviewId'],
-    buyerUid: json['buyerUid'],
-    storeId: json['storeId'],
-    orderId: json['orderId'],
-    rating: (json['rating'] as num).toDouble(),
-    comment: json['comment'] ?? '',
-    createdAt:
-        json['createdAt'] is Timestamp
+        reviewId: json['reviewId'] ?? '',
+        buyerUid: json['buyerUid'] ?? '',
+        storeId: json['storeId'] ?? '',
+        orderId: json['orderId'] ?? '',
+        rating: (json['rating'] ?? 0).toDouble(),
+        comment: json['comment'] ?? '',
+        reviewImages: json['reviewImages'] != null
+            ? List<String>.from(json['reviewImages'])
+            : [],
+        createdAt: json['createdAt'] is Timestamp
             ? (json['createdAt'] as Timestamp).toDate()
-            : DateTime.parse(json['createdAt'] as String),
-  );
+            : DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+      );
 
   Map<String, dynamic> toJson() => {
-    'reviewId': reviewId,
-    'buyerUid': buyerUid,
-    'storeId': storeId,
-    'orderId': orderId,
-    'rating': rating,
-    'comment': comment,
-    'createdAt': Timestamp.fromDate(createdAt),
-  };
+        'reviewId': reviewId,
+        'buyerUid': buyerUid,
+        'storeId': storeId,
+        'orderId': orderId,
+        'rating': rating,
+        'comment': comment,
+        'reviewImages': reviewImages ?? [],
+        'createdAt': Timestamp.fromDate(createdAt),
+      };
 }
+

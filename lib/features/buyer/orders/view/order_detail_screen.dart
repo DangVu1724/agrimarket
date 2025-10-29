@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/data/models/order.dart';
@@ -128,19 +130,32 @@ class OrderDetailScreen extends StatelessWidget {
               children: [
                 if (item.promotionPrice != null && item.promotionPrice! > 0) ...[
                   Text(
-                  _formatPrice(item.price * item.quantity),
-                  style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold, color: Colors.grey[600], fontSize: 13, decoration: TextDecoration.lineThrough),
-                  textAlign: TextAlign.right,
-                ),
-                Text(
-                  _formatPrice((item.promotionPrice ?? 0) * item.quantity),
-                  style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold, color: AppColors.error, fontSize: 15),
+                    _formatPrice(item.price * item.quantity),
+                    style: AppTextStyles.body.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[600],
+                      fontSize: 13,
+                      decoration: TextDecoration.lineThrough,
+                    ),
+                    textAlign: TextAlign.right,
+                  ),
+                  Text(
+                    _formatPrice((item.promotionPrice ?? 0) * item.quantity),
+                    style: AppTextStyles.body.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.error,
+                      fontSize: 15,
+                    ),
                     textAlign: TextAlign.right,
                   ),
                 ] else ...[
                   Text(
                     _formatPrice(item.price * item.quantity),
-                    style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 14),
+                    style: AppTextStyles.body.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                      fontSize: 14,
+                    ),
                     textAlign: TextAlign.right,
                   ),
                 ],
@@ -227,20 +242,21 @@ class OrderDetailScreen extends StatelessWidget {
   }
 
   Widget _buildReviewSection(BuildContext context, OrderModel order) {
-    final buyerOrderVm = Get.find<BuyerOrderVm>();
-    buyerOrderVm.setOrderComment(order.comment, order.isReviewed ?? false);
+  final buyerOrderVm = Get.find<BuyerOrderVm>();
+  buyerOrderVm.setOrderComment(order.comment, order.isReviewed ?? false);
+  print('🧩 order.reviewImages = ${order.reviewImages}');
 
-    return Obx(
-      () => Column(
+  return Obx(() => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ⭐ Đánh giá sao
           RatingBar.builder(
             itemSize: 26,
             initialRating: order.rating ?? 0,
             minRating: 1,
             direction: Axis.horizontal,
             allowHalfRating: true,
-            itemBuilder: (context, index) => const Icon(Icons.star, color: Colors.amber),
+            itemBuilder: (context, _) => const Icon(Icons.star, color: Colors.amber),
             onRatingUpdate: (rating) {
               if (!buyerOrderVm.isReviewed.value) {
                 buyerOrderVm.rating.value = rating;
@@ -249,62 +265,146 @@ class OrderDetailScreen extends StatelessWidget {
             ignoreGestures: buyerOrderVm.isReviewed.value,
           ),
           const SizedBox(height: 8),
+
+          // 📄 Nếu đã đánh giá
           if (buyerOrderVm.isReviewed.value) ...[
             Text(
               'Bạn đã đánh giá đơn hàng này.',
-              style: AppTextStyles.body.copyWith(color: Colors.green[700], fontWeight: FontWeight.w600),
+              style: AppTextStyles.body.copyWith(
+                color: Colors.green[700],
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 8),
+
+            // 🔹 Hiện bình luận cũ
             Text(
-              buyerOrderVm.commentController.text.isEmpty ? 'Không có bình luận' : buyerOrderVm.commentController.text,
+              buyerOrderVm.commentController.text.isEmpty
+                  ? 'Không có bình luận'
+                  : buyerOrderVm.commentController.text,
               style: AppTextStyles.body.copyWith(color: Colors.black87),
             ),
+            const SizedBox(height: 8),
+
+            // 🖼️ Hiện ảnh đánh giá cũ (nếu có)
+            if (order.reviewImages != null && order.reviewImages!.isNotEmpty)
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: List.generate(order.reviewImages!.length, (index) {
+                  final imageBase64 = order.reviewImages![index];
+                  try {
+                    final cleanBase64 = imageBase64.contains(',')
+                        ? imageBase64.split(',').last
+                        : imageBase64;
+                    final sanitizedBase64 =
+                        cleanBase64.replaceAll(RegExp(r'\s+'), '');
+                    final bytes = base64Decode(sanitizedBase64);
+
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.memory(
+                        bytes,
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                      ),
+                    );
+                  } catch (e) {
+                    print('⚠️ Lỗi decode ảnh: $e');
+                    return const Icon(Icons.broken_image,
+                        size: 80, color: Colors.grey);
+                  }
+                }),
+              ),
           ] else ...[
+            // 📝 Chưa đánh giá → nhập đánh giá mới
             TextFormField(
               controller: buyerOrderVm.commentController,
               maxLines: 3,
-              enabled: !buyerOrderVm.isReviewed.value,
-              onChanged: (value) {
-                buyerOrderVm.comment.value = value;
-              },
+              onChanged: (value) => buyerOrderVm.comment.value = value,
               decoration: InputDecoration(
-                hintText: 'Nhập đánh giá',
+                hintText: 'Nhập đánh giá của bạn...',
                 border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
             ),
             const SizedBox(height: 8),
+
+            // 📸 Chọn ảnh mới
+            ElevatedButton.icon(
+              onPressed: () async {
+                await buyerOrderVm.pickImages(context);
+              },
+              icon: const Icon(Icons.photo_library),
+              label: const Text('Thêm hình ảnh'),
+            ),
+            const SizedBox(height: 8),
+
+            // 🖼️ Hiển thị ảnh mới chọn
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: List.generate(
+                buyerOrderVm.images.length,
+                (index) => Stack(
+                  alignment: Alignment.topRight,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.file(
+                        buyerOrderVm.images[index],
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => buyerOrderVm.removeImage(index),
+                      child: Container(
+                        margin: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.black54,
+                        ),
+                        child: const Icon(Icons.close,
+                            color: Colors.white, size: 18),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // 🔘 Nút gửi đánh giá
             ElevatedButton(
-              onPressed:
-                  buyerOrderVm.isReviewed.value
-                      ? null
-                      : () {
-                        if (buyerOrderVm.rating.value == 0) {
-                          Get.snackbar(
-                            'Lỗi',
-                            'Vui lòng chọn số sao để đánh giá',
-                            backgroundColor: Colors.red,
-                            colorText: Colors.white,
-                          );
-                          return;
-                        }
-                        buyerOrderVm.submitReview(
-                          orderId: order.orderId,
-                          rating: buyerOrderVm.rating.value,
-                          comment: buyerOrderVm.comment.value,
-                          storeId: order.storeId,
-                          buyerUid: order.buyerUid,
-                        );
-                      },
+              onPressed: () {
+                if (buyerOrderVm.rating.value == 0) {
+                  Get.snackbar(
+                    'Lỗi',
+                    'Vui lòng chọn số sao để đánh giá',
+                    backgroundColor: Colors.red,
+                    colorText: Colors.white,
+                  );
+                  return;
+                }
+                buyerOrderVm.submitReview(
+                  orderId: order.orderId,
+                  rating: buyerOrderVm.rating.value,
+                  comment: buyerOrderVm.comment.value,
+                  storeId: order.storeId,
+                  buyerUid: order.buyerUid,
+                );
+              },
               child: const Text('Gửi đánh giá'),
             ),
           ],
         ],
-      ),
-    );
-  }
+      ));
+}
+
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';

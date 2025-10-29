@@ -18,6 +18,7 @@ class OrderModel {
   final bool? isCommissionPaid;
   final DateTime? deliveredAt;
   final bool? isReviewed;
+  final List<String>? reviewImages;
   final double? rating;
   final String? comment;
   final String? buyerName;
@@ -36,6 +37,7 @@ class OrderModel {
     this.updatedAt,
     required this.deliveryAddress,
     this.discountCodeId,
+    this.reviewImages,
     this.discountPrice,
     this.isPaid,
     this.isCommissionPaid,
@@ -83,6 +85,7 @@ class OrderModel {
       comment: json['comment'],
       buyerName: json['buyerName'],
       buyerPhone: json['buyerPhone'],
+      reviewImages: (json['reviewImages'] != null) ? List<String>.from(json['reviewImages']) : [],
     );
   }
 
@@ -108,6 +111,7 @@ class OrderModel {
     'comment': comment,
     'buyerName': buyerName,
     'buyerPhone': buyerPhone,
+    'reviewImages': reviewImages ?? [],
   };
   OrderModel copyWith({
     String? orderId,
@@ -131,6 +135,7 @@ class OrderModel {
     bool? isReviewed,
     double? rating,
     String? comment,
+    List<String>? reviewImages,
   }) => OrderModel(
     orderId: orderId ?? this.orderId,
     buyerUid: buyerUid ?? this.buyerUid,
@@ -153,6 +158,7 @@ class OrderModel {
     isReviewed: isReviewed ?? this.isReviewed,
     rating: rating ?? this.rating,
     comment: comment ?? this.comment,
+    reviewImages: reviewImages ?? this.reviewImages,
   );
 }
 

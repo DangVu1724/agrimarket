@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/features/buyer/store/viewmodel/store_detail_vm.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +8,7 @@ import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:photo_view/photo_view.dart';
 
 class StoreDetailScreen extends StatelessWidget {
   final StoreModel store;
@@ -89,9 +92,13 @@ class StoreDetailScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text('Danh mục:', style: AppTextStyles.headline.copyWith(fontSize: 16)),
                   const SizedBox(height: 4),
-                  Wrap(spacing: 8, children: store.categories.map((cat) => Chip(
-                    backgroundColor: AppColors.background,
-                    label: Text(cat))).toList()),
+                  Wrap(
+                    spacing: 8,
+                    children:
+                        store.categories
+                            .map((cat) => Chip(backgroundColor: AppColors.background, label: Text(cat)))
+                            .toList(),
+                  ),
                   const SizedBox(height: 16),
 
                   Row(
@@ -171,6 +178,61 @@ class StoreDetailScreen extends StatelessWidget {
                                   const SizedBox(height: 8),
                                   // Nội dung comment
                                   Text(review.comment, style: TextStyle(fontSize: 15)),
+                                  if (review.reviewImages != null && review.reviewImages!.isNotEmpty) ...[
+                                    const SizedBox(height: 8),
+                                    SizedBox(
+                                      height: 80,
+                                      child: ListView.separated(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: review.reviewImages!.length,
+                                        separatorBuilder: (context, index) => const SizedBox(width: 8),
+                                        itemBuilder: (context, imgIndex) {
+                                          final imgData = review.reviewImages![imgIndex];
+                                          final bytes = base64Decode(imgData);
+                                          return GestureDetector(
+                                            onTap: () {
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (_) => Dialog(
+                                                      backgroundColor: Colors.black,
+                                                      insetPadding: EdgeInsets.zero,
+                                                      child: Stack(
+                                                        children: [
+                                                          PhotoView(
+                                                            imageProvider: MemoryImage(bytes),
+                                                            backgroundDecoration: const BoxDecoration(
+                                                              color: Colors.black,
+                                                            ),
+                                                            minScale: PhotoViewComputedScale.contained,
+                                                            maxScale: PhotoViewComputedScale.covered * 2,
+                                                          ),
+                                                          Positioned(
+                                                            top: 40,
+                                                            right: 20,
+                                                            child: IconButton(
+                                                              icon: const Icon(
+                                                                Icons.close,
+                                                                color: Colors.white,
+                                                                size: 28,
+                                                              ),
+                                                              onPressed: () => Navigator.pop(context),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                              );
+                                            },
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(8),
+                                              child: Image.memory(bytes, width: 80, height: 80, fit: BoxFit.cover),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),

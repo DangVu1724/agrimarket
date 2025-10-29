@@ -5,6 +5,7 @@ import 'package:agrimarket/data/models/buyer.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/data/services/address_service.dart';
 import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
+import 'package:agrimarket/features/buyer/home/view/hot_sale.dart';
 import 'package:agrimarket/features/buyer/home/view/nearby_stores.dart';
 import 'package:agrimarket/features/buyer/home/view/promotion_store_horizontal_list.dart';
 import 'package:agrimarket/features/buyer/home/view/recommended_store_horizontal_list.dart';
@@ -68,16 +69,8 @@ class HomeBuyerScreen extends StatelessWidget {
                 ],
                 Obx(() {
                   final recoVm = Get.find<RecommendationVm>();
-                  if (recoVm.recommendedStores.isEmpty) {
-                    return SizedBox.shrink();
-                  }
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildSectionHeader("Dành cho bạn"),
-                      const RecommendedStoreHorizontalList(),
-                    ],
-                  );
+                  if (recoVm.recommendedStores.isEmpty) return SizedBox.shrink();
+                  return RecommendedStoreHorizontalList();
                 }),
                 Obx(() {
                   final recoVm = Get.find<RecommendationVm>();
@@ -341,7 +334,7 @@ class HomeBuyerScreen extends StatelessWidget {
     final buyerLatLng = buyer.getDefaultLatLng();
 
     if (storeLatLng == null || buyerLatLng == null) {
-      return StoreTile(store: store, distanceText: null, estimatedTime: null);
+      return StoreTile(store: store, distanceText: null, estimatedTime: null,);
     }
 
     final distance = addressService.calculateDistance(
@@ -391,13 +384,10 @@ class HomeBuyerScreen extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionHeader(
-                "Bỗng dưng thèm trái ngọt",
-                actionText: "Xem tất cả",
-              ),
-              StoreProductList(
-                storeId: 'store_Fs06RKoGxPfrFuxY8E78FtyRByD2_8165',
-              ),
+              _buildSectionHeader("Bỗng dưng thèm trái ngọt", actionText: "Xem tất cả"),
+              StoreProductList(storeId: 'store_Fs06RKoGxPfrFuxY8E78FtyRByD2_8165'),
+              const SizedBox(height: 15),
+              HotSaleHorizontalList(),
             ],
           );
         }

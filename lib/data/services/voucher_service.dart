@@ -31,7 +31,7 @@ class VoucherService {
       // Chỉ lấy voucher chưa hết hạn
       return snapshot.docs.map((doc) {
         final voucher = UserVoucherModel.fromJson(doc.data());
-        if (voucher.endDate.isAfter(now)) {
+        if (voucher.status == 'available') {
           return voucher;
         }
         return null;

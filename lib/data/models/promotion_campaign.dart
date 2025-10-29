@@ -4,21 +4,23 @@ class PromotionCampaignModel {
   final String id;
   final String title;
   final String description;
-  final String bannerImage;
-  final DateTime startDate;
-  final DateTime endDate;
+  final DateTime startTime;
+  final List<String> stores;
+  final String? discountId;
+  final DateTime endTime;
   final bool isActive;
-  final String type; // "system" hoặc "store_based"
+  final String type; 
 
   PromotionCampaignModel({
     required this.id,
     required this.title,
     required this.description,
-    required this.bannerImage,
-    required this.startDate,
-    required this.endDate,
+    required this.startTime,
+    required this.stores,
+    required this.endTime,
     required this.isActive,
     required this.type,
+    this.discountId,
   });
 
   factory PromotionCampaignModel.fromJson(Map<String, dynamic> json) {
@@ -26,11 +28,12 @@ class PromotionCampaignModel {
       id: json['id'] ?? '',
       title: json['title'] ?? '',
       description: json['description'] ?? '',
-      bannerImage: json['bannerImage'] ?? '',
-      startDate: (json['startDate'] as Timestamp).toDate(),
-      endDate: (json['endDate'] as Timestamp).toDate(),
+      startTime: (json['startTime'] as Timestamp).toDate(),
+      stores: List<String>.from(json['stores'] ?? []),
+      endTime: (json['endTime'] as Timestamp).toDate(),
       isActive: json['isActive'] ?? false,
       type: json['type'] ?? 'system',
+      discountId: json['discountId'],
     );
   }
 
@@ -39,11 +42,14 @@ class PromotionCampaignModel {
       'id': id,
       'title': title,
       'description': description,
-      'bannerImage': bannerImage,
-      'startDate': startDate,
-      'endDate': endDate,
+      'startTime': startTime,
+      'stores': stores,
+      'endTime': endTime,
       'isActive': isActive,
       'type': type,
+      'discountId': discountId,
     };
   }
+
+  
 }

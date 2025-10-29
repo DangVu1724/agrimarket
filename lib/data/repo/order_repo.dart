@@ -142,6 +142,7 @@ class OrderRepository {
     required String comment,
     required String storeId,
     required String buyerUid,
+    List<String>? reviewImages
   }) async {
     try {
       await _ordersCollection.doc(orderId).update({
@@ -149,6 +150,7 @@ class OrderRepository {
         'comment': comment,
         'updatedAt': Timestamp.fromDate(DateTime.now()),
         'isReviewed': true,
+        'reviewImages': reviewImages
       });
 
       final reviewId = _storesCollection.doc(storeId).collection('reviews').doc().id;
@@ -160,6 +162,7 @@ class OrderRepository {
         'comment': comment,
         'createdAt': Timestamp.fromDate(DateTime.now()),
         'reviewId': reviewId,
+        'reviewImages': reviewImages
       });
     } catch (e) {
       throw Exception('Failed to submit review: $e');

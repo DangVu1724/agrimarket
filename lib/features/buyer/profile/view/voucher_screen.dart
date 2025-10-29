@@ -25,10 +25,12 @@ class VoucherScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(right: 16.0),
               child: Center(
-                child: Obx(() => Text(
-                  buyerVm.userPoints.value != null ? "Điểm: ${buyerVm.userPoints.value}" : "Đang tải...",
-                  style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold, color: Colors.orange[300]),
-                )),
+                child: Obx(
+                  () => Text(
+                    buyerVm.userPoints.value != null ? "Điểm: ${buyerVm.userPoints.value}" : "Đang tải...",
+                    style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold, color: Colors.orange[300]),
+                  ),
+                ),
               ),
             ),
           ],
@@ -100,10 +102,10 @@ class VoucherList extends StatelessWidget {
             children: [
               Text(v.code, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
-              Text(v.description, maxLines: 2, overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 13)),
+              Text(v.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 13)),
               const SizedBox(height: 4),
               Text("Số lượng: ${v.usageLimit}", maxLines: 2, overflow: TextOverflow.ellipsis),
-              
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -118,22 +120,28 @@ class VoucherList extends StatelessWidget {
                     ],
                   ),
                   ElevatedButton(
-                    onPressed: () async {
-                      final result = await vm.redeemVoucher(v.id);
+                    onPressed:
+                        v.usageLimit == 0
+                            ? null 
+                            : () async {
+                              final result = await vm.redeemVoucher(v.id);
 
-                      if(result?['success'] == true) {
-                        showSuccessToast("Đổi voucher thành công");
-                      } else {
-                        showErrorToast(result?['message'] ?? "Đổi voucher thất bại");
-                      }
-                    },
+                              if (result?['success'] == true) {
+                                showSuccessToast("Đổi voucher thành công");
+                              } else {
+                                showErrorToast(result?['message'] ?? "Đổi voucher thất bại");
+                              }
+                            },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
+                      backgroundColor: v.usageLimit == 0 ? Colors.grey : Colors.orange, 
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       textStyle: const TextStyle(fontSize: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: const Text("Đổi ngay",style: TextStyle(color: Colors.white,fontStyle: FontStyle.italic ),),
+                    child: Text(
+                      v.usageLimit == 0 ? "Hết" : "Đổi ngay",
+                      style: const TextStyle(color: Colors.white, fontStyle: FontStyle.italic),
+                    ),
                   ),
                 ],
               ),
@@ -178,10 +186,11 @@ class VoucherList extends StatelessWidget {
                   Row(
                     children: [
                       Text(v.code, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                      const SizedBox(width: 10,),
-                      Text("x${userVc.count}",style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold))
+                      const SizedBox(width: 10),
+                      Text("x${userVc.count}", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ],
                   ),
+
                   const SizedBox(height: 4),
                   Text(v.description, maxLines: 2, overflow: TextOverflow.ellipsis),
                   const Spacer(),
