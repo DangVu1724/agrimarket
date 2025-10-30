@@ -8,6 +8,7 @@ import 'package:agrimarket/data/models/product_promotion.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/features/auth/view/dashboard.dart';
 import 'package:agrimarket/features/auth/view/email_verify_screen.dart';
+import 'package:agrimarket/features/auth/view/loading_screen.dart';
 import 'package:agrimarket/features/buyer/chat/view/chat_list.dart';
 import 'package:agrimarket/features/buyer/checkout/view/checkout_screen.dart';
 import 'package:agrimarket/features/buyer/checkout/view/discount_code_screen.dart';
@@ -67,6 +68,7 @@ class AppPages {
     GetPage(name: AppRoutes.emailVerify, page: () => EmailVerificationScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.roleSelection, page: () => RoleSelectionScreen(), binding: AuthBinding()),
     GetPage(name: AppRoutes.resetPassword, page: () => ResetPasswordScreen(), binding: AuthBinding()),
+    GetPage(name: AppRoutes.loading, page: () => const ServerLoadingScreen(), binding: AuthBinding()),
 
     // ===== AUTHENTICATION ROUTES (Cần AuthMiddleware) =====
     GetPage(

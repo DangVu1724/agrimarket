@@ -7,6 +7,7 @@ class AppRoutes {
   static const String emailVerify = '/email-verify';
   static const String roleSelection = '/role-selection';
   static const String resetPassword = '/reset-password';
+  static const String loading = '/loading';
 
   // ===== AUTHENTICATION ROUTES (Cần authentication) =====
   static const String addAddress = '/add-address';

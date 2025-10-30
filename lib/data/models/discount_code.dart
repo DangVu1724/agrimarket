@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class DiscountCodeModel {
   final String id; 
   final String code;
-  final String? storeId; // null nếu là mã toàn hệ thống
+  final List<String>? storeId; // null nếu là mã toàn hệ thống
   final String creatorRole; // "admin" hoặc "seller"
   final String discountType; // "percent" hoặc "fixed"
   final double value;
@@ -37,7 +37,7 @@ class DiscountCodeModel {
     return DiscountCodeModel(
       id: json['id'] ?? '', 
       code: json['code'] ?? '',
-      storeId: json['storeId'],
+      storeId: (json['storeId'] as List?)?.map((e) => e as String).toList(),
       creatorRole: json['creatorRole'] ?? 'seller',
       discountType: json['discountType'] ?? 'fixed',
       value: (json['value'] ?? 0).toDouble(),
@@ -84,7 +84,7 @@ class DiscountCodeModel {
     return DiscountCodeModel(
       id: id ?? this.id,
       code: code ?? this.code,
-      storeId: storeId ?? this.storeId,
+      storeId: storeId != null ? [storeId] : this.storeId,
       creatorRole: creatorRole ?? this.creatorRole,
       discountType: discountType ?? this.discountType,
       value: value ?? this.value,

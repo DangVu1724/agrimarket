@@ -75,11 +75,24 @@ class PromotionRepository {
   }
 
   Future<List<DiscountCodeModel>> getAllDiscountCodes(String storeId) async {
-    final doc1 = await _db.collection('discount_codes').where('storeId', isEqualTo: storeId).get();
-    final doc2 = await _db.collection('discount_codes').where('storeId', isNull: true).get();
-    final allDoc = [...doc1.docs, ...doc2.docs];
-    return allDoc.map((e) => DiscountCodeModel.fromJson({...e.data(), 'id': e.id})).where((e) => e.isOnSale).toList();
-  }
+  final doc1 = await _db
+      .collection('discount_codes')
+      .where('storeId', arrayContains: storeId)
+      .get();
+
+  final doc2 = await _db
+      .collection('discount_codes')
+      .where('storeId', isEqualTo: [])
+      .get();
+
+  final allDoc = [...doc1.docs, ...doc2.docs];
+
+  return allDoc
+      .map((e) => DiscountCodeModel.fromJson({...e.data(), 'id': e.id}))
+      .where((e) => e.isOnSale)
+      .toList();
+}
+
 
 
 }

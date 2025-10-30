@@ -48,10 +48,10 @@ class PromotionVm extends GetxController {
     try {
       await _promotionService.createDiscountCode(code);
 
-      await loadAllPromotions(code.storeId!);
+      await loadAllPromotions(code.storeId != null && code.storeId!.isNotEmpty ? code.storeId!.first : '');
 
       // Cập nhật trạng thái khuyến mãi của store
-      await _storePromotionService.updateStorePromotionStatus(code.storeId!);
+      await _storePromotionService.updateStorePromotionStatus(code.storeId != null && code.storeId!.isNotEmpty ? code.storeId!.first : '');
     } catch (e) {
       Get.snackbar('Lỗi', 'Tạo khuyến mãi thất bại: ${e.toString()}');
       rethrow;
@@ -154,7 +154,7 @@ class PromotionVm extends GetxController {
 
       // Cập nhật trạng thái khuyến mãi của store
       if (storeId != null) {
-        await _storePromotionService.updateStorePromotionStatus(storeId);
+        await _storePromotionService.updateStorePromotionStatus(storeId.first);
       }
     } catch (e) {
       Get.snackbar('Lỗi', 'Xóa mã giảm giá thất bại: ${e.toString()}');
@@ -174,7 +174,7 @@ class PromotionVm extends GetxController {
 
       // Cập nhật trạng thái khuyến mãi của store
       if (code.storeId != null) {
-        await _storePromotionService.updateStorePromotionStatus(code.storeId!);
+        await _storePromotionService.updateStorePromotionStatus(code.storeId!.first);
       }
     } catch (e) {
       rethrow;

@@ -163,7 +163,7 @@ class AuthController extends GetxController {
 
       _box.delete('pendingUser');
 
-      Get.offAllNamed(role == 'buyer' ? AppRoutes.buyerHome : AppRoutes.createStoreInfo);
+      Get.offAllNamed(role == 'buyer' ? AppRoutes.loading : AppRoutes.createStoreInfo);
     } catch (e) {
       throw Exception(e.toString());
     } finally {
@@ -222,7 +222,7 @@ class AuthController extends GetxController {
         Get.offAllNamed(AppRoutes.sellerHome);
       }
     } else {
-      Get.offAllNamed(AppRoutes.buyerHome);
+      Get.offAllNamed(AppRoutes.loading);
     }
   }
 

@@ -36,37 +36,36 @@ class CheckoutVm extends GetxController {
     super.onInit();
     userVm.loadUserData();
     buyerVm.fetchBuyerData();
-    checkOutItems.assignAll(cartVm.cart.value?.items ?? []);
-    ever(cartVm.cart, (cart) {
-      checkOutItems.assignAll(cart?.items ?? []);
-    });
   
   }
 
   Future<void> getStore(String storeId) async {
-    if (storeId.isEmpty) {
-      errorMessage.value = 'Store ID không hợp lệ';
-      return;
-    }
-
-    // Prevent multiple calls for the same store
-    if (isLoadingStore.value) return;
-
-    isLoadingStore.value = true;
-    errorMessage.value = '';
-
-    try {
-      final fetchedStore = await storeService.fetchStoresbyID(storeId);
-      store.value = fetchedStore;
-      hasInitialized.value = true;
-    } catch (e) {
-      print('Error fetching store: $e');
-      errorMessage.value = 'Không thể tải thông tin cửa hàng';
-      store.value = null;
-    } finally {
-      isLoadingStore.value = false;
-    }
+  if (storeId.isEmpty) {
+    errorMessage.value = 'Store ID không hợp lệ';
+    return;
   }
+
+  if (isLoadingStore.value) return;
+
+  isLoadingStore.value = true;
+  errorMessage.value = '';
+
+  try {
+    final fetchedStore = await storeService.fetchStoresbyID(storeId);
+    store.value = fetchedStore;
+    hasInitialized.value = true;
+
+    loadCheckoutItems(storeId);
+
+  } catch (e) {
+    print('Error fetching store: $e');
+    errorMessage.value = 'Không thể tải thông tin cửa hàng';
+    store.value = null;
+  } finally {
+    isLoadingStore.value = false;
+  }
+}
+
 
   void clearStore() {
     store.value = null;
@@ -79,14 +78,14 @@ class CheckoutVm extends GetxController {
       final orderId = await notificationService.createOrder(orderData);
 
       if (orderId != null) {
-        print('✅ Order created successfully: $orderId');
+        print(' Order created successfully: $orderId');
       } else {
-        print('❌ Failed to create order');
+        print('Failed to create order');
       }
 
       return orderId;
     } catch (e) {
-      print('❌ Exception in CheckoutVm.createOrder: $e');
+      print('Exception in CheckoutVm.createOrder: $e');
       return null;
     }
   }
@@ -119,6 +118,13 @@ class CheckoutVm extends GetxController {
 
     return 0;
   }
+
+  void loadCheckoutItems(String storeId) {
+  final allItems = cartVm.cart.value?.items ?? [];
+  final filtered = allItems.where((item) => item.storeId == storeId).toList();
+  checkOutItems.assignAll(filtered);
+}
+
 
   double get total => subTotal + serviceFee + shippingFee - discountAmount;
 }

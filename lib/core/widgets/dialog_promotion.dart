@@ -233,7 +233,7 @@ class _DialogPromotionState extends State<DialogPromotion> {
     final model = DiscountCodeModel(
       id: '',
       code: codeController.text.trim(),
-      storeId: sellerHomeVm.store.value?.storeId,
+      storeId: sellerHomeVm.store.value?.storeId != null ? [sellerHomeVm.store.value!.storeId] : [],
       creatorRole: 'seller',
       discountType: selectedDiscountType ?? 'percent',
       value: double.parse(percentController.text.trim()),

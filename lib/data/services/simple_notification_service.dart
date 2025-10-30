@@ -31,7 +31,7 @@ class NotificationService {
     });
 
     final response = await http.post(uri, headers: headers, body: body);
-    print('🔔 Register token response: ${response.statusCode} ${response.body}');
+    print('Register token response: ${response.statusCode} ${response.body}');
   }
 
   /// Buyer đặt hàng -> tạo đơn
@@ -39,7 +39,7 @@ class NotificationService {
   try {
     final idToken = await _getIdToken();
     if (idToken == null) {
-      print('❌ User not logged in -> cannot create order');
+      print(' User not logged in -> cannot create order');
       return null;
     }
 
