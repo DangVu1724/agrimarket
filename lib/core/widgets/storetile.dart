@@ -18,10 +18,6 @@ class StoreTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timeInfo = (distanceText != null) 
-        ? "🛵 $distanceText • ⏱ $estimatedTime phút" 
-        : "Không xác định vị trí";
-
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -50,99 +46,142 @@ class StoreTile extends StatelessWidget {
                 _buildStoreImage(),
                 const SizedBox(width: 16),
                 
-                // Store Info
+                // Store Info - Expanded to take full width
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Store Name and Categories
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              store.name,
-                              style: AppTextStyles.headline.copyWith(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.grey.shade800,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          _buildCategories(),
-                        ],
+                      // Hàng 1: Chỉ có tên cửa hàng
+                      Text(
+                        store.name,
+                        style: AppTextStyles.headline.copyWith(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.grey.shade800,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
                       
-                      // Distance and Time
+                      // Hàng 2: Category và trạng thái
                       Row(
                         children: [
-                          Icon(Icons.location_on_outlined, size: 16, color: Colors.grey.shade600),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              timeInfo,
-                              style: AppTextStyles.body.copyWith(
-                                fontSize: 13,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ),
+                          // Category
+                          if (store.categories.isNotEmpty)
+                            _buildCategories(),
+                          
+                          const Spacer(),
+                          
+                          // Store Status
+                          _buildStoreStatus(),
                         ],
                       ),
                       
                       const SizedBox(height: 8),
                       
-                      // Rating and Tags
-                      Row(
-                        children: [
-                          // Rating
-                          if (store.rating != null) ...[
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.amber.shade50,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.amber.shade200),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.star, color: Colors.amber, size: 14),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    store.rating!.toStringAsFixed(1),
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.amber,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    '(${store.totalReviews ?? 0})',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.grey.shade600,
-                                    ),
-                                  ),
-                                ],
+                      // Hàng 3: Địa chỉ
+                      if (store.storeLocation.address.isNotEmpty)
+                        Row(
+                          children: [
+                            Icon(Icons.location_on_outlined, size: 14, color: Colors.grey.shade600),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                store.storeLocation.address,
+                                style: AppTextStyles.body.copyWith(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            const SizedBox(width: 8),
+                          ],
+                        ),
+                      
+                      const SizedBox(height: 8),
+                      
+                      // Hàng 4: Khoảng cách, thời gian và rating
+                      Row(
+                        children: [
+                          // Distance
+                          if (distanceText != null) ...[
+                            Row(
+                              children: [
+                                Icon(Icons.place_outlined, size: 14, color: Colors.grey.shade600),
+                                const SizedBox(width: 2),
+                                Text(
+                                  distanceText!,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 12),
                           ],
                           
+                          // Time
+                          if (estimatedTime != null && estimatedTime! > 0) ...[
+                            Row(
+                              children: [
+                                Icon(Icons.access_time, size: 14, color: Colors.grey.shade600),
+                                const SizedBox(width: 2),
+                                Text(
+                                  '$estimatedTime phút',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 12),
+                          ],
+                          
+                          // Rating
+                          if (store.rating != null) ...[
+                            Row(
+                              children: [
+                                Icon(Icons.star, size: 14, color: Colors.amber),
+                                const SizedBox(width: 2),
+                                Text(
+                                  store.rating!.toStringAsFixed(1),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey.shade800,
+                                  ),
+                                ),
+                                const SizedBox(width: 2),
+                                Text(
+                                  '(${store.totalReviews ?? 0})',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 8),
+                      
+                      // Hàng 5: Tags và thông tin bổ sung
+                      Row(
+                        children: [
                           // Tags
                           if (store.tags != null && store.tags!.isNotEmpty) ...[
                             Expanded(
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 child: Row(
-                                  children: store.tags!.take(2).map((tag) {
+                                  children: store.tags!.take(3).map((tag) {
                                     return Padding(
                                       padding: const EdgeInsets.only(right: 6),
                                       child: _buildTagChip(tag),
@@ -152,6 +191,7 @@ class StoreTile extends StatelessWidget {
                               ),
                             ),
                           ],
+                                                                            
                         ],
                       ),
                     ],
@@ -227,7 +267,7 @@ class StoreTile extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         store.categories.first,
@@ -240,13 +280,45 @@ class StoreTile extends StatelessWidget {
     );
   }
 
+  Widget _buildStoreStatus() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: store.isOpened ? Colors.green.shade50 : Colors.red.shade50,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: store.isOpened ? Colors.green.shade200 : Colors.red.shade200,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            store.isOpened ? Icons.circle : Icons.circle_outlined,
+            size: 8,
+            color: store.isOpened ? Colors.green : Colors.red,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            store.isOpened ? 'Đang mở' : 'Đã đóng',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+              color: store.isOpened ? Colors.green : Colors.red,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildTagChip(String tag) {
     final color = _tagColor(tag);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
         color: color.shade50,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(4),
         border: Border.all(color: color.shade200),
       ),
       child: Row(
@@ -254,16 +326,16 @@ class StoreTile extends StatelessWidget {
         children: [
           Icon(
             _tagIcon(tag),
-            size: 12,
+            size: 10,
             color: color.shade700,
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 2),
           Text(
             _tagLabel(tag),
             style: TextStyle(
               color: color.shade700,
-              fontWeight: FontWeight.w600,
-              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              fontSize: 10,
             ),
           ),
         ],
@@ -313,13 +385,13 @@ class StoreTile extends StatelessWidget {
       case 'bestseller':
         return 'Bán chạy';
       case 'top_seller':
-        return 'Top Seller';
+        return 'Top';
       case 'trusted':
         return 'Uy tín';
       case 'elite_store':
         return 'Xuất sắc';
       case 'inactive_store':
-        return 'Ít hoạt động';
+        return 'Tạm đóng';
       default:
         return tag;
     }
