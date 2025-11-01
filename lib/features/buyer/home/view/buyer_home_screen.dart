@@ -384,8 +384,8 @@ class HomeBuyerScreen extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionHeader("Bỗng dưng thèm trái ngọt", actionText: "Xem tất cả"),
-              StoreProductList(storeId: 'store_Fs06RKoGxPfrFuxY8E78FtyRByD2_8165'),
+              // _buildSectionHeader("Bỗng dưng thèm trái ngọt", actionText: "Xem tất cả"),
+              // StoreProductList(storeId: 'store_Fs06RKoGxPfrFuxY8E78FtyRByD2_8165'),
               const SizedBox(height: 15),
               HotSaleHorizontalList(),
             ],

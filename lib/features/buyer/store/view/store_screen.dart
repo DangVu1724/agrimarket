@@ -13,28 +13,37 @@ import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
-class StoreScreen extends StatelessWidget {
+class StoreScreen extends StatefulWidget {
   final StoreModel store;
 
   const StoreScreen({super.key, required this.store});
 
   @override
-  Widget build(BuildContext context) {
-    final StoreDetailVm vm = Get.find<StoreDetailVm>();
-    final BuyerVm buyerVm = Get.find<BuyerVm>();
-    final CartVm cartVm = Get.find<CartVm>();
+  State<StoreScreen> createState() => _StoreScreenState();
+}
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      vm.loadStoreData(store.storeId);
+class _StoreScreenState extends State<StoreScreen> {
+  final StoreDetailVm vm = Get.find<StoreDetailVm>();
+  final BuyerVm buyerVm = Get.find<BuyerVm>();
+  final CartVm cartVm = Get.find<CartVm>();
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      vm.loadStoreData(widget.store.storeId);
       cartVm.loadCart();
     });
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       body: RefreshIndicator(
-        onRefresh: () => vm.refreshStoreData(store.storeId),
+        onRefresh: () => vm.refreshStoreData(widget.store.storeId),
         child: Obx(() {
-          final menu = vm.getMenuForStore(store.storeId);
+          final menu = vm.getMenuForStore(widget.store.storeId);
           final isLoading = vm.isLoading.value;
 
           if (isLoading && menu == null) {
@@ -50,28 +59,32 @@ class StoreScreen extends StatelessWidget {
                 expandedHeight: 150,
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () {
+                  onPressed: () async {
                     try {
                       if (Get.isSnackbarOpen) {
-                        Get.closeCurrentSnackbar();
+                        await Future.delayed(const Duration(milliseconds: 150));
+                        if (Get.isSnackbarOpen) {
+                          Get.closeCurrentSnackbar();
+                        }
                       }
-                    } catch (_) {
-                      // ignore
+                    } catch (e) {
+                      // Bỏ qua lỗi nếu controller chưa được khởi tạo
+                    } finally {
+                      Get.back();
                     }
-                    Get.back();
                   },
                 ),
                 actions: [
                   IconButton(
                     icon: Obx(() {
-                      final isFavorite = buyerVm.favoriteStoreId.contains(store.storeId);
+                      final isFavorite = buyerVm.favoriteStoreId.contains(widget.store.storeId);
                       return Icon(
                         isFavorite ? Icons.favorite : Icons.favorite_border,
                         color: isFavorite ? Colors.red : Colors.grey,
                       );
                     }),
                     onPressed: () {
-                      buyerVm.toggleFavoriteStore(store.storeId);
+                      buyerVm.toggleFavoriteStore(widget.store.storeId);
                     },
                   ),
 
@@ -81,9 +94,9 @@ class StoreScreen extends StatelessWidget {
                         () => ChatScreen(),
                         arguments: {
                           'currentUserId': buyerVm.buyerData.value?.uid,
-                          'peerId': store.storeId,
-                          'peerName': store.name,
-                          'peerImage': store.storeImageUrl,
+                          'peerId': widget.store.storeId,
+                          'peerName': widget.store.name,
+                          'peerImage': widget.store.storeImageUrl,
                         },
                       );
                     },
@@ -95,7 +108,7 @@ class StoreScreen extends StatelessWidget {
                     fit: StackFit.expand,
                     children: [
                       Image.network(
-                        store.storeImageUrl ??
+                        widget.store.storeImageUrl ??
                             'https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&w=800&q=80',
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[300]),
@@ -119,7 +132,7 @@ class StoreScreen extends StatelessWidget {
                     ],
                   ),
                   title: Text(
-                    store.name,
+                    widget.store.name,
                     style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -137,7 +150,7 @@ class StoreScreen extends StatelessWidget {
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              store.storeLocation.address,
+                              widget.store.storeLocation.address,
                               style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -148,7 +161,7 @@ class StoreScreen extends StatelessWidget {
                       const SizedBox(height: 4),
                       GestureDetector(
                         onTap: () {
-                          Get.toNamed(AppRoutes.storeDetail, arguments: store);
+                          Get.toNamed(AppRoutes.storeDetail, arguments: widget.store);
                         },
                         child: Row(
                           children: [
@@ -170,10 +183,10 @@ class StoreScreen extends StatelessWidget {
                           Icon(Icons.access_time, size: 16, color: Colors.grey.shade600),
                           const SizedBox(width: 4),
                           Text(
-                            store.isOpened ? 'Mở cửa' : 'Đóng cửa',
+                            widget.store.isOpened ? 'Mở cửa' : 'Đóng cửa',
                             style: TextStyle(
                               fontSize: 14,
-                              color: store.isOpened ? Colors.green : Colors.red,
+                              color: widget.store.isOpened ? Colors.green : Colors.red,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -220,7 +233,7 @@ class StoreScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              sliver: ProductListWidget(group: group, vm: vm, store: store),
+                              sliver: ProductListWidget(group: group, vm: vm, store: widget.store),
                             ),
                           )
                           .toList(),
@@ -232,7 +245,7 @@ class StoreScreen extends StatelessWidget {
       floatingActionButton: Obx(() {
         final cartItems = cartVm.cart.value?.items ?? [];
         final itemCount = cartItems
-            .where((item) => item.storeId == store.storeId)
+            .where((item) => item.storeId == widget.store.storeId)
             .fold<int>(0, (sum, item) => sum + item.quantity.value);
 
         return Stack(

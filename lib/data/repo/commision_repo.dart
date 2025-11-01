@@ -8,8 +8,8 @@ class CommissionRepo {
     await _firestore.collection('commissions').doc(commission.commissionId).set(commission.toJson());
   }
 
-  Future<void> updateCommissionStatus(String commissionId, String status) async {
-    await _firestore.collection('commissions').doc(commissionId).update({'status': status});
+  Future<void> updateCommissionStatus(String commissionId, String status,DateTime paidDate) async {
+    await _firestore.collection('commissions').doc(commissionId).update({'status': status, 'paidDate': paidDate});
   }
 
   Future<void> deleteCommission(String commissionId) async {
@@ -34,22 +34,23 @@ class CommissionRepo {
     }
   }
 
-  Future<List<CommissionModel>> getCommissionsByStatus(String storeId, String status) async {
-    try {
-      final querySnapshot =
-          await _firestore
-              .collection('commissions')
-              .where('storeId', isEqualTo: storeId)
-              .where('status', isEqualTo: status)
-              .orderBy('createdAt', descending: true)
-              .get();
-
-      return querySnapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        return CommissionModel.fromJson(data);
-      }).toList();
-    } catch (e) {
-      throw Exception('Failed to get commissions by status: $e');
-    }
+  Stream<List<CommissionModel>> getCommissionsByStatus(String storeId, String status) {
+  try {
+    return _firestore
+        .collection('commissions')
+        .where('storeId', isEqualTo: storeId)
+        .where('status', isEqualTo: status)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((querySnapshot) {
+          return querySnapshot.docs.map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            return CommissionModel.fromJson(data);
+          }).toList();
+        });
+  } catch (e) {
+    throw Exception('Failed to stream commissions by status: $e');
   }
+}
+
 }

@@ -1,6 +1,7 @@
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/data/models/order.dart';
+import 'package:agrimarket/features/seller/financial/viewmodel/financial_vm.dart';
 import 'package:agrimarket/features/seller/orders/viewmodel/seller_orders_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,6 +14,8 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final CommissionVm commissionVm = Get.put(CommissionVm());
+
     return Card(
       elevation: 2,
       color: Colors.white,
@@ -106,7 +109,10 @@ class OrderCard extends StatelessWidget {
               ),
             ] else if (order.status == 'shipped') ...[
               ElevatedButton(
-                onPressed: () => _updateOrderStatus('delivered', order),
+                onPressed: () async {
+                  _updateOrderStatus('delivered', order);
+                  await commissionVm.updateOrCreateCommissionForDeliveredOrder(order);
+                },
                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
                 child: const Text('Giao hàng thành công'),
               ),

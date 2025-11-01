@@ -53,7 +53,6 @@ class SearchContent extends StatelessWidget {
           children: [
             const CategoryList(),
             const SizedBox(height: 20),
-            const Text('Tìm kiếm gần đây', style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Expanded(child: HistoryList(history: history, searchVm: searchVm)),
           ],

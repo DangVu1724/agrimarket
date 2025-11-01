@@ -45,7 +45,7 @@ class PromotionRepository {
   }
 
   Future<List<DiscountCodeModel>> getDiscountCodesByStore(String storeId) async {
-    final snapshot = await _db.collection('discount_codes').where('storeId', isEqualTo: storeId).get();
+    final snapshot = await _db.collection('discount_codes').where('storeId', arrayContains: storeId).get();
 
     return snapshot.docs.map((doc) => DiscountCodeModel.fromJson({...doc.data(), 'id': doc.id})).toList();
   }

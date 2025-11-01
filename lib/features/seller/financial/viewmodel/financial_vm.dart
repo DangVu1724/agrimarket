@@ -18,105 +18,82 @@ class CommissionVm extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    getCommission();
-    getCommissionHistory(sellerHomeVm.store.value!.storeId);
-  }
-
-  Future<void> getCommission() async {
-    isLoading.value = true;
-    final List<OrderModel> unCommissionPaidOrdersList = sellerOrdersVm.getUnCommissionPaidOrders();
-    Map<String, List<OrderModel>> unCommissionPaidOrdersMap = {};
-
-    for (var order in unCommissionPaidOrdersList) {
-      final String dateKey =
-          order.deliveredAt != null
-              ? DateFormat('yyyy-MM-dd').format(order.deliveredAt!)
-              : DateFormat('yyyy-MM-dd').format(order.updatedAt!);
-
-      if (unCommissionPaidOrdersMap.containsKey(dateKey)) {
-        unCommissionPaidOrdersMap[dateKey]!.add(order);
-      } else {
-        unCommissionPaidOrdersMap[dateKey] = [order];
-      }
+    if (sellerHomeVm.store.value != null) {
+      bindCommissionHistoryStream(sellerHomeVm.store.value!.storeId);
     }
-
-    // Tạo danh sách commission từ các đơn hàng chưa thanh toán commission
-    // Nhưng không lưu vào database, chỉ để hiển thị
-    commissionList.value =
-        unCommissionPaidOrdersMap.values.map((e) {
-          final double totalPrice = e.fold(0, (sum, order) => sum + order.totalPrice);
-          final double commissionAmount = totalPrice * 0.1;
-          final String commissionId = const Uuid().v4();
-          final DateTime orderDate = e.first.updatedAt!;
-
-          return CommissionModel(
-            orderIds: e.map((e) => e.orderId).toList(),
-            orderDate: orderDate,
-            dueDate: orderDate.add(const Duration(days: 7)),
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-            commissionId: commissionId,
-            storeId: e.first.storeId,
-            storeName: e.first.storeName!,
-            orderAmount: totalPrice,
-            commissionAmount: commissionAmount,
-            status: 'pending',
-          );
-        }).toList();
-
-    commissionList.sort((a, b) => b.orderDate.compareTo(a.orderDate));
-    isLoading.value = false;
   }
 
-  Future<void> createCommission(
-    String commissionId,
-    String storeId,
-    String storeName,
-    double orderAmount,
-    double commissionAmount,
-    String status,
-    List<String> orderIds,
-    DateTime orderDate,
-    DateTime dueDate,
-    DateTime createdAt,
-    DateTime updatedAt,
-    DateTime? paidDate,
-  ) async {
+  Stream<List<CommissionModel>> commissionsStream(String storeId, String status) {
+    return commissionService.getCommissionsByStatus(storeId, status);
+  }
+
+  Future<void> updateCommissionStatus(String commissionId, String newStatus) async {
     try {
-      // Tạo commission
-      await commissionService.createCommission(
-        CommissionModel(
+      await commissionService.updateCommissionStatus(commissionId, newStatus, DateTime.now());
+      print('✅ Đã cập nhật trạng thái commission: $newStatus');
+    } catch (e) {
+      print('❌ Lỗi khi cập nhật trạng thái commission: $e');
+    }
+  }
+
+  Future<void> updateOrCreateCommissionForDeliveredOrder(OrderModel order) async {
+    try {
+      final storeId = order.storeId;
+      final storeName = order.storeName ?? "Không rõ";
+      final DateTime deliveredAt = order.deliveredAt ?? DateTime.now();
+      final String dateKey = DateFormat('yyyy-MM-dd').format(deliveredAt);
+
+      // Lấy commission pending trong ngày này
+      final existingCommissions = await commissionService.getCommissionsByDateAndStatus(storeId, dateKey, 'pending');
+
+      if (existingCommissions.isNotEmpty) {
+        // 🔹 Đã có commission pending → cập nhật
+        final existing = existingCommissions.first;
+
+        final newOrderAmount = existing.orderAmount + order.totalPrice;
+        final newCommissionAmount = newOrderAmount * 0.1;
+
+        final updatedOrderIds = List<String>.from(existing.orderIds)..add(order.orderId);
+
+        final updatedCommission = existing.copyWith(
+          orderIds: updatedOrderIds,
+          orderAmount: newOrderAmount,
+          commissionAmount: newCommissionAmount,
+          updatedAt: DateTime.now(),
+        );
+
+        await commissionService.updateCommission(updatedCommission);
+
+        print('✅ Đã cập nhật commission pending cho ngày $dateKey');
+      } else {
+        // 🔹 Chưa có commission hoặc commission cũ đã thanh toán → tạo mới
+        final commissionId = const Uuid().v4();
+        final commission = CommissionModel(
           commissionId: commissionId,
           storeId: storeId,
           storeName: storeName,
-          orderAmount: orderAmount,
-          commissionAmount: commissionAmount,
-          status: status,
-          orderIds: orderIds,
-          orderDate: orderDate,
-          dueDate: dueDate,
-          createdAt: createdAt,
-          updatedAt: updatedAt,
-          paidDate: paidDate,
-        ),
-      );
+          orderIds: [order.orderId],
+          orderAmount: order.totalPrice,
+          commissionAmount: order.totalPrice * 0.1,
+          orderDate: deliveredAt,
+          dueDate: deliveredAt.add(const Duration(days: 7)),
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+          status: 'pending',
+        );
 
-      // Cập nhật trạng thái isCommissionPaid cho các order liên quan
-      await sellerOrdersVm.updateOrdersCommissionPaidStatus(orderIds, true);
+        await commissionService.createCommission(commission);
+        print('🆕 Tạo commission mới (pending) cho ngày $dateKey');
+      }
 
-      await getCommission();
+      // 🔹 Đánh dấu order đã tính commission
+      await sellerOrdersVm.updateOrdersCommissionPaidStatus([order.orderId], true);
     } catch (e) {
-      throw Exception('Failed to create commission: $e');
+      print('❌ Lỗi khi cập nhật hoặc tạo commission: $e');
     }
   }
 
-  Future<void> getCommissionHistory(String? storeId) async {
-    try {
-      final paidCommissions = await commissionService.getCommissionsByStatus(storeId!, 'paid');
-      commissionHistoryList.value = paidCommissions;
-    } catch (e) {
-      // Fallback to local list if database fails
-      commissionHistoryList.value = commissionList.where((e) => e.status == 'paid').toList();
-    }
+  void bindCommissionHistoryStream(String storeId) {
+    commissionService.getCommissionsByStatus(storeId, 'paid').listen((data) => commissionHistoryList.value = data);
   }
 }
