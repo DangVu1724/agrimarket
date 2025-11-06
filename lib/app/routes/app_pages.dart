@@ -15,6 +15,7 @@ import 'package:agrimarket/features/buyer/checkout/view/discount_code_screen.dar
 import 'package:agrimarket/features/buyer/checkout/view/payment_method_screen.dart';
 import 'package:agrimarket/features/buyer/checkout/viewmodel/checkout_vm.dart';
 import 'package:agrimarket/features/buyer/home/view/category_store_screen.dart';
+import 'package:agrimarket/features/buyer/home/view/hot_sale_screen.dart';
 import 'package:agrimarket/features/buyer/home/view/promotion_store_list_screen.dart';
 import 'package:agrimarket/features/buyer/other/view/add_address.dart';
 import 'package:agrimarket/features/buyer/cart/view/cart_screen.dart';
@@ -152,6 +153,8 @@ class AppPages {
       binding: BuyerBinding(),
       middlewares: [AuthMiddleware()],
     ),
+    // Trong app_pages.dart
+    GetPage(name: AppRoutes.hotSaleVerticalList, page: () => const HotSaleVerticalListScreen(), binding: BuyerBinding(), middlewares: [AuthMiddleware()]),
     GetPage(
       name: AppRoutes.paymentMethod,
       page: () => PaymentMethodScreen(),

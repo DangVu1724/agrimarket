@@ -24,7 +24,7 @@ class RegisterScreen extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Form(
-              key: _viewModel.formKey,
+              key: _viewModel.formKeyRes,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

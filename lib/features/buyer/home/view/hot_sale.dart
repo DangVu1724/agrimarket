@@ -92,7 +92,7 @@ class HotSaleHorizontalList extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () {
-                      // Get.toNamed(AppRoutes.hotSaleDetails, arguments: hotSale);
+                      Get.toNamed(AppRoutes.hotSaleVerticalList);
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

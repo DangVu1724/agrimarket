@@ -27,6 +27,8 @@ class AppRoutes {
   static const String categoryStoreScreen = '/buyer/category-store';
   static const String storePromotionList = '/buyer/store-promotion-list';
   static const String favourite = '/buyer/favourite';
+  static const String hotSaleVerticalList = '/hot-sale-vertical-list';
+
 
   // Cart & Checkout
   static const String cart = '/buyer/cart';
