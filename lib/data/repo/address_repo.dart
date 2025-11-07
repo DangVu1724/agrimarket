@@ -19,7 +19,6 @@ class AddressRepository {
         uid: uid,
         favoriteStoreIds: [],
         addresses: [],
-        orderIds: [],
       );
     }
     final updatedAddresses = [...buyer.addresses, newAddress];

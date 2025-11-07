@@ -8,7 +8,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 class RegisterViewModel extends GetxController {
   final AuthController _authController = Get.find<AuthController>();
 
-  final formKeyRes = GlobalKey<FormState>();
   final fullNameController = TextEditingController();
   final emailController = TextEditingController();
   final phoneController = TextEditingController();
@@ -75,7 +74,6 @@ class RegisterViewModel extends GetxController {
   }
 
   Future<void> signUp() async {
-    if (formKeyRes.currentState != null && formKeyRes.currentState!.validate()) {
       if (!agreeTerms.value) {
         errorMessage.value = 'Vui lòng đồng ý với Điều khoản dịch vụ và Chính sách bảo mật';
         return;
@@ -118,7 +116,6 @@ class RegisterViewModel extends GetxController {
       } finally {
         isLoading.value = false;
       }
-    }
   }
 
   Future<bool> isPhoneNumberTaken(String phone) async {

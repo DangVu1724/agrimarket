@@ -6,51 +6,66 @@ class BuyerModel {
   final List<String> fcmTokens;
   final List<String> favoriteStoreIds;
   final List<Address> addresses;
-  final List<String> orderIds;
+  final int totalOrders;
+  final int totalPointsEarned;
+  final String rank;
 
   BuyerModel({
     required this.uid,
     this.points = 0,
     this.favoriteStoreIds = const [],
     this.addresses = const [],
-    this.orderIds = const [],
     this.fcmTokens = const [],
+    this.totalOrders = 0,
+    this.totalPointsEarned = 0,
+    this.rank = 'Bronze'
   });
 
   factory BuyerModel.fromJson(Map<String, dynamic> json) {
     return BuyerModel(
-      uid: json['uid'],
-      points: (json['points'] as num?)?.toInt(),
+      uid: json['uid'] ?? '',
+      points: (json['points'] as num?)?.toInt() ?? 0,
+      totalOrders: (json['totalOrders'] as num?)?.toInt() ?? 0,
+      totalPointsEarned: (json['totalPointsEarned'] as num?)?.toInt() ?? 0,
+      rank: json['rank'] ?? 'Bronze',
       favoriteStoreIds: List<String>.from(json['favoriteStoreIds'] ?? []),
-      addresses: (json['addresses'] as List? ?? []).map((e) => Address.fromJson(e)).toList(),
-      orderIds: List<String>.from(json['orderIds'] ?? []),
-      fcmTokens: List<String>.from(json['fcmTokens'] ?? []
-    ),
+      addresses: (json['addresses'] as List? ?? [])
+          .map((e) => Address.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      fcmTokens: List<String>.from(json['fcmTokens'] ?? []),
     );
   }
 
   Map<String, dynamic> toJson() => {
     'uid': uid,
     'points': points,
+    'totalOrders': totalOrders,
+    'totalPointsEarned': totalPointsEarned,
+    'rank': rank,
     'favoriteStoreIds': favoriteStoreIds,
     'addresses': addresses.map((e) => e.toJson()).toList(),
-    'orderIds': orderIds,
     'fcmTokens': fcmTokens,
   };
 
   BuyerModel copyWith({
     String? uid,
     int? points,
+    int? totalOrders,
+    int? totalPointsEarned,
+    String? rank,
     List<String>? favoriteStoreIds,
     List<Address>? addresses,
-    List<String>? orderIds,
+    List<String>? fcmTokens,
   }) {
     return BuyerModel(
       uid: uid ?? this.uid,
       points: points ?? this.points,
+      totalOrders: totalOrders ?? this.totalOrders,
+      totalPointsEarned: totalPointsEarned ?? this.totalPointsEarned,
+      rank: rank ?? this.rank,
       favoriteStoreIds: favoriteStoreIds ?? this.favoriteStoreIds,
       addresses: addresses ?? this.addresses,
-      orderIds: orderIds ?? this.orderIds,
+      fcmTokens: fcmTokens ?? this.fcmTokens,
     );
   }
 

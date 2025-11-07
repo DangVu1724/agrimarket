@@ -157,7 +157,7 @@ class AuthController extends GetxController {
           );
         }
 
-        final buyer = BuyerModel(uid: user.uid, favoriteStoreIds: [], addresses: addresses, orderIds: []);
+        final buyer = BuyerModel(uid: user.uid, favoriteStoreIds: [], addresses: addresses);
         await _buyerRepository.createBuyer(buyer);
       }
 

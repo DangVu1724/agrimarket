@@ -14,7 +14,6 @@ class LoginViewModel extends GetxController {
   final RxBool isLoading = false.obs;
   final RxBool obscureText = true.obs;
   final RxBool rememberMe = false.obs;
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final RxString errorMessage = ''.obs;
 
   @override
@@ -79,7 +78,6 @@ class LoginViewModel extends GetxController {
   }
 
   Future<void> login() async {
-    if (!(formKey.currentState?.validate() ?? false)) return;
     errorMessage.value = '';
     isLoading.value = true;
     try {

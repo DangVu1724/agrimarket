@@ -1,171 +1,121 @@
 import 'package:agrimarket/app/routes/app_routes.dart';
-import 'package:agrimarket/core/widgets/custom_app_bar.dart';
 import 'package:agrimarket/features/buyer/user_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import '../../../../app/theme/app_text_styles.dart';
+import '../../../../app/theme/app_colors.dart';
+import '../../buyer_vm .dart';
+import '../widgets/profile_header.dart';
+import '../widgets/profile_menu_section.dart';
+import '../widgets/profile_stats.dart';
+
 
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({super.key});
   final UserVm vm = Get.find<UserVm>();
+  final BuyerVm buyerVm = Get.find<BuyerVm>();
+
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> sectionItems = [
-      {'icon': Iconsax.tag_user, 'title': 'Thông tin cá nhân'},
-      {'icon': Iconsax.location, 'title': 'Địa chỉ giao hàng'},
-      {'icon': Iconsax.discount_shape, 'title': 'Voucher'},
-      {'icon': Iconsax.shopping_bag, 'title': 'Đơn hàng đã mua'},
-      {'icon': Icons.chat, 'title': 'Chat'},
-      {'icon': Iconsax.heart, 'title': 'Yêu thích'},
-      {'icon': Iconsax.setting_2, 'title': 'Cài đặt'},
-      {'icon': Icons.logout, 'title': 'Đăng xuất'},
-    ];
-
     return Scaffold(
-      backgroundColor: Colors.white,
-
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await vm.loadUserData();
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                CustomAppBar(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Obx(
-                        () => CircleAvatar(
-                          radius: 30,
-                          backgroundColor: Colors.grey[200],
-                          backgroundImage:
-                              vm.userAvatar.value.isNotEmpty &&
-                                      vm.userAvatar.value.startsWith('http')
-                                  ? NetworkImage(vm.userAvatar.value)
-                                  : AssetImage('assets/images/avatar.png')
-                                      as ImageProvider,
-                        ),
-                      ),
-                            
-                      SizedBox(width: 22),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Obx(
-                            () => Text(
-                              vm.userName.value.isNotEmpty
-                                  ? vm.userName.value
-                                  : 'Chưa cập nhật tên',
-                              style: AppTextStyles.headline.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white
-                              ),
-                            ),
-                          ),
-                          Obx(
-                            () => Text(
-                              vm.userEmail.value.isNotEmpty
-                                  ? vm.userEmail.value
-                                  : 'Chưa cập nhật email',
-                              style: AppTextStyles.body.copyWith(
-                                color: Colors.white,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                
-                Transform.translate(
-                  offset: const Offset(0, -60),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children:
-                          sectionItems
-                              .map(
-                                (item) =>
-                                    _buildSectionButton(item['icon'], item['title']),
-                              )
-                              .toList(),
-                    ),
-                  ),
-                ),
-              ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionButton(IconData icon, String title) {
-    return TextButton(
-      onPressed: () async {
-        try {
-          switch (title) {
-            case 'Đăng xuất':
-              await vm.signOut();
-              break;
-            case 'Thông tin cá nhân':
-              Get.toNamed(AppRoutes.buyerAccount);
-              break;
-            case 'Địa chỉ giao hàng':
-              Get.toNamed(AppRoutes.buyerAddress);
-              break;
-            case 'Voucher':
-              Get.toNamed(AppRoutes.voucher);
-            case 'Yêu thích':
-              Get.toNamed(AppRoutes.favourite);
-              break;
-            case 'Chat':
-              Get.toNamed(AppRoutes.buyerChatList);
-            case 'Đơn hàng đã mua':
-              Get.toNamed(AppRoutes.buyerOrders);
-              break;
-            case 'Cài đặt':
-              Get.toNamed(AppRoutes.settings);
-              break;
-            default:
-              Get.snackbar('Tính năng', '$title chưa được hỗ trợ');
-          }
-        } catch (e, st) {
-          debugPrint('Error on button "$title": $e\n$st');
-        }
-      },
-
-      style: TextButton.styleFrom(splashFactory: NoSplash.splashFactory),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: Colors.black),
-                SizedBox(width: 16),
-                Text(
-                  title,
-                  style: AppTextStyles.body.copyWith(
-                    color: Colors.black,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
+      backgroundColor: AppColors.background,
+      body: CustomScrollView(
+        slivers: [
+          // Header với thông tin user và rank
+          SliverAppBar(
+            expandedHeight: 280,
+            flexibleSpace: FlexibleSpaceBar(
+              background: ProfileHeader(vm: vm, buyerVm: buyerVm),
             ),
-            Icon(Icons.arrow_forward_ios, color: Colors.black),
-          ],
-        ),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            automaticallyImplyLeading: false,
+          ),
+
+          // Stats Cards
+          SliverToBoxAdapter(
+            child: ProfileStats(buyerVm: buyerVm),
+          ),
+
+          // Menu chức năng
+          SliverPadding(
+            padding: const EdgeInsets.all(20),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                ProfileMenuSection(
+                  title: 'Tài khoản',
+                  items: [
+                    MenuItem(
+                      icon: Iconsax.tag_user,
+                      title: 'Thông tin cá nhân',
+                      color: Colors.blue,
+                      route: AppRoutes.buyerAccount,
+                    ),
+                    MenuItem(
+                      icon: Iconsax.location,
+                      title: 'Địa chỉ giao hàng',
+                      color: Colors.green,
+                      route: AppRoutes.buyerAddress,
+                    ),
+                    MenuItem(
+                      icon: Iconsax.heart,
+                      title: 'Yêu thích',
+                      color: Colors.pink,
+                      route: AppRoutes.favourite,
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                ProfileMenuSection(
+                  title: 'Mua sắm',
+                  items: [
+                    MenuItem(
+                      icon: Iconsax.shopping_bag,
+                      title: 'Đơn hàng đã mua',
+                      color: Colors.orange,
+                      route: AppRoutes.buyerOrders,
+                    ),
+                    MenuItem(
+                      icon: Iconsax.discount_shape,
+                      title: 'Voucher',
+                      color: Colors.purple,
+                      route: AppRoutes.voucher,
+                    ),
+                    MenuItem(
+                      icon: Icons.chat,
+                      title: 'Chat với người bán',
+                      color: Colors.teal,
+                      route: AppRoutes.buyerChatList,
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                ProfileMenuSection(
+                  title: 'Khác',
+                  items: [
+                    MenuItem(
+                      icon: Iconsax.setting_2,
+                      title: 'Cài đặt',
+                      color: Colors.grey,
+                      route: AppRoutes.settings,
+                    ),
+                    MenuItem(
+                      icon: Icons.logout,
+                      title: 'Đăng xuất',
+                      color: Colors.red,
+                      isLogout: true,
+                      onTap: () => vm.signOut(),
+                    ),
+                  ],
+                ),
+              ]),
+            ),
+          ),
+        ],
       ),
     );
   }
