@@ -512,6 +512,7 @@ class OrderDetailScreen extends StatelessWidget {
                         comment: buyerOrderVm.comment.value,
                         storeId: order.storeId,
                         buyerUid: order.buyerUid,
+                        buyerName: order.buyerName ?? '',
                       );
                     },
                     style: ElevatedButton.styleFrom(

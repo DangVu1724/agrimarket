@@ -1,18 +1,12 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:agrimarket/data/models/comment.dart';
-import 'package:agrimarket/data/models/menu.dart';
-import 'package:agrimarket/data/models/product.dart';
-import 'package:agrimarket/data/models/product_promotion.dart';
 import 'package:agrimarket/data/models/store.dart';
-import 'package:agrimarket/data/services/store_detail_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
-class StoreDetailVm extends GetxController {
+class SellerCommentVm extends GetxController {
   final RxBool isLoading = false.obs;
-  final StoreDetailService _storeDetailService = StoreDetailService();
   final RxList<Review> reviews = <Review>[].obs;
   final RxList<Review> filteredReviews = <Review>[].obs;
 
@@ -28,11 +22,6 @@ class StoreDetailVm extends GetxController {
   final RxString _currentStoreId = ''.obs;
   StreamSubscription<QuerySnapshot>? _reviewsSub;
 
-  // Getters
-  MenuModel? getMenuForStore(String storeId) => _storeDetailService.getMenuForStore(storeId);
-  List<ProductModel>? getProductsForStore(String storeId) => _storeDetailService.getProductsForStore(storeId);
-  ProductPromotionModel? getPromotion(String promotionId) => _storeDetailService.getPromotion(promotionId);
-
   // Get reviews hiện tại cho trang hiện tại
   List<Review> get currentReviews {
     final startIndex = (currentPage.value - 1) * reviewsPerPage;
@@ -46,36 +35,7 @@ class StoreDetailVm extends GetxController {
   bool get hasNextPage => currentPage.value * reviewsPerPage < filteredReviews.length;
   bool get hasPreviousPage => currentPage.value > 1;
 
-  Future<void> loadStoreData(String storeId) async {
-    _currentStoreId.value = storeId;
-    isLoading.value = true;
-    try {
-      await _storeDetailService.loadStoreData(storeId);
-      listenReviews(storeId);
-    } finally {
-      isLoading.value = false;
-    }
-  }
 
-  List<ProductModel> filterProductsByIds(List<String> ids) {
-    return _storeDetailService.filterProductsByIds(ids, _currentStoreId.value);
-  }
-
-  Future<void> refreshStoreData(String storeId) async {
-    await _storeDetailService.refreshStoreData(storeId);
-  }
-
-  ProductPromotionModel? getDiscountInfoSync(String discountId) {
-    return _storeDetailService.getDiscountInfoSync(discountId);
-  }
-
-  Future<ProductPromotionModel?> getDiscountInfo(String discountId) async {
-    return await _storeDetailService.getDiscountInfo(discountId);
-  }
-
-  Future<List<Review>> fetchReviewsForStore(String storeId) async {
-    return await _storeDetailService.fetchReviewsForStore(storeId);
-  }
 
   Future<void> addComment(String storeId, String reviewId, Comment newComment) async {
     try {
@@ -204,7 +164,6 @@ class StoreDetailVm extends GetxController {
 
   @override
   void onClose() {
-    _storeDetailService.dispose();
     _reviewsSub?.cancel();
     super.onClose();
   }

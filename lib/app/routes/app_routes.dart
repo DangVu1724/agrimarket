@@ -92,6 +92,8 @@ class AppRoutes {
 
   // Staff Management (future feature)
   static const String sellerStaff = '/seller/staff';
+  static const String sellerComment = '/seller/comment';
+
 
   // ===== HELPER METHODS =====
 
@@ -142,7 +144,8 @@ class AppRoutes {
         route == sellerCreateDiscountCode ||
         route == adminPromotion ||
         route == sellerChat ||
-        route == sellerStaff;
+        route == sellerStaff || 
+        route == sellerComment;
   }
 
   /// Lấy default route theo role

@@ -1,3 +1,4 @@
+import 'package:agrimarket/data/models/comment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class StoreModel {
@@ -195,6 +196,7 @@ class StoreAddress {
 
 class Review {
   final String reviewId;
+  final String buyerName;
   final String buyerUid;
   final String storeId;
   final String orderId;
@@ -202,20 +204,24 @@ class Review {
   final String comment;
   final DateTime createdAt;
   final List<String>? reviewImages;
+  final List<Comment> comments ;
 
   Review({
     required this.reviewId,
+    required this.buyerName,
     required this.buyerUid,
     required this.storeId,
     required this.orderId,
     required this.rating,
     required this.comment,
     required this.createdAt,
+    this.comments = const [],
     this.reviewImages,
   });
 
   factory Review.fromJson(Map<String, dynamic> json) => Review(
         reviewId: json['reviewId'] ?? '',
+        buyerName: json['buyerName'] ?? '',
         buyerUid: json['buyerUid'] ?? '',
         storeId: json['storeId'] ?? '',
         orderId: json['orderId'] ?? '',
@@ -227,10 +233,12 @@ class Review {
         createdAt: json['createdAt'] is Timestamp
             ? (json['createdAt'] as Timestamp).toDate()
             : DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+        comments: (json['comments'] as List? ?? []).map((e) => Comment.fromJson(e)).toList(),
       );
 
   Map<String, dynamic> toJson() => {
         'reviewId': reviewId,
+        'buyerName': buyerName,
         'buyerUid': buyerUid,
         'storeId': storeId,
         'orderId': orderId,
@@ -238,6 +246,7 @@ class Review {
         'comment': comment,
         'reviewImages': reviewImages ?? [],
         'createdAt': Timestamp.fromDate(createdAt),
+        'comments': comments.map((e) => e.toJson()).toList(),
       };
 }
 

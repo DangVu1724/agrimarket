@@ -40,6 +40,7 @@ import 'package:agrimarket/features/buyer/profile/view/setting_screen.dart';
 import 'package:agrimarket/features/buyer/store/view/product_detail_screen.dart';
 import 'package:agrimarket/features/buyer/store/view/store_detail_screen.dart';
 import 'package:agrimarket/features/buyer/store/view/store_screen.dart';
+import 'package:agrimarket/features/seller/comments/views/seller_comment.dart';
 import 'package:agrimarket/features/seller/financial/view/financial_screen.dart';
 import 'package:agrimarket/features/seller/menu/view/menu_screen.dart';
 import 'package:agrimarket/features/seller/orders/view/orderList_screen.dart';
@@ -293,6 +294,12 @@ class AppPages {
     GetPage(
       name: AppRoutes.sellerFinancial,
       page: () => const CommissionScreen(),
+      binding: SellerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.sellerComment,
+      page: () => SellerComment(),
       binding: SellerBinding(),
       middlewares: [AuthMiddleware()],
     ),

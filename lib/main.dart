@@ -46,16 +46,15 @@ void main() async {
     await CacheUtils.cleanExpiredCache();
   }
 
-  // ✅ Cách khởi tạo Firebase an toàn tuyệt đối
   try {
     if (Firebase.apps.isEmpty) {
       await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
     } else {
-      Firebase.app(); // Dùng lại app mặc định
+      Firebase.app();
     }
   } catch (e) {
     if (e.toString().contains('duplicate-app')) {
-      print('⚠️ Firebase app đã tồn tại, bỏ qua khởi tạo lại.');
+      print('⚠Firebase app đã tồn tại, bỏ qua khởi tạo lại.');
     } else {
       rethrow;
     }

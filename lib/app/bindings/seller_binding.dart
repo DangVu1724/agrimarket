@@ -1,3 +1,4 @@
+import 'package:agrimarket/features/seller/comments/viewmodel/comment_vm.dart';
 import 'package:agrimarket/features/seller/financial/viewmodel/financial_vm.dart';
 import 'package:agrimarket/features/seller/home/viewmodel/seller_home_screen_vm.dart';
 import 'package:agrimarket/features/seller/menu/viewmodel/menu_screen_vm.dart';
@@ -43,5 +44,6 @@ class SellerBinding extends Bindings {
 
     // Profile & Settings
     Get.lazyPut<ResetPasswordViewModel>(() => ResetPasswordViewModel());
+    Get.lazyPut<SellerCommentVm>(() => SellerCommentVm());
   }
 }

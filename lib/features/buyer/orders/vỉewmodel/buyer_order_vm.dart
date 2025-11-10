@@ -195,6 +195,7 @@ Future<void> pickImages(BuildContext context) async {
     required String comment,
     required String storeId,
     required String buyerUid,
+    required String buyerName,
   }) async {
     try {
       if (isReviewed.value) {
@@ -203,7 +204,7 @@ Future<void> pickImages(BuildContext context) async {
         return;
       }
   
-      await orderService.submitReview(orderId: orderId, rating: rating, comment: comment, storeId: storeId, buyerUid: _currentBuyerId!,reviewImages: base64Images.toList(),);
+      await orderService.submitReview(orderId: orderId, rating: rating, comment: comment, storeId: storeId, buyerUid: _currentBuyerId!,buyerName: buyerName,reviewImages: base64Images.toList(),);
       await orderService.updateStoreAverageRating(storeId);
       this.rating.value = rating;
       this.comment.value = comment;

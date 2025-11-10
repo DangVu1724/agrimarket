@@ -342,7 +342,7 @@ class SellerHomeScreen extends StatelessWidget {
       {'title': 'Khuyến mãi', 'icon': '🏷️', 'route': AppRoutes.sellerPromotions},
       {'title': 'Tài chính', 'icon': '🧭', 'route': AppRoutes.sellerFinancial},
       {'title': 'Doanh thu', 'icon': '💰', 'route': AppRoutes.revenue},
-      {'title': 'Nhân viên', 'icon': '👥', 'route': ''},
+      {'title': 'Đánh giá & Góp Ý', 'icon': '👥', 'route': AppRoutes.sellerComment},
       {'title': vm.isOpened.value ? 'Đóng cửa' : 'Mở cửa', 'icon': vm.isOpened.value ? '🔓' : '🔒', 'route': 'toggle'},
     ];
 

@@ -128,7 +128,7 @@ class SellerHomeVm extends GetxController {
         return Colors.orange;
       case 'verify':
         return Colors.green;
-      case 'ban':
+      case 'locked':
         return Colors.red;
       default:
         return Colors.grey;

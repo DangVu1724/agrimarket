@@ -11,6 +11,8 @@ class UserVm extends GetxController {
   final userEmail = RxString('');
   final userPhone = RxString('');
   final userAvatar = RxString('');
+  final userRole = RxString('');
+  final userId = RxString('');
   final isLoading = false.obs;
   final GlobalKey<FormState> userformKey = GlobalKey<FormState>();
 
@@ -37,6 +39,8 @@ class UserVm extends GetxController {
           userEmail.value = user.email ?? '';
           userPhone.value = userData.phone;
           userAvatar.value = user.photoURL ?? 'assets/images/avatar.png';
+          userRole.value = userData.role!;
+          userId.value = user.uid;
         } else {
           Get.snackbar('Error', 'User data not found');
         }

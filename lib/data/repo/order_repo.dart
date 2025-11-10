@@ -142,6 +142,7 @@ class OrderRepository {
     required String comment,
     required String storeId,
     required String buyerUid,
+    required String buyerName,
     List<String>? reviewImages
   }) async {
     try {
@@ -156,6 +157,7 @@ class OrderRepository {
       final reviewId = _storesCollection.doc(storeId).collection('reviews').doc().id;
       await _storesCollection.doc(storeId).collection('reviews').add({
         'buyerUid': buyerUid,
+        'buyerName': buyerName,
         'orderId': orderId,
         'storeId': storeId,
         'rating': rating,

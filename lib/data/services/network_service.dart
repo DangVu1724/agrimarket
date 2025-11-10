@@ -8,7 +8,6 @@ class NetworkService extends GetxService {
   bool _dialogShown = false;
 
   @override
-  @override
   void onInit() {
     super.onInit();
 
@@ -56,18 +55,47 @@ class NetworkService extends GetxService {
 
     Get.dialog(
       WillPopScope(
-        onWillPop: () async => false,
-        child: const AlertDialog(
-          title: Text('Không có mạng'),
-          content: Text('Vui lòng kiểm tra kết nối internet của bạn.'),
+        onWillPop: () async => false, // không cho đóng bằng nút back
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 40),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(Icons.wifi_off, size: 60, color: Colors.redAccent),
+                SizedBox(height: 16),
+                Text(
+                  'Không có kết nối mạng',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Vui lòng kiểm tra Wi-Fi hoặc dữ liệu di động của bạn.',
+                  style: TextStyle(fontSize: 15, color: Colors.black54),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
-      barrierDismissible: false,
-    ).then((_) {
-      print('📥 Dialog bị đóng');
-      _dialogShown = false;
-    });
+      barrierDismissible: false, // không cho tắt bằng cách bấm ra ngoài
+    ).then((_) => _dialogShown = false);
   }
+
 
   void _closeNoConnectionDialog() {
     if (_dialogShown) {
