@@ -1,5 +1,7 @@
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
+import 'package:agrimarket/data/services/qr_api.dart';
+import 'package:agrimarket/features/seller/financial/view/qr_dialog.dart';
 import 'package:agrimarket/features/seller/financial/viewmodel/financial_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -89,29 +91,28 @@ class CommissionScreen extends StatelessWidget {
                                     ],
                                   ),
 
-                                  // Nút thanh toán bên phải
                                   IconButton(
-                                    onPressed: () {
-                                      Get.dialog(
-                                        AlertDialog(
-                                          backgroundColor: AppColors.background,
-                                          title: const Text('Xác nhận'),
-                                          content: const Text('Bạn có chắc chắn muốn thanh toán commission này không?'),
-                                          actions: [
-                                            TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
-                                            TextButton(
-                                              onPressed: () {
-                                                Get.back();
-                                                commissionVm.updateCommissionStatus(commission.commissionId, 'waiting');
-                                              },
-                                              child: const Text('Thanh toán'),
-                                            ),
-                                          ],
-                                        ),
+                                    onPressed: () async {
+                                      final qrText = await VietQRService(
+                                        clientId: '5a7986c0-a59f-41d2-8a93-60fdcf85d654',
+                                        apiKey: '906e7053-3cce-4005-94ee-e12befcdd008',
+                                      ).generateVietQR(
+                                        accountNo: '12342004668888',
+                                        accountName: 'Công Ty Cổ Phần Agrimarket',
+                                        acqId: 970422,
+                                        amount: commission.commissionAmount.toInt(),
+                                        addInfo: 'Thanh toán hoa hồng ngày ${DateFormat('dd/MM/yyyy').format(commission.orderDate)}',
                                       );
+
+                                      if (qrText != null) {
+                                        Get.dialog(
+                                          VietQRDialog(qrData: qrText, amount: commission.commissionAmount.toInt(), commissionId: commission.commissionId),
+                                        );
+                                      } else {
+                                        Get.snackbar('Lỗi', 'Không tạo được QR, thử lại sau');
+                                      }
                                     },
-                                    icon: const Icon(Icons.payment, color: Colors.green),
-                                    tooltip: 'Thanh toán',
+                                    icon: const Icon(Icons.qr_code, color: Colors.blue),
                                   ),
                                 ],
                               ),
