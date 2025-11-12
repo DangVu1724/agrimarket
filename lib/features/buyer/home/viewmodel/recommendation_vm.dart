@@ -2,7 +2,7 @@ import 'package:agrimarket/data/models/buyer.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/data/services/recommendation_service.dart';
 import 'package:agrimarket/data/services/store_service.dart';
-import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
+import 'package:agrimarket/features/buyer/buyer_vm.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 

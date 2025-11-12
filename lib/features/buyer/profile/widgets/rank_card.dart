@@ -1,9 +1,6 @@
-import 'package:agrimarket/features/buyer/user_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:iconsax_flutter/iconsax_flutter.dart';
-
-import '../../buyer_vm .dart';
+import '../../buyer_vm.dart';
 
 class RankCard extends StatelessWidget {
   final BuyerVm buyerVm;

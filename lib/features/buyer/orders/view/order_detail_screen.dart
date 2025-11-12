@@ -1,9 +1,8 @@
 import 'dart:convert';
-
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/data/models/order.dart';
-import 'package:agrimarket/features/buyer/orders/v%E1%BB%89ewmodel/buyer_order_vm.dart';
+import 'package:agrimarket/features/buyer/orders/viewmodel/buyer_order_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';

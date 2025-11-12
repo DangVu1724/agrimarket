@@ -2,7 +2,7 @@ import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/data/models/buyer.dart';
 import 'package:agrimarket/data/repo/address_repo.dart';
 import 'package:agrimarket/data/services/address_service.dart';
-import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
+import 'package:agrimarket/features/buyer/buyer_vm.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';

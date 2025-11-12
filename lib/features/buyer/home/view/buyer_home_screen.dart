@@ -4,7 +4,7 @@ import 'package:agrimarket/core/widgets/storetile.dart';
 import 'package:agrimarket/data/models/buyer.dart';
 import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/data/services/address_service.dart';
-import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
+import 'package:agrimarket/features/buyer/buyer_vm.dart';
 import 'package:agrimarket/features/buyer/home/view/hot_sale.dart';
 import 'package:agrimarket/features/buyer/home/view/nearby_stores.dart';
 import 'package:agrimarket/features/buyer/home/view/promotion_store_horizontal_list.dart';
@@ -61,12 +61,13 @@ class HomeBuyerScreen extends StatelessWidget {
 
                 if (storeVm.storesListPromotion.isNotEmpty) ...[
                   _buildSectionHeader(
-                    "Ưu đãi nhập trời",
+                    "Ưu đãi ngập trời",
                     actionText: "Xem tất cả",
                     actionRoute: AppRoutes.storePromotionList,
                   ),
                   PromotionStoreHorizontalList(),
                 ],
+                SizedBox(height: 10,),
                 Obx(() {
                   final recoVm = Get.find<RecommendationVm>();
                   if (recoVm.recommendedStores.isEmpty) return SizedBox.shrink();

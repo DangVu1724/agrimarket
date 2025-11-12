@@ -4,7 +4,7 @@ import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/core/widgets/skeleton_loader.dart';
 import 'package:agrimarket/core/widgets/promotion_badge.dart';
 import 'package:agrimarket/data/models/store.dart';
-import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
+import 'package:agrimarket/features/buyer/buyer_vm.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

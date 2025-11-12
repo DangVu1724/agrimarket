@@ -1,5 +1,5 @@
 import 'package:agrimarket/data/repo/address_repo.dart';
-import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
+import 'package:agrimarket/features/buyer/buyer_vm.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 

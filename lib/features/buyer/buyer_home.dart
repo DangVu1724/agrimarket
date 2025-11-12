@@ -1,7 +1,7 @@
 import 'package:agrimarket/features/buyer/home/view/buyer_home_screen.dart';
 import 'package:agrimarket/features/buyer/orders/view/order_screen.dart';
 import 'package:agrimarket/features/buyer/search/view/search_screen.dart';
-import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
+import 'package:agrimarket/features/buyer/buyer_vm.dart';
 import 'package:agrimarket/features/buyer/user_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -47,7 +47,6 @@ class BuyerHome extends StatelessWidget {
           type: BottomNavigationBarType.fixed,
           items: const [
             BottomNavigationBarItem(icon: Icon(Iconsax.home), label: 'Trang chủ'),
-
             BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Tìm kiếm'),
             BottomNavigationBarItem(icon: Icon(Iconsax.receipt_item), label: 'Đơn hàng'),
             BottomNavigationBarItem(icon: Icon(Iconsax.user_square), label: 'Tài khoản'),

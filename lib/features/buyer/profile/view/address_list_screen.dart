@@ -2,7 +2,7 @@ import 'package:agrimarket/app/routes/app_routes.dart';
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/features/buyer/other/viewmodel/add_address_vm.dart';
-import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
+import 'package:agrimarket/features/buyer/buyer_vm.dart';
 import 'package:agrimarket/features/buyer/profile/viewmodel/address_list_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

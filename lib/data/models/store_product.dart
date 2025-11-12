@@ -9,4 +9,14 @@ class ProductModelWithStore {
     required this.product,
     this.store,
   });
+
+  double getPrice(){
+    return product.price;
+  }
+  int getSold(){
+    return product.totalSold;
+  }
+  String getStore(){
+    return store!.name;
+  }
 }

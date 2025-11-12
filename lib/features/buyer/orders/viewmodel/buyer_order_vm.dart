@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:agrimarket/data/models/order.dart';
 import 'package:agrimarket/data/services/order_service.dart';
-import 'package:agrimarket/features/buyer/buyer_vm .dart';
+import 'package:agrimarket/features/buyer/buyer_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

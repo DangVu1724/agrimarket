@@ -3,7 +3,7 @@ import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/core/widgets/chat_screen.dart';
 import 'package:agrimarket/core/widgets/skeleton_loader.dart';
 import 'package:agrimarket/data/models/store.dart';
-import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
+import 'package:agrimarket/features/buyer/buyer_vm.dart';
 import 'package:agrimarket/features/buyer/store/view/product_list.dart';
 import 'package:agrimarket/features/buyer/cart/viewmodel/cart_vm.dart';
 import 'package:agrimarket/features/buyer/store/viewmodel/store_detail_vm.dart';

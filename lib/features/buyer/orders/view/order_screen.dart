@@ -1,8 +1,7 @@
 import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/data/models/order.dart';
-import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
-import 'package:agrimarket/features/buyer/home/viewmodel/store_vm.dart';
-import 'package:agrimarket/features/buyer/orders/vỉewmodel/buyer_order_vm.dart';
+import 'package:agrimarket/features/buyer/buyer_vm.dart';
+import 'package:agrimarket/features/buyer/orders/viewmodel/buyer_order_vm.dart';
 import 'package:agrimarket/features/buyer/orders/view/order_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

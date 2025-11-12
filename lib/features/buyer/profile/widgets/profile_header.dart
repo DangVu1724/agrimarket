@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../app/theme/app_colors.dart';
-import '../../buyer_vm .dart';
+import '../../buyer_vm.dart';
 import 'rank_card.dart';
 
 class ProfileHeader extends StatelessWidget {

@@ -53,26 +53,26 @@ class Dashboard extends StatelessWidget {
         Container(
           width: 120,
           height: 120,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF00A86B), Color(0xFF00CC88)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withOpacity(0.3),
-                blurRadius: 15,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
+          // decoration: BoxDecoration(
+          //   gradient: const LinearGradient(
+          //     colors: [Color(0xFF00A86B), Color(0xFF00CC88)],
+          //     begin: Alignment.topLeft,
+          //     end: Alignment.bottomRight,
+          //   ),
+          //   borderRadius: BorderRadius.circular(24),
+          //   boxShadow: [
+          //     BoxShadow(
+          //       color: AppColors.primary.withOpacity(0.3),
+          //       blurRadius: 15,
+          //       offset: const Offset(0, 8),
+          //     ),
+          //   ],
+          // ),
           child: Center(
             child: Image.asset(
               'assets/images/logo.png',
-              width: 80,
-              height: 80,
+              width: 120,
+              height: 120,
             ),
           ),
         ),

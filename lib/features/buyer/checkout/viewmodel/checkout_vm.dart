@@ -3,7 +3,7 @@ import 'package:agrimarket/data/models/store.dart';
 import 'package:agrimarket/data/services/order_service.dart';
 import 'package:agrimarket/data/services/simple_notification_service.dart';
 import 'package:agrimarket/data/services/store_service.dart';
-import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
+import 'package:agrimarket/features/buyer/buyer_vm.dart';
 import 'package:agrimarket/features/buyer/cart/viewmodel/cart_vm.dart';
 import 'package:agrimarket/features/buyer/checkout/viewmodel/discount_vm.dart';
 import 'package:agrimarket/features/buyer/user_vm.dart';

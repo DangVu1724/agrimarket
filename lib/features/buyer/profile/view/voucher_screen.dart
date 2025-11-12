@@ -2,7 +2,7 @@ import 'package:agrimarket/app/theme/app_text_styles.dart';
 import 'package:agrimarket/core/utils/toast_utlis.dart';
 import 'package:agrimarket/data/models/vouchers_catalog.dart';
 import 'package:agrimarket/data/models/user_vouchers.dart';
-import 'package:agrimarket/features/buyer/buyer_vm%20.dart';
+import 'package:agrimarket/features/buyer/buyer_vm.dart';
 import 'package:agrimarket/features/buyer/profile/viewmodel/voucher_vm.dart';
 import 'package:coupon_uikit/coupon_uikit.dart';
 import 'package:flutter/material.dart';
