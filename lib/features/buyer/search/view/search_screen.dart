@@ -1,5 +1,6 @@
 import 'package:agrimarket/app/theme/app_colors.dart';
 import 'package:agrimarket/app/theme/app_text_styles.dart';
+import 'package:agrimarket/features/buyer/search/viewmodel/filter_vm.dart';
 import 'package:agrimarket/features/buyer/search/viewmodel/search_vm.dart';
 import 'package:agrimarket/features/buyer/search/view/widgets/search_bar.dart';
 import 'package:agrimarket/features/buyer/search/view/widgets/search_content.dart';
@@ -12,11 +13,12 @@ class SearchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final SearchVm searchVm = Get.find<SearchVm>();
-
+    final FilterVm filterVm = Get.put(FilterVm());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       searchVm.searchController.clear();
       searchVm.searchText.value = '';
       searchVm.searchResults.clear();
+      filterVm.onInit();
     });
 
     return Scaffold(
@@ -32,7 +34,7 @@ class SearchScreen extends StatelessWidget {
           children: [
             SearchBar(searchVm: searchVm),
             const SizedBox(height: 16),
-            Expanded(child: SearchContent(searchVm: searchVm)),
+            Expanded(child: SearchContent(searchVm: searchVm, filterVm: filterVm,)),
           ],
         ),
       ),

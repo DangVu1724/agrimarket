@@ -18,6 +18,7 @@ class SearchBar extends StatelessWidget {
             offset: const Offset(0, 4),
           ),
         ],
+        border: Border.all(color: Colors.green)
       ),
       child: TextField(
         controller: searchVm.searchController,
@@ -57,10 +58,7 @@ class SearchBar extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
           ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: Colors.green.shade400, width: 2),
-          ),
+          
           filled: true,
           fillColor: Colors.white,
           contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
