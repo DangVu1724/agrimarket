@@ -59,14 +59,6 @@ class HomeBuyerScreen extends StatelessWidget {
                   ),
                 ),
 
-                if (storeVm.storesListPromotion.isNotEmpty) ...[
-                  _buildSectionHeader(
-                    "Ưu đãi ngập trời",
-                    actionText: "Xem tất cả",
-                    actionRoute: AppRoutes.storePromotionList,
-                  ),
-                  PromotionStoreHorizontalList(),
-                ],
                 SizedBox(height: 10,),
                 Obx(() {
                   final recoVm = Get.find<RecommendationVm>();
@@ -79,7 +71,6 @@ class HomeBuyerScreen extends StatelessWidget {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildSectionHeader("Gần bạn"),
                       const NearbyStores(),
                     ],
                   );
@@ -292,42 +283,6 @@ class HomeBuyerScreen extends StatelessWidget {
     );
   }
 
-  // --- Section Header ---
-  Widget _buildSectionHeader(
-    String title, {
-    String? actionText,
-    String? actionRoute,
-    dynamic arguments,
-  }) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Colors.green.shade800, // xanh đậm cho header
-            ),
-          ),
-          if (actionText != null)
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.orange, // nút xem tất cả màu cam
-                padding: EdgeInsets.zero,
-                minimumSize: Size(50, 30),
-              ),
-              onPressed: () {
-                Get.toNamed(actionRoute ?? '', arguments: arguments);
-              },
-              child: Text(actionText),
-            ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildStoreItem(StoreModel store, BuyerModel buyer) {
     final addressService = AddressService();

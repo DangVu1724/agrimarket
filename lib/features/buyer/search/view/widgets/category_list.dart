@@ -17,6 +17,7 @@ class CategoryList extends StatelessWidget {
       'Thuỷ hải sản',
       'Gạo',
     ];
+
     final imageCategory = [
       "assets/images/fruit.png",
       "assets/images/vegetable.png",
@@ -29,14 +30,14 @@ class CategoryList extends StatelessWidget {
     ];
 
     final colors = [
-      Colors.orange.shade50,
-      Colors.green.shade50,
-      Colors.red.shade50,
-      Colors.amber.shade50,
-      Colors.blue.shade50,
-      Colors.pink.shade50,
-      Colors.cyan.shade50,
-      Colors.brown.shade50,
+      Colors.orange.shade100,
+      Colors.green.shade100,
+      Colors.red.shade100,
+      Colors.amber.shade100,
+      Colors.blue.shade100,
+      Colors.pink.shade100,
+      Colors.cyan.shade100,
+      Colors.brown.shade100,
     ];
 
     return GridView.builder(
@@ -46,63 +47,62 @@ class CategoryList extends StatelessWidget {
         crossAxisCount: 4,
         crossAxisSpacing: 12,
         mainAxisSpacing: 16,
-        childAspectRatio: 0.8,
+        childAspectRatio: 0.75,
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
         return GestureDetector(
-          onTap: () => Get.toNamed(AppRoutes.categoryStoreScreen, arguments: items[index]),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              color: colors[index],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Icon Container
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+          onTap: () => Get.toNamed(
+            AppRoutes.categoryStoreScreen,
+            arguments: items[index],
+          ),
+          child: Column(
+            children: [
+              // Container icon (ảnh)
+              Container(
+                width: 70,
+                height: 70,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: colors[index].withOpacity(0.8),
+                    width: 2,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Image.asset(
-                      imageCategory[index],
-                      fit: BoxFit.contain,
-                      color: colors[index].withOpacity(0.8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.15),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
                     ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Image.asset(
+                    imageCategory[index],
+                    fit: BoxFit.contain,
                   ),
                 ),
-                const SizedBox(height: 8),
-                // Category Name
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(
-                    items[index],
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade800,
-                      height: 1.2,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 8),
+              // Tên danh mục
+              SizedBox(
+                width: 80,
+                child: Text(
+                  items[index],
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade800,
+                    height: 1.2,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },

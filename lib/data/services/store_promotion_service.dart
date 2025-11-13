@@ -29,7 +29,7 @@ class StorePromotionService {
       // Kiểm tra xem store có mã giảm giá đang hoạt động không
       final discountCodes = await _promotionRepo.getDiscountCodesByStore(storeId);
       final activeDiscountCodes =
-          discountCodes.where((code) => code.isOnSale && code.used < code.limit).toList();
+          discountCodes.where((code) => code.isOnSale && code.used < code.limit ).toList();
 
       // Kiểm tra xem có sản phẩm nào đang có khuyến mãi không
       final productsWithPromotion = await _checkProductsWithPromotion(storeId);

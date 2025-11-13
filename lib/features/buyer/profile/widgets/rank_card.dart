@@ -38,7 +38,7 @@ class RankCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildRankHeader(rank, remainingAmount),
+            _buildRankHeader(rank, remainingAmount, nextRank),
             const SizedBox(height: 12),
             _buildProgressBar(rank, nextRank, progress),
             const SizedBox(height: 8),
@@ -79,7 +79,7 @@ class RankCard extends StatelessWidget {
     );
   }
 
-  Widget _buildRankHeader(String rank, int remainingAmount) {
+  Widget _buildRankHeader(String rank, int remainingAmount, String nextRank) {
     return Row(
       children: [
         Icon(Icons.workspace_premium_rounded,
@@ -92,14 +92,76 @@ class RankCard extends StatelessWidget {
             fontWeight: FontWeight.w700,
           ),
         ),
-        const Spacer(),
-        if (remainingAmount > 0)
-          Text(
-            "Còn ${_formatCurrency(remainingAmount)}",
-            style: TextStyle(
-              color: Colors.grey.shade600,
+        const SizedBox(width: 6),
+        // Info icon for current rank
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Tooltip(
+            message: _getRankBenefits(rank),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            textStyle: const TextStyle(
+              color: Colors.black87,
               fontSize: 12,
             ),
+            child: Icon(
+              Icons.info_outline_rounded,
+              color: Colors.grey.shade500,
+              size: 16,
+            ),
+          ),
+        ),
+        const Spacer(),
+        if (remainingAmount > 0)
+          Row(
+            children: [
+              Text(
+                "Còn ${_formatCurrency(remainingAmount)}",
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 12,
+                ),
+              ),
+              const SizedBox(width: 6),
+              // Info icon for next rank
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: Tooltip(
+                  message: _getRankBenefits(nextRank),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  textStyle: const TextStyle(
+                    color: Colors.black87,
+                    fontSize: 12,
+                  ),
+                  child: Icon(
+                    Icons.info_outline_rounded,
+                    color: Colors.grey.shade500,
+                    size: 16,
+                  ),
+                ),
+              ),
+            ],
           ),
       ],
     );
@@ -133,18 +195,62 @@ class RankCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          "Hạng ${_getRankDisplayName(currentRank)}",
-          style: TextStyle(
-            color: Colors.grey.shade600,
-            fontSize: 12,
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Tooltip(
+            message: _getRankBenefits(currentRank),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            textStyle: const TextStyle(
+              color: Colors.black87,
+              fontSize: 12,
+            ),
+            child: Text(
+              "Hạng ${_getRankDisplayName(currentRank)}",
+              style: TextStyle(
+                color: Colors.grey.shade600,
+                fontSize: 12,
+              ),
+            ),
           ),
         ),
-        Text(
-          "Hạng ${_getRankDisplayName(nextRank)}",
-          style: TextStyle(
-            color: Colors.grey.shade600,
-            fontSize: 12,
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Tooltip(
+            message: _getRankBenefits(nextRank),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            textStyle: const TextStyle(
+              color: Colors.black87,
+              fontSize: 12,
+            ),
+            child: Text(
+              "Hạng ${_getRankDisplayName(nextRank)}",
+              style: TextStyle(
+                color: Colors.grey.shade600,
+                fontSize: 12,
+              ),
+            ),
           ),
         ),
       ],
@@ -251,6 +357,21 @@ class RankCard extends StatelessWidget {
         return const Color(0xFFB9F2FF);
       default:
         return Colors.green;
+    }
+  }
+
+  String _getRankBenefits(String rank) {
+    switch (rank.toLowerCase()) {
+      case 'bronze':
+        return '• Giảm giá 3% trên tất cả đơn hàng\n• Hỗ trợ ưu tiên\n• Tích điểm 1.2x\n• Miễn phí vận chuyển đơn từ 200k';
+      case 'silver':
+        return '• Giảm giá 5% trên tất cả đơn hàng\n• Hỗ trợ 24/7\n• Tích điểm 1.5x\n• Miễn phí vận chuyển đơn từ 150k\n• Quà tặng sinh nhật';
+      case 'gold':
+        return '• Giảm giá 8% trên tất cả đơn hàng\n• Hỗ trợ VIP\n• Tích điểm 2x\n• Miễn phí vận chuyển mọi đơn hàng\n• Quà tặng đặc biệt\n• Early access sản phẩm mới';
+      case 'diamond':
+        return '• Giảm giá 12% trên tất cả đơn hàng\n• Hỗ trợ chuyên gia\n• Tích điểm 3x\n• Miễn phí vận chuyển nhanh\n• Quà tặng cao cấp\n• Personal shopping assistant\n• Invitation-only events';
+      default:
+        return '• Giảm giá 3% trên tất cả đơn hàng\n• Hỗ trợ ưu tiên\n• Tích điểm 1.2x';
     }
   }
 }

@@ -3,54 +3,94 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 class FilterVm extends GetxController {
-  // RxList kết quả lọc
-  final RxList<ProductModelWithStore> filterResults =
-      <ProductModelWithStore>[].obs;
+  // Danh sách danh mục
+  final List<String> categories = [
+    "Trái cây",
+    "Rau củ",
+    "Thực phẩm chế biến",
+    "Thuỷ hải sản",
+    "Thịt",
+    "Sữa & Trứng",
+    "Ngũ cốc - Hạt",
+    "Gạo",
+  ];
 
-  // TextEditingController cho khoảng giá
+  // Tùy chọn rating (>=)
+  final List<int> ratingOptions = [3, 4, 5];
+
+  // Tùy chọn khoảng giá
+  final List<Map<String, double>> priceOptions = [
+    {"min": 0, "max": 100000},       
+    {"min": 100000, "max": 300000},  
+    {"min": 300000, "max": 500000},  
+    {"min": 500000, "max": double.infinity}, 
+  ];
+
+  // Lựa chọn khoảng giá hiện tại
+  final RxInt selectedPriceIndex = (-1).obs; // -1 nghĩa chưa chọn
+
+  // Controllers (có thể bỏ nếu không dùng nhập tay nữa)
   final TextEditingController fromController = TextEditingController();
   final TextEditingController toController = TextEditingController();
 
-  // Khoảng giá
+  // Rx variables
   final RxDouble from = 0.0.obs;
   final RxDouble to = double.infinity.obs;
+  final RxString category = ''.obs;
+  final RxInt rating = 0.obs;
 
-  // Store được lọc
-  final RxString store = ''.obs;
+  final RxList<ProductModelWithStore> filterResults =
+      <ProductModelWithStore>[].obs;
+  RxList<ProductModelWithStore> searchResults =
+      <ProductModelWithStore>[].obs;
 
-  //
+  final RxList<String> filterKeywords = <String>[].obs;
   final RxBool upperPrice = true.obs;
   final RxBool upperSold = true.obs;
 
-  // Keywords hiện tại
-  final RxList<String> filterKeywords = <String>[].obs;
-
-  // Danh sách gốc sản phẩm
-  RxList<ProductModelWithStore> searchResults = <ProductModelWithStore>[].obs;
-
-@override
+  @override
   void onInit() {
     super.onInit();
+    resetFilters();
+  }
+
+  void resetFilters() {
     filterKeywords.clear();
-    store.value='';
+    category.value = '';
+    rating.value = 0;
     from.value = 0.0;
     to.value = double.infinity;
+    selectedPriceIndex.value = -1;
     upperPrice.value = true;
     upperSold.value = true;
+    fromController.clear();
+    toController.clear();
   }
-  /// Áp dụng tất cả bộ lọc dựa trên keywords
+
+  void addKeyword(String keyword) {
+    if (!filterKeywords.contains(keyword)) {
+      filterKeywords.add(keyword);
+    }
+  }
+
+  void removeKeyword(String keyword) {
+    filterKeywords.remove(keyword);
+  }
+
+  void setUpperPrice() {
+    upperPrice.value = !upperPrice.value;
+    applyFilters();
+  }
+
+  void setUpperSold() {
+    upperSold.value = !upperSold.value;
+    applyFilters();
+  }
+
   void applyFilters() {
     var results = List<ProductModelWithStore>.from(searchResults);
-    // Lọc theo sold
-    if (filterKeywords.contains("sold")) {
-      if (upperSold.value) {
-        results.sort((a, b) => a.getSold().compareTo(b.getSold()));
-      } else {
-        results.sort((a, b) => b.getSold().compareTo(a.getSold()));
-      }
-    }
 
-    // Lọc giá trên / dưới
+    // Lọc theo giá
     if (filterKeywords.contains("price")) {
       if (upperPrice.value) {
         results.sort((a, b) => a.getPrice().compareTo(b.getPrice()));
@@ -59,50 +99,40 @@ class FilterVm extends GetxController {
       }
     }
 
-    // Lọc theo khoảng giá
-    if (filterKeywords.contains("range")) {
+    // Lọc theo lượt mua
+    if (filterKeywords.contains("sold")) {
+      if (upperSold.value) {
+        results.sort(
+            (a, b) => a.product.totalSold.compareTo(b.product.totalSold));
+      } else {
+        results.sort(
+            (a, b) => b.product.totalSold.compareTo(a.product.totalSold));
+      }
+    }
+
+    // Lọc theo khoảng giá nếu đã chọn
+    if (selectedPriceIndex.value >= 0) {
+      final option = priceOptions[selectedPriceIndex.value];
+      from.value = option["min"]!;
+      to.value = option["max"]!;
+      results = results
+          .where((p) => p.product.price >= from.value && p.product.price <= to.value)
+          .toList();
+    }
+
+    // Lọc theo danh mục
+    if (category.isNotEmpty) {
       results =
-          results
-              .where(
-                (p) =>
-                    p.product.price >= from.value &&
-                    p.product.price <= to.value,
-              )
-              .toList();
+          results.where((p) => p.product.category == category.value).toList();
     }
 
-    // Lọc theo cửa hàng
-    if (filterKeywords.contains("store") && store.isNotEmpty) {
-      results = results.where((p) => p.store?.name == store.value).toList();
+    // Lọc theo rating cửa hàng
+    if (rating.value > 0) {
+      results = results
+          .where((p) => (p.store?.rating ?? 0) >= rating.value)
+          .toList();
     }
 
-    // Cập nhật danh sách reactive
     filterResults.assignAll(results);
-  }
-  void removeFilters(){
-    filterKeywords.clear();
-  }
-
-  void setUpperPrice() {
-    upperPrice.value = !upperPrice.value;
-  }
-
-  void setUpperSold() {
-    upperSold.value = !upperSold.value;
-  }
-
-  /// Tiện ích thêm / xoá keyword
-  void addKeyword(String keyword) {
-    if (!filterKeywords.contains(keyword)) filterKeywords.add(keyword);
-  }
-
-  void removeKeyword(String keyword) {
-    if (filterKeywords.contains(keyword)) {
-      filterKeywords.remove(keyword);
-    }
-  }
-  void setRange(){
-    from.value = fromController.text.isEmpty?0.0:double.parse(fromController.text);
-    to.value = toController.text.isEmpty?double.infinity:double.parse(toController.text);
   }
 }
